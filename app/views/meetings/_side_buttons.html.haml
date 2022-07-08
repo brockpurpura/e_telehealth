@@ -1,0 +1,56 @@
+%nav{:'aria-label'=>"sub"}  
+  .function_bar
+    .tool-tip-icon 
+      %button{:id => 'self_view_button', :class => '', :onclick=> "toggle_selfview()", :'aria-expanded'=>"false"}  
+        =image_tag image_url('user-solid.png'), :class => "selfview", :alt => "Self View"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Self View 
+
+    .tool-tip-icon
+      %button{:id => 'screenshot_button', :class => '', :onclick=> "snapshot()", :'aria-expanded'=>"false"}
+        =image_tag image_url('camera-solid.png'), :class => "", :alt => "Screenshot"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Screenshot
+    #snapshot.snapshot
+      = render :partial => 'meetings/snapshot'
+
+    .tool-tip-icon
+      %button{:id => 'content_sharing_button', :class => 'inactive', :onclick=> "presentScreen()", :'aria-expanded'=>"false"}
+        =image_tag image_url('content-sharing.png'), :class => "", :alt => "Content Sharing"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Content Sharing 
+
+    #content_sharing_partial.hidden.content_share
+      = render :partial => 'homes/content_sharing'
+
+  - if (@usertype.nil? or @usertype.to_s == '1') and !@invited_guest
+    .function_bar#poh
+      .tool-tip-icon#poh_tool_tip         
+        %button{:onclick=> "toggleMeetingPOH()", :id=>'poh_button', :class => 'hidden', :alt => "Patient On Hold", :'aria-pressed'=>"false"}
+          %p.poh_button POH 
+          .callout.left.poh
+            %p{:'aria-hidden'=>"true"} Patient On Hold 
+
+  .function_bar
+    .icon_holder
+      .tool-tip-icon#mic_action
+        %button{:id => 'self_mute', :class => 'hidden', :onclick=> "muteStreams()", :'aria-pressed'=>"false"}
+          =image_tag image_url('mic_on_large.png'), :class => "", :alt => "Mic Mute", :id => "mic_mute_image"
+          =image_tag image_url('mic_off_large.png'), :class => "hidden", :alt => "Mic Unmute", :id => "mic_ummute_image"
+          .callout.left
+            %p{:'aria-hidden'=>"true"} Mic Mute 
+
+    .icon_holder
+      .tool-tip-icon#vid_action.limited_actions
+        %button{:id => 'self_video', :class => 'hidden', :onclick=> "toggleShow()", :'aria-pressed'=>"false"}
+          =image_tag image_url('video_on_large.png'), :class => "", :alt => "Cam Mute", :id => "vid_mute_image"
+          =image_tag image_url('video_off_large.png'), :class => "hidden", :alt => "Cam Unmute", :id => "vid_unmute_image"
+          .callout.left
+            %p{:'aria-hidden'=>"true"} Cam Mute
+
+  #function_bar_bot.function_bar.height_5
+    .tool-tip-icon 
+      %button{:id => 'end_call_button', :class => '', :onclick=> "endCall()"}
+        =image_tag image_url('phone-solid.png'), :class => "end_phone", :alt => "End Call"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} End Call  

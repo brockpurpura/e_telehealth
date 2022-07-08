@@ -1,0 +1,328 @@
+.univago_admin
+  .univago_admin
+    .col-sm-12
+      .col-sm-6
+        .center
+          .h2 Informational Table
+        .widget
+          .widget_head
+            <div class="clearfix"></div>
+          .widget-content
+            %table{:class=>'table uhe_admin table-bordered'}
+              %thead
+                %tr
+                  %th
+                    House Name
+                  %th
+                    House Words
+                  %th
+                    Famous Member
+                  %th
+                    Alliance
+
+              %tbody
+                -@test_data.each_with_index do |td, idx|
+                  %tr{:class => idx%2==0 ? 'even' : 'odd'}              
+                    %td.vertical_center
+                      Stark
+                    %td.vertical_center
+                      Winter is coming
+                    %td.vertical_center
+                      Bran the builder
+                    %td.vertical_center
+                      House Baratheon
+ 
+        .center
+          .h2 Toggle Switch
+          .switch 
+            %input#maintenance-mode-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :onclick => ""}
+            %label{:for => "maintenance-mode-toggle"} 
+
+        .center
+          .h2 Popups
+              
+        .univago_admin
+          .popup_widget.popup_ui{:id => "add_building", :style => 'display: block;'}
+            #uhe_admin_popup
+              %h2.uhe_admin New Location Popup
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('#add_building')" do
+                <i class="far fa-times" aria-hidden="true"></i>
+                
+              =form_for :building,  :url =>  "" do |x| 
+                %p.entry_header
+                  Name * 
+                .center     
+                  = x.text_field :name, :placeholder => ""
+                %p.entry_header
+                  Address  
+                .center
+                  = x.text_field :address1,  :placeholder => ""
+                .entry_footer 
+                  .leftside
+                    %p Street
+                .entry.additional_entry
+                  .leftside
+                    = x.text_field :city,  :placeholder => "", :class => "address_entry address_city"          
+                  .leftside
+                    .dropdowns
+                      %label
+                        = select_tag :state, options_for_select(Location::US_STATE_ABRV_SELECT, :selected => ""), :id=>"", :class => "address_entry address_state"
+                  .leftside
+                    = x.text_field :zip,  :placeholder => "", :class => "address_entry address_zip"
+                    =hidden_field_tag :add_building, true
+                .entry_footer 
+                  .leftside
+                    %p.address_entry.address_city
+                      City
+                  .leftside
+                    %p.address_entry.address_state 
+                      State
+                  .leftside
+                    %p.address_entry.address_zip 
+                      Zipcode
+
+
+                .submit
+                  .center 
+                    = x.submit "Add", :class=> "button"
+  
+        .univago_admin
+          .popup_widget.popup_ui{:id => "invite_clinician_admin", :style => 'display: block;'}
+            #uhe_admin_popup
+              %h2 New Admin Popup
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('#invite_clinician_admin')" do
+                <i class="far fa-times" aria-hidden="true"></i>
+                
+              =form_for :invite_clinician,  :url =>  ""  do |x| 
+                %p.entry_header
+                  Email *  
+                .center
+                  = x.email_field :email, :placeholder => "", :class => ""
+                %p.entry_header
+                  Name  
+                .entry
+                  .leftside   
+                    .dropdowns
+                      %label
+                        = select_tag :prefix, options_for_select(User::USER_PREFIX_SELECT, :selected => ""), :id=>"", :class => "prefix_name_entry prefix_name uhe_admin"                  
+                  .leftside
+                    = x.text_field :first_name,  :placeholder => "", :class => "prefix_name_entry first_name"
+                  .leftside
+                    = x.text_field :last_name,  :placeholder => "", :class => "prefix_name_entry last_name"
+                .entry_footer 
+                  .leftside
+                    %p.prefix_name_entry.prefix_name Prefix 
+                  .leftside
+                    %p.prefix_name_entry.first_name First
+                  .leftside
+                    %p.prefix_name_entry.last_name Last
+                %p.entry_header
+                  Phone Number      
+                .center
+                  .entry#clinician_phone1
+                    .leftside
+                      #entry_action.left_action
+                        .flag_box{:onclick => "open_country_dropdown(1, 'main')"}
+                          %span#flag1_main{:class => "flag-icon flag-icon-us"}
+                          %span.caret
+                    .leftside
+                      =  text_field :phone_number1, "Phone Number",  id: "clinician_phone_one_main", :placeholder => "",  :class => "one_action left phone_number_field", :onblur=>"checkPhoneLength('clinician_phone_one')" 
+                  %ul.dropdown-menu{:id => "country_phone_select1_main"}
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(1,'us', 'main')" do
+                        %span.flag-icon.flag-icon-us
+                        United States
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(1,'gb', 'main')" do
+                        %span.flag-icon.flag-icon-gb
+                        United Kingdoms
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(1,'au', 'main')" do
+                        %span.flag-icon.flag-icon-au
+                        Australia
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(1,'ca', 'main')" do
+                        %span.flag-icon.flag-icon-ca
+                        Canada    
+
+                  = hidden_field_tag("flag_1", "us", :id => "flag1_value_main")
+                  
+                  .hidden.entry.additional_entry{:id => "clinician_phone2_main"}
+                    .leftside
+                      #entry_action.left_action
+                        .flag_box{:onclick => "open_country_dropdown(2, 'main')"}
+                          %span#flag2_main{:class => "flag-icon flag-icon-us"}
+                          %span.caret
+                    .leftside
+                      =  text_field :phone_number2, "Phone Number",  id: "clinician_phone_two_main", :placeholder => "",  :class => "two_actions phone_number_field"   
+                    .leftside
+                      #entry_action.right_action
+                        = link_to "javascript:;", :class => "", :onclick => "remove_additional_phone(1, '', 'main')" do
+                          <i class="far fa-trash-alt fa-1x" aria-hidden="true"></i>
+                
+                  %ul.dropdown-menu{:id => "country_phone_select2_main" }
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(2,'us', 'main')" do
+                        %span.flag-icon.flag-icon-us
+                        United States
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(2,'gb', 'main')" do
+                        %span.flag-icon.flag-icon-gb
+                        United Kingdoms
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(2,'au', 'main')" do
+                        %span.flag-icon.flag-icon-au
+                        Australia
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(2,'ca', 'main')" do
+                        %span.flag-icon.flag-icon-ca
+                        Canada     
+                  = hidden_field_tag("flag_2", "us", :id => "flag2_value_main")
+
+                  .hidden.entry.additional_entry{:id => "clinician_phone3_main"}
+                    .leftside
+                      #entry_action.left_action
+                        .flag_box{:onclick => "open_country_dropdown(3, 'main')"}
+                          %span#flag3_main{:class => "flag-icon flag-icon-us"}
+                          %span.caret
+                    .leftside
+                      = text_field :phone_number3, "Phone Number",  id: "clinician_phone_three_main", :placeholder => "",  :class => "two_actions phone_number_field "
+                    .leftside
+                      #entry_action.right_action
+                        = link_to "javascript:;", :class => "", :onclick => "remove_additional_phone(2, '','main')" do
+                          <i class="far fa-trash-alt fa-1x" aria-hidden="true"></i>
+                  
+                  %ul.dropdown-menu{:id =>  'country_phone_select3_main'}
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(3,'us', 'main')" do
+                        %span.flag-icon.flag-icon-us
+                        United States
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(3,'gb', 'main')" do
+                        %span.flag-icon.flag-icon-gb
+                        United Kingdoms
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(3,'au', 'main')" do
+                        %span.flag-icon.flag-icon-au
+                        Australia
+                    %li
+                      = link_to "javascript:;", :onclick=> "set_country_phone(3,'ca', 'main')" do
+                        %span.flag-icon.flag-icon-ca
+                        Canada     
+                  = hidden_field_tag("flag_3", "us", :id => "flag3_value_main")
+
+
+
+                .entry_footer 
+                  .leftside
+                    %p Example: (555) 555-5555
+                  .leftside
+                    =link_to "Add New","javascript:;", id: "add_phone2_main", :class => "entry_footer addition_phones_link", :onclick => "openPhone(1, 'main')"
+                    =link_to "Add New", "javascript:;", id: "add_phone3_main", :class => "entry_footer addition_phones_link hidden", :onclick => "openPhone(2, 'main')"
+  
+                .submit
+                  .center 
+                    //= link_to "Save for later", ""
+                    = x.submit "Add", :class=> "button"
+
+      .col-sm-6
+        .center
+          .h2 Actions Tables
+        .widget
+          <!-- Widget head -->
+          .widget-head
+            Small Table - 1X 
+            <div class="clearfix"></div>
+          .widget-content
+            =form_tag do
+              = hidden_field_tag :vmr_config, "true"
+              #div
+                %table.endpoint_settings_table_dimensions.onex
+                  %tr
+                    %th.endpoint_setting_widget
+                      VMRs On Deck
+                    %td.vertical_center
+                      .center
+                        =text_field_tag :vmr_on_deck_amount,  Configurable.vmr_on_deck_amount, :class=>'input_endpoint_settings'
+  
+                  %tr
+                    %th.endpoint_setting_widget
+                      VMR Prefix Tag 
+                    %td.none.vertical_center
+                      .center
+                        =text_field_tag :server_tag,  Configurable.server_tag, :class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Save Settings 
+                    %td.none.vertical_center
+                      .center
+                        =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+
+        .widget
+          .widget-head
+            Medium Table - 2X
+          .widget-content
+            = form_tag do
+              = hidden_field_tag :version, "true"
+              #div
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %th.endpoint_setting_widget
+                      Patient Unit Version 
+                    %td.vertical_center
+                      .center
+                        =text_field_tag :production_version,  Configurable.production_version, :class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Unit Package Name 
+                    %td.none.vertical_center
+                      .center
+                        =text_field_tag :version_file_name,  Configurable.version_file_name, :class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Web App Version   
+                    %td.none.vertical_center
+                      .center
+                        =text_field_tag :web_app_version,  Configurable.web_app_version, :class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Save Settings 
+                    %td.none.vertical_center
+                      .center
+                        =submit_tag 'Save', :class=>"endpoint_setting_button"
+  
+
+        .widget
+          .widget-head
+            Large Table - 3X
+          .widget-content
+            = form_tag do
+              = hidden_field_tag :version, "true"
+              #div
+                %table.endpoint_settings_table_dimensions.threex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Patient Unit Version 
+                    %td.vertical_center
+                      .center
+                        =text_field_tag :production_version,  Configurable.production_version, :class=>'input_endpoint_settings'
+                  %tr  
+                    %th.endpoint_setting_widget
+                      Unit Package Name 
+                    %td.none.vertical_center
+                      .center
+                        =text_field_tag :version_file_name,  Configurable.version_file_name, :class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Web App Version   
+                    %td.none.vertical_center
+                      .center
+                        =text_field_tag :web_app_version,  Configurable.web_app_version, :class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Save Settings 
+                    %td.none.vertical_center
+                      .center
+                        =submit_tag 'Save', :class=>"endpoint_setting_button"
+    

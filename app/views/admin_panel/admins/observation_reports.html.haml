@@ -1,0 +1,101 @@
+#sub_title
+  .leftside
+    %i.fas.fa-chart-line.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 iObservation Report 
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content#dest_tree
+        %table{:class=>'table table-bordered', :id => "observation_report_table"}
+          %thead
+            %tr
+              %th.width_percent_20
+                Room Name              
+              %th.width_percent_15
+                iObserver Email 
+              %th.center.width_percent_20
+                iObserver Activities
+                %br
+                (Select For Breakdown)
+              %th.width_percent_20
+                .center
+                  Start Time
+              %th.width_percent_20
+                .center
+                  End Time
+              %th.width_percent_30
+                .center
+                  Session Duration                
+              %th.center.width_percent_15  
+                Session Transferred? 
+              %th.center.width_percent_20
+                Transferred Received By
+
+
+          %tbody
+            - @obs.each_with_index do |ob, idx|
+              %tr{:class => idx%2==0 ? 'even' : 'odd'}  
+                %td
+                  -if ob.endpoint.present?
+                    #{ob.endpoint.room_info}  
+                  - else
+                    Endpoint removed.
+                %td
+                  - if ob.admin.present?
+                    #{ob.admin.email}
+                  -else
+                    Deleted User
+                %td
+                  - if ob.observation_activities.count == 0
+                    //None 
+                  - else
+                    .center
+                      = form_tag observation_report_activities_admin_panel_admin_path do
+                        = hidden_field_tag :observation_id, ob.id
+                        = submit_tag "#{ob.observation_activities.count}", :class=>'link'
+                  
+                %td
+                  .center
+                    -if ob.start_time.nil?
+                      N/A
+                    - else
+                      #{ob.start_time}
+                %td
+                  .center
+                    -if ob.start_time.nil?
+                      N/A
+                    - else
+                      #{ob.end_time}
+                %td
+                  .center
+                    -if ob.start_time.nil? or ob.end_time.nil?
+                      N/A
+                    - else
+                      #{time_diff(ob.start_time, (ob.end_time || ob.start_time))}
+
+                %td
+                  .center
+                    - if ob.transferred_admin_id.present?
+                      Yes
+                %td
+                  .center
+                    - if ob.transferred_admin_id.present?
+                      - @transferred_admin =  determine_admin(ob.transferred_admin_id)
+                      - if @transferred_admin.present?
+                        #{@transferred_admin.email}
+                      - else
+                        Deleted User
+
+      .pagination_tr
+        .center
+          = will_paginate @obs, params: params            
+
+<script>$(document).ready(function() { $("#observation_report_table").tablesorter(); } );</script> 
+          

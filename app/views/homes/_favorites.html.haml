@@ -1,0 +1,27 @@
+.call_settings_view_surround{:class=>((request.env['PATH_INFO'] == "/observation")) ? 'iobserver ' : ''}
+  .call_settings_view
+    .c_settings.favorites
+      %h2 Saved Rooms 
+      - if @favorites.present?   	
+        %ul
+          - @favorites.each_with_index do |f , idx|
+            %li
+              %button.removeFavorite{:id => "remove_favorite_#{idx}", :onclick => "deleteFavorite('#{f.id}')", :title => "Remove Room", :class => @edit_favorites.present? ? '' : 'hidden'}
+                .fas.fa-minus-circle
+              %p #{ f.endpoint.detailed_room_name }
+              %button.callFavorite{:id => "call_favorite_#{idx}", :onclick => "dial_favorite('#{f.endpoint.id}')", :title => "Call Room", :class => @edit_favorites.present? ? 'hidden' : ''}
+                .fa.fa-phone
+              %hr
+      - if @favorites.present?
+        .slider_button.right
+          - if @edit_favorites.present?
+            = button_to 'javascript:;', :id => "edit_favorite_rooms",  :onclick=>'editFavorites()', :title=> "Edit Saved Rooms", :'aria-pressed'=>"true"  do 
+              .fas.fa-edit
+          - else
+            = button_to 'javascript:;', :id => "edit_favorite_rooms",  :onclick=>'editFavorites()', :title=> "Edit Saved Rooms", :'aria-pressed'=>"false"  do 
+              .fas.fa-edit
+       
+      .slider_button
+        = button_to 'javascript:;', :onclick=>'close_c_sidebar()', :title=> "Close Sidebar " do 
+          .far.fa-chevron-right
+

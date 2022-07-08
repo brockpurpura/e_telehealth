@@ -1,0 +1,22 @@
+#header_bar.header_bar
+  .header_notes
+    #header_left.header_left
+      #notif_header
+        = link_to 'javascript:;', :onclick=>"window.close()", :class=>'leftside' do
+          %p#notifs.notifications.leftside <i class="fa fa-backward" aria-hidden="true"></i> Back 
+.admin_provisioning
+  .col-sm-12
+    .col-sm-12
+      .univago_admin
+        %br
+        %br
+        #sub_title
+          .leftside
+            %i.fa.fa-info.fa-2x.dashboard_subheader_icon.dashboard_text_color
+          .leftside
+            %h3 Support 
+    
+      .col-sm-12.height_40
+        .support
+          =render :partial => "/teches/faqs"
+      %br

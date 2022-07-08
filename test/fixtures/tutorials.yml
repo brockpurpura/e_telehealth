@@ -1,0 +1,15 @@
+---
+Tutorial_1:
+  id: 1
+  youtube_path: nwzC7VNOWwI
+  video_description: iObserver Demo
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-05-22 16:24:15.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-05-22 16:24:15.000000000 Z
+    zone: *2
+    time: *3
+

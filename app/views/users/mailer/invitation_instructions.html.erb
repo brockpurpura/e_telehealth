@@ -1,0 +1,16 @@
+<p>You have been added to the Caregility service as a clinician.</p> 
+
+<p>Please <%= link_to 'CLICK HERE', accept_invitation_url(@resource, :invitation_token => @token) %> to activate your account by setting up your password.</p>
+
+<p>Once your account has been fully activated, you can access the service using the following links:</p>
+
+<p>Clinicians: <%= link_to 'https://'+Configurable.invite_server_name,'https://'+Configurable.invite_server_name %>  </p>
+
+<p>Administrators and Technicians: <%= link_to 'https://'+Configurable.invite_server_name + '/admin','https://'+Configurable.invite_server_name + '/admin' %> </p>
+
+<p>If you experience any issues or require assistance, please contact your company's administrator or contact Caregility Technical Support at 866-300-0884 or 732-982-4529.</p>
+
+<p>Thank you, </p>
+
+<p>The Caregility Support Team</p>
+

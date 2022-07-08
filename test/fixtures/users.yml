@@ -1,0 +1,153 @@
+super_admin_user:
+  id: 1
+  email: super_admin@caregility.com
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  current_sign_in_ip: 75.99.97.222
+  last_sign_in_ip: 75.99.97.222
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  display_name: OT
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+
+clinician_user_2:
+  id: 2
+  email: clinician@caregility.com
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  current_sign_in_ip: 75.99.97.222
+  last_sign_in_ip: 75.99.97.222
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  display_name: OT
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+
+clinician_user_3:
+  id: 3
+  email: all-customers-clinician@caregility.com
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  current_sign_in_ip: 75.99.97.222
+  last_sign_in_ip: 75.99.97.222
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  display_name: OT
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+
+clinician_user_4:
+  id: 4
+  email: clinician_4@caregility.com
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+
+clinician_user_5:
+  id: 5
+  email: clinician_5@caregility.com
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+
+clinician_user_6:
+  id: 6
+  email: clinician_6@caregility.com
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+  prefix: Lord
+  first_name: Chubby
+  last_name: Checker
+
+clinician_user_7:
+  id: 7
+  email: clinician_17@caregility.com
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+  prefix: Mount
+  first_name: Bruce
+  last_name: Springsteen
+
+clinician_user_8:
+  id: 8
+  email: clinician_18@caregility.com
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 40
+  current_sign_in_at: <%= Time.now.to_date %>
+  last_sign_in_at: <%= Time.now.to_date %>
+  confirmed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invitations_count: 0
+  api_unique: OT
+  d_audio: default
+  d_video: default
+  d_speaker: default
+  text_flag: 1
+  prefix: Dr
+  first_name: Zeus
+  last_name: Springsteen

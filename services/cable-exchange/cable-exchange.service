@@ -1,0 +1,19 @@
+[Unit]
+Description=CableExchange service
+After=syslog.target network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=uheadmin
+Group=uheadmin
+ProtectHome=no
+WorkingDirectory=/home/uheadmin/telehealth/services/cable-exchange
+ExecStart=/usr/bin/node server.js 192.188.0.133 wss://192.188.0.132:8443
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=CableExchange
+
+[Install]
+WantedBy=multi-user.target

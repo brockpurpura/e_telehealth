@@ -1,0 +1,8 @@
+- @response = parse_system_error_notifications(resource, @message, flash[:alert])
+- if @response.present?
+  .error_explanation{:class=> params[:success].present? ? 'success' : ''}
+    - if @response.kind_of?(Array)
+      - @response.each do |m|
+        %h2{:tabindex=>"0", :id=>"error_explanation", :role=>"alert"} #{m}
+    - else
+      %h2{:tabindex=>"0", :id=>"error_explanation", :role=>"alert"} #{@response}

@@ -1,0 +1,34 @@
+- if @vmr.present? && @vmr.class == VmrMeeting && @vmr.is_mobile
+  - @hide_chat = true
+
+#sidebar_{:class=>is_mobile_device? ? 'mobile hidden' : 'hidden'}
+  #menu_buttons
+    #chat_room_toggle_div
+      %button#part_toggle_button{:onclick=>'open_participant()'} 
+        Participants 
+    - if !(@hide_chat == true)
+      #chat_room_toggle_div
+        %button#chat_toggle_button{:onclick=>'openChat()'} 
+          Chat Room
+    - if is_mobile_device?
+      #chat_room_toggle_div
+        %button#settings_toggle_button{:onclick=>'openMobileSettings()'} 
+          Camera 
+  
+  #sidebar_panels
+    #participant_list{:class=> is_mobile_device? ? 'participant_list mobile' : 'participant_list'}
+      =render :partial=>'application/participant', :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias}
+    
+    - if !(@hide_chat == true)
+      #chat_list{:class=> is_mobile_device? ? 'chat_list mobile' : 'chat_list'}
+        =render :partial=>'application/chat'
+    
+    - if is_mobile_device?
+      = render :partial => 'application/settings'
+
+  #chat_close
+    =button_to 'javascript:;', :onclick=>"toggle_sidebar_panel('')" do
+      .far.fa-times
+    
+    
+  

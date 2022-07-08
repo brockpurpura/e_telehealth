@@ -1,0 +1,3 @@
+# Install build tools
+apt-get install libpcre3 libpcre3-dev zlib1g zlib1g-dev ruby rake ruby-dev g++ libcurl4-gnutls-dev libxslt-dev libgd-dev libgeoip-dev libperl-dev
+

@@ -1,0 +1,49 @@
+BatchRow_1:
+  id: 1
+  batch_id: 1
+  status: Queued
+  data: '{"prefix":"Mr","first_name":"Adam","last_name":"Braunton","channel":"System Testing Channel","customer":"System Testing Customer","clinical_role":"PrOVIDER","specialty":"Cns","email":"adambraunton+inc193-j@gmail.com","phone_number":2134432334,"has_clinician_role":"TRUE"}'
+  file_row: 1
+  report: 
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+BatchRow_2:
+  id: 2
+  batch_id: 1
+  status: Queued
+  data: '{"prefix":"Mr","first_name":"Adam","last_name":"Braunton","channel":"System Testing Channel","customer":"System Testing Customer","clinical_role":"PrOVIDER","speciality":"Cns","email":"adambraunton+inc193-k@gmail.com","phone_number":2134432334,"has_clinician_role":"TRUE"}'
+  file_row: 1
+  report: 
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+BatchRow_3:
+  id: 3
+  batch_id: 1
+  status: Queued
+  data: '{"prefix":"Mr","first_name":"Adam","last_name":"Braunton","channel":"System Testing Channel","custromer":"System Testing Customer","clinical_role":"PrOVIDER","speciality":"Cns","email":"test_import_clinician_misspelled_header@gmail.com","phone_number":2134432334,"has_clinician_role":"TRUE"}'
+  file_row: 1
+  report: 
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+BatchRow_4:
+  id: 4
+  batch_id: 2
+  status: Queued
+  data: '{"first_name":"CareConnect 15","channel":"System Testing Channel","customer":"System Testing Customer","location":"Staging Location","unit":"Eatontown","speciality":"Inpatient","email":"careconnect15a11@KAISERSACRAMENTOOO.com","password":"Welcome1!"}'
+  file_row: 1
+  report: 
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+BatchRow_5:
+  id: 5
+  batch_id: 4
+  status: Queued
+  data: '{"first_name":"CareConnect 15","channel":"System Testing Channel","customer":"System Testing Customer","location":"Staging Location","unit":"Eatontown","speciality":"Inpatient","email":"careconnect15a11@KAISERSACRAMENTOOO.com","password":"Welcome1!"}'
+  file_row: 1
+  report: 
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

@@ -1,0 +1,101 @@
+// Pro Alert 
+$outline-color: #317ab9;
+
+.pro_alert {
+  #pro_alert_overlay {
+    background-color: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000000;
+  }
+  .pro_alert_box {
+    background-color: white;
+    width: 450px; 
+    padding: 17px;
+    border-radius: 5px;
+    text-align: center;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-left: -225px;
+    margin-top: -200px;
+    overflow: hidden;
+    display: block;
+    z-index: 10000000;
+
+    img { 
+       height: 80px; 
+       width: 80px;
+       margin: 20px auto 10px;
+    }
+  
+    h2 {
+      color: #575757;   
+      font-size: 30px;    
+      text-align: center;   
+      font-weight: 600;   
+      text-transform: none;  
+      position: relative;  
+      margin: 25px 0;  
+      padding: 0;   
+      line-height: 40px;   
+      display: block;
+    }
+  
+    p {
+      color: #767676;
+      font-size: 16px;
+      text-align: center;
+      font-weight: 300;
+      position: relative;
+      float: none;
+      margin: 0 10px;
+      padding: 0;
+      margin-bottom: 35px;
+    }
+    
+    #pro_alert_priorty {
+      display: none;
+    } 
+    a {
+      color: black; 
+      font-size: 16px; 
+      margin: 13px 0px 0px 20px;
+      position: absolute;
+    }
+
+    button {
+      box-shadow: inset 0 0 1px 1px rgba(255, 255, 255, 0);
+      transition: all .2s ease;
+      border-style: solid;
+      border-width: 0;
+      font-weight: 400;
+      line-height: normal;
+      position: relative;
+      text-decoration: none;
+      text-align: center;
+      -webkit-appearance: none;
+      -webkit-border-radius: 0;
+      display: inline-block;
+      font-size: 1rem;
+      background: #007cc2;
+      border: none;
+      padding: 10px;
+      border-radius: 3px;
+      color: #fff;
+      cursor: pointer;
+      margin: auto;
+      width: 184px;
+      font-family: 'Roboto';
+      font-size: 18px;
+      margin-bottom: 20px;
+      &:focus {
+        outline: 2px solid $outline-color !important; 
+        outline-offset: 4px
+      }
+    }
+  }
+}

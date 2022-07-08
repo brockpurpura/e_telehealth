@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h3>Your presence is requested in a call on Caregility by <%= @dr_name %> from <%= @client_name %></h3>
+    <% if @appointment_time.present? %>
+      <p> Appointment time:  <%= @appointment_time %></p>
+    <% end %>
+
+    <p >You are requested to join a call in <%= @room_info %>. Please click on the link below to join. Using a Chrome browser is recommended.</p>
+    <p><a href=<%= @url %>><%= @url %></a></p>
+    <br/>
+    <p>Thank you,</p>
+    <p><%= @dr_name %> from <%= @client_name %></p>
+    <br><br><br><br>
+    <p>Disclaimer</p>
+    <p>The information contained in this communication from the sender is confidential. It is intended solely for use by the recipient and others authorized to receive it. If you are not the recipient, you are hereby notified that any disclosure, copying, distribution or taking action in relation of the contents of this information is strictly prohibited and may be unlawful.</p>
+   
+  </body>
+</html>

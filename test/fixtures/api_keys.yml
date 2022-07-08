@@ -1,0 +1,29 @@
+ApiKey_1:
+  client_id: 1
+  name: Testing Customer
+  password_digest: "$2a$10$iZoSZKAJx75G7zWn1oHxF.ky7u4W2zuTLkMFmbIpZiZ266zcEwWty"
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  api_username: 4YUjyQa
+  api_password: NsWYTDDgq14a
+  api_encrypt_key: d8goeEvJTWka
+
+ApiKey_2:
+  client_id: 10
+  name: EIS Testing Customer
+  password_digest: "$2a$10$iZoSZKAJx75G7zWn1oHxF.ky7u4W2zuTLkMFmbIpZiZ266zcEwWty"
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  api_username: 4YUjyQb
+  api_password: NsWYTDDgq14b
+  api_encrypt_key: d8goeEvJTWk
+
+ApiKey_3:
+  client_id: 2
+  name: Testing Customer
+  password_digest: "$2a$10$iZoSZKAJx75G7zWn1oHxF.ky7u4W2zuTLkMFmbIpZiZ266zcEwWty"
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  api_username: 4YUjyQ
+  api_password: NsWYTDDgq14
+  api_encrypt_key: d8goeEvJTWk

@@ -1,0 +1,9 @@
+.snapshot_mover.fa.fa-arrows.hud_visuals.fade#move_snapshot{:tabindex=>"0", :'aria-label'=>"move screenshot", :role=>"application"}
+.expand_arrow_div
+  .rightside  
+    %button{:id=>'expand_snapshot', :class => 'fas fa-expand-alt fa-2x expand_arrow close_widget hud_visuals fade', :onclick=> "expand_screenshot()", :'aria-label'=>"maximize screenshot"}
+
+    
+<img id="my-screenshot" class="my-screenshot" alt="screenshot of video feed" />
+%button{:id=>'close_snapshot', :class => 'fa fa-times-circle close_widget hud_visuals fade', :onclick=> "toggle_widget('snapshot', 'screenshot_button')", :'aria-label'=>"close screenshot"}
+

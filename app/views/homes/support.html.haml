@@ -1,0 +1,14 @@
+#header_bar.header_bar
+  = link_to 'javascript:;', :onclick=>"window.close()", :class=>'leftside support_back' do
+    %p <i class="fa fa-backward" aria-hidden="true"></i> Back 
+
+%main
+  .support
+    .wrapper
+      #sub_title
+        .leftside
+          %i.fa.fa-info.fa-2x
+        .leftside
+          %h1 Support 
+      =render :partial => "/homes/faqs"
+ 

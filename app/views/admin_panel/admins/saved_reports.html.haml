@@ -1,0 +1,60 @@
+#sub_title
+  .leftside
+    %i.fa.fa-user.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Saved User Reports 
+    - if params[:loading].present?
+      %br
+      %br
+      %p Please wait...
+      %br
+  .rightside.create_new_link
+    = link_to 'Refresh', saved_reports_admin_panel_admin_path
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content#dest_tree
+        %table{:class=>'table table-bordered', :id => "observation_report_table"}
+          %thead
+            %tr
+              %th
+                Report
+              %th
+                Run Date  
+              %th
+                Status
+              %th
+                Download  
+              %th
+                Delete  
+          -if @saved_reports.count < 1
+            %tr
+              %td{:colspan=>5}
+                %p No saved reports.
+          -else
+            - @saved_reports.each do |report|
+              %tr
+                %td #{report.report_desc}
+                %td #{report.created_at}
+                %td #{report.active > 1 ? 'Ready' : 'In Progress'}
+                %td 
+                  - if report.active > 1
+                    = link_to 'Download', (report.report_url || '').gsub('http:','https:')
+                %td 
+                  = form_tag do
+                    =hidden_field_tag :delete_record, report.id
+                    =submit_tag 'Delete'
+- if params[:loading].present?
+  :javascript
+    setTimeout(
+      function() {
+        window.location = window.location.href.split("?")[0];  
+      }
+      , 2000
+    )                 

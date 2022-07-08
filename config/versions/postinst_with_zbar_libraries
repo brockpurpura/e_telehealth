@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd /home/uheapp/e_telehealth
+cp config/nginx/on-prem/default_file /etc/nginx/sites-available/default
+cp config/nginx/on-prem/dhparam.pem /etc/ssl/certs/dhparam.pem
+sudo dpkg -i config/nginx/on-prem/libjpeg62-turbo_1.5.1-2_amd64.deb
+sudo dpkg -i config/nginx/on-prem/libv4lconvert0_1.12.3-1_amd64.deb
+sudo dpkg -i config/nginx/on-prem/libv4l-0_1.12.3-1_amd64.deb
+sudo dpkg -i config/nginx/on-prem/libzbar0_0.10+doc-10.1_amd64.deb
+bundle install --local > bundleinstall.txt 2>&1
+bundle exec rake db:migrate RAILS_ENV=onprem > dbmigrate.txt 2>&1
+bundle exec rake assets:precompile RAILS_ENV=onprem > assetspre.txt 2>&1
+service nginx restart > restartnginx.txt 2>&1

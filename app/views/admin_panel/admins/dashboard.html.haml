@@ -1,0 +1,106 @@
+- content_for(:title) { "Caregility Healthcare Admin" }
+- content_for(:description) { "Caregility Healthcare Admin" }
+
+%div{:id=>'top'}
+<!-- Dashboard Graph starts -->
+%div.col-sm-12
+  .col-sm-8
+    .col-sm-1
+      %i.fa.fa-home.fa-2x.dashboard_subheader_icon.dashboard_text_color
+    .col-sm-4
+      %h3 Dashboard
+  .col-sm-4
+
+
+.row
+  = form_for @icon, url: dashboard_admin_panel_path, :method => :post, html:{multipart: true} do |f|
+  
+    .col-md-12.min_height
+      #customize
+        .leftside{:style=>"width: 33.3%"}
+          <!-- Widget -->
+          .widget
+            <!-- Widget head -->
+            .widget-head
+              .pull-left 
+                Icon  
+              .widget-icons.pull-right
+ 	  
+              <div class="clearfix"></div>
+      
+            <!-- Widget content -->
+            .widget-content
+              .container
+                .padd
+                  .row 
+                    .col-md-12
+                      .center
+                        -if @client.has_icon? 
+                          = image_tag( @icon.attachment_url :height=>'40')
+                  .row
+                    .col-md-12
+                      %br
+                      = f.label :attachment, 'Upload Icon File'
+                      = f.file_field :attachment
+                      = f.hidden_field :client_id, :value=>@client.id
+                      = f.hidden_field :status, :value=>"1"
+                      = hidden_field_tag :update_design, true
+                      - if @psuedo_admin.present?
+                        = hidden_field_tag :admin_id, @psuedo_admin.id		      
+                  .row
+                    .col-md-12
+                      %br
+                      .little .png or .jpg files - optimal height of 40px
+
+        .leftside{:style=>"width: 33.3%"}
+          <!-- Widget -->
+          .widget{}
+            <!-- Widget head -->
+            .widget-head
+              .pull-left 
+                Banner Color  
+              .widget-icons.pull-right
+ 	  
+              <div class="clearfix"></div>
+      
+            <!-- Widget content -->
+            .widget-content
+              .container
+                .padd
+                  .row 
+                    .col-md-12
+                      %div{:id=>'color_div', :style=>"background-color: #{@client.has_icon? ? (@client.icon.banner_color || '#000000') : '#000000'};"}
+                  .row
+                    .col-md-12
+                      = f.label :banner_color, 'HEX Header Color', :class => 'color_div_banner'
+                      = f.text_field :banner_color, :class => 'color_div_banner'
+                      %br
+                      %br
+        .leftside{:style=>"width: 33.3%"}
+          <!-- Widget -->
+          .widget
+            <!-- Widget head -->
+            .widget-head
+              .pull-left 
+                Banner Font Color  
+              .widget-icons.pull-right
+ 	    
+              <div class="clearfix"></div>
+      
+            <!-- Widget content -->
+            .widget-content
+              .container
+                .padd
+                  .row 
+                    .col-md-12
+                      %div{:id=>'font_div', :style=>"background-color: #{@client.has_icon? ? (@client.icon.font_color || '#ffffff') : '#ffffff'};"}
+                  .row
+                    .col-md-12
+                      = f.label :font_color, 'HEX Font Color', :class => 'color_div_banner'
+                      = f.text_field :font_color, :class => 'color_div_banner'
+                      %br
+                      %br
+
+    .col-md-12
+      .col-md-2
+        = f.submit "save", :class=>'btn btn-info'

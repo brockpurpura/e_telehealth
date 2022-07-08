@@ -1,0 +1,88 @@
+- @is_super_admin =  our_active_admin.is_super_admin?
+- @is_channel_admin =  our_active_admin.is_channel_admin?
+- @is_customer_admin =  our_active_admin.is_customer_admin?
+-if @mobile_devices.present?
+  #auto_focus_flag.hidden
+
+  %table{:class=>'table table-bordered', :id=>'cga_client_list'}
+    %thead
+      %tr
+        %th
+          Name / Room Number
+        %th
+          Email
+        %th
+          Channel
+        %th
+          Customer
+        %th 
+          Location 
+        %th
+          Unit
+        %th
+          Alias
+    %tbody
+      -@mobile_devices.each_with_index do |client_admin, idx|
+        %tr{:class => idx%2==0 ? 'even' : 'odd', :onclick=> "edit_admin_#{idx}.submit();"}        
+          = form_tag edit_mobile_user_admin_panel_admin_path, :id => "edit_admin_#{idx}" do
+            =hidden_field_tag :admin_id, client_admin.id 
+          
+          - @uhe_for_level = client_admin.is_uhe_for_level?(our_active_admin)
+          - @esitter_for_level = client_admin.is_esitter_for_level?(our_active_admin)
+          - @tech_for_level = client_admin.is_tech_for_level?(our_active_admin)
+          - @read_only = client_admin.is_read_only?
+          - @allow_demo = client_admin.allow_demo > 0
+
+          %td.vertical_center
+            #{client_admin.tech_name} 
+          %td.vertical_center
+            #{client_admin.email}
+          %td.vertical_center
+            - if client_admin.client_admin_id.present? && client_admin.client_admin.present?
+              #{client_admin.client_admin.name} 
+            - else
+              All Channels
+          %td.vertical_center 
+            - if client_admin.client_id.present? && client_admin.client.present?
+              #{client_admin.client.client_name}
+            - else 
+              All Customers
+          %td.vertical_center
+            - if client_admin.mobile_location.present?
+              #{client_admin.mobile_location.name}
+          %td.vertical_center
+            - if client_admin.mobile_unit.present?
+              #{client_admin.mobile_unit.name}
+          %td.vertical_center
+            #{client_admin.mobile_alias}
+            
+        #popup_widget_surround
+          .popup_widget.popup_ui{:id => "edit_client_password_#{idx}" }
+            #uhe_admin_popup
+              %h2 Change Password for #{client_admin.email} 
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_client_password_' +#{idx.to_s})" do
+                <i class="far fa-times" aria-hidden="true"></i>
+              =form_tag do 
+                .uhe_admin_popup_body  
+                  .uhe_admin_popup_form    
+                    %p.entry_header
+                      New Password 
+                    .center
+                      = text_field_tag :new_password, '', :autocomplete => "off"
+                      = hidden_field_tag :change_password, client_admin.id
+                    .submit
+                      .center
+                        - if our_active_admin.is_not_read_only?
+                          = submit_tag "Update"
+
+    
+  .pagination_tr
+    .center
+      = will_paginate @mobile_devices, params: params 
+
+-else
+  %p.no_matching_info No matching information
+
+
+<script>$(document).ready(function() { $("#cga_client_list").tablesorter(); } );</script> 
+

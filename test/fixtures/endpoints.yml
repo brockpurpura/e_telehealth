@@ -1,0 +1,89 @@
+Endpoint_1:
+  id: 1
+  room_id: 1
+  name: Staging3 - PeraHealth - BioIntelliSense
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  pin: 60235
+  endpoint_type: SONY
+  machine_name: nBrp4FCmXxo
+  under_maintenance: 0
+  conference_node: proxy.univago.com
+  default_input: 6.0
+  default_output: 5.0
+  show_icr: 1
+  show_camera: 1
+  allow_privacy: 1
+  default_bell: 5.0
+  dial_out_type: SIP
+  teamviewer_on: 0
+  esitter_on: 0
+  default_speed: 5
+  remote_control_admin_id: 1
+
+Endpoint_2:
+  id: 2
+  room_id: 2
+  name: Unit testing endpoint
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  pin: 60235
+  endpoint_type: SONY
+  machine_name: nBrp4FCmXxo
+  under_maintenance: 0
+  conference_node: proxy.univago.com
+  default_input: 6.0
+  default_output: 5.0
+  show_icr: 1
+  show_camera: 1
+  allow_privacy: 1
+  default_bell: 5.0
+  dial_out_type: SIP
+  teamviewer_on: 0
+  esitter_on: 0
+  default_speed: 5
+
+Endpoint_3:
+  id: 3
+  room_id: 2
+  name: get_alias endpoint
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  pin: 60235
+  endpoint_type: SONY
+  machine_name: nBrp4FCmXxo
+  under_maintenance: 0
+  conference_node: proxy.univago.com
+  default_input: 6.0
+  default_output: 5.0
+  show_icr: 1
+  show_camera: 1
+  allow_privacy: 1
+  default_bell: 5.0
+  dial_out_type: SIP
+  teamviewer_on: 0
+  esitter_on: 0
+  default_speed: 5
+
+EIS_endpoint:
+  id: 4
+  room_id: 3
+  name: EIS testing room
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  pin: 60235
+  endpoint_type: SONY
+  machine_name: nBrp4FCmXxo
+  under_maintenance: 0
+  conference_node: proxy.univago.com
+  default_input: 6.0
+  default_output: 5.0
+  show_icr: 1
+  show_camera: 1
+  allow_privacy: 1
+  default_bell: 5.0
+  dial_out_type: SIP
+  teamviewer_on: 0
+  esitter_on: 0
+  default_speed: 5
+

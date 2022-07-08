@@ -1,0 +1,276 @@
+.tech_logout 
+  -if current_admin.has_admin_type?
+    .leftside
+      =link_to "Return to Admin Portal", admin_path
+
+  .rightside
+    =link_to "Logout", destroy_admin_session_path, :method=>:delete
+
+.container.tech_white_background
+  .tech
+    - if @endpoint
+      %h2 #{@endpoint.room_info}
+      - if @endpoint.has_two_qr_codes?
+        %br
+        %h2 STEP 1
+      .center
+        .parent_qr
+          .qr_holder
+            .qr_code_view
+              %raw #{@qr.as_html.html_safe}
+      - if @endpoint.has_two_qr_codes?
+        %br
+        %br
+        %h2 STEP 2
+        .center
+          .parent_qr
+            .qr_holder
+              .qr_code_view
+                %raw #{@qr2.as_html.html_safe}
+        %br
+        %br
+        .center
+          = form_tag room_tech_path, :id=>'one_qr' do 
+            = hidden_field_tag :building_id, @endpoint.building.id
+            = hidden_field_tag :client_id, @endpoint.client.id
+            = hidden_field_tag :room_id, @endpoint.room.id
+            = hidden_field_tag :endpoint_id, @endpoint.id
+            = hidden_field_tag :one_qr, 'true'
+            = submit_tag "Show only one QR code", :class => "button"
+        
+
+    - elsif @room
+      %h2 Select Room 
+      = form_tag do 
+        = hidden_field_tag :building_id, @building.id
+        = hidden_field_tag :client_id, @client.id
+        = hidden_field_tag :room_id, @room.id
+        = collection_select(:endpoint, :endpoint_id,  Endpoint.active.univago_endpoints.where('room_id = ?', @room.id).order('name ASC'), :id, :name, {} , {}) 
+        .center
+          = submit_tag :Select, :class=>'button'
+      #tech_info
+        %p.i Customer: <b>#{@client.client_name}</b>
+        %p.i Location: <b>#{@building.name}</b>
+        %p.i Unit: <b>#{@room.name}</b>
+
+
+    - elsif @building
+      //%p.i Hospital: <b>#{@building.name}</b>
+      %h2 Select Unit
+      = form_tag do 
+        = hidden_field_tag :building_id, @building.id
+        = hidden_field_tag :client_id, @client.id
+        = collection_select(:room, :room_id,  Room.active.where('building_id = ?', @building.id).order('name ASC'), :id, :name, {} , {}) 
+        .center
+          = submit_tag :Select, :class=>'button'
+      #tech_info 
+        %p.i Customer: <b>#{@client.client_name}</b>
+        %p.i Location: <b>#{@building.name}</b>
+
+    - elsif @client
+      %h2 Select Location 
+      = form_tag do 
+        = hidden_field_tag :client_id, @client.id
+        = collection_select(:building, :building_id,  @client.buildings.active, :id, :name, {} , {}) 
+        .center
+          = submit_tag :Select, :class=>'button'
+      #tech_info
+        %p.i Customer: <b>#{@client.client_name}</b>
+
+    - else 
+      %h2 Select Customer
+      = form_tag do 
+        = collection_select(:client, :client_id,  current_admin.tech_clients.active.order('client_name asc'), :id, :client_name, {} , {}) 
+        .center
+          = submit_tag :Select, :class=>'button'
+    .footer
+      .center
+        - if @endpoint
+          %hr
+          %h2 SETTINGS
+          #outer_slider_holder
+            #slider_holder
+              #sliders.slider_panel
+                .stuff.center
+                  .camera_audio
+                    %h4.cam_title Patient Audio
+                    .slider
+                      .lab.left_n4
+                        %h2 Speaker
+                      <div id="flat-slider-vertical-5"></div>
+                    .slider
+                      .lab.left_n10
+                        %h2 Microphone 
+                      <div id="flat-slider-vertical-6"></div>
+                    .slider
+                      .lab.left_n4
+                        %h2 Doorbell 
+                      <div id="flat-slider-vertical-7"></div>
+
+                  %br.clear
+          - if @endpoint.is_configured? 
+            %hr
+            %h2 ACTIONS 
+            =link_to "Test Call", "javascript:;", :class => "button", :onclick => "testCall()"	
+            =link_to "End Test Call", "javascript:;", :class => "button", :onclick => "endTestCall()"	
+            =link_to "Ring Doorbell", "javascript:;", :class => "button", :onclick => "ringBell()"	
+            %br.clear
+
+          %hr
+          %h2 ALERT
+          = form_tag room_tech_path, :id=>'update_form' do 
+            = hidden_field_tag :building_id, @endpoint.building.id
+            = hidden_field_tag :client_id, @endpoint.client.id
+            = hidden_field_tag :room_id, @endpoint.room.id
+            = hidden_field_tag :endpoint_id, @endpoint.id
+            = text_field_tag :alert_url, @endpoint.elert_url, :placeholder => 'Alert URL HTTP Address', :class=>'tech_textbox', :maxlength => 250
+            = submit_tag "Save URL", :class => "button", :id=>'update_url_submit' 
+          = form_tag room_tech_path, :id=>'delete_form' do 
+            = hidden_field_tag :building_id, @endpoint.building.id
+            = hidden_field_tag :client_id, @endpoint.client.id
+            = hidden_field_tag :room_id, @endpoint.room.id
+            = hidden_field_tag :endpoint_id, @endpoint.id
+            = hidden_field_tag :delete_url, 'true'
+            = submit_tag "Clear URL", :class => "button", :id=>'delete_url_submit'
+          = form_tag room_tech_path, :id=>'test_alert_form' do 
+            = hidden_field_tag :building_id, @endpoint.building.id
+            = hidden_field_tag :client_id, @endpoint.client.id
+            = hidden_field_tag :room_id, @endpoint.room.id
+            = hidden_field_tag :endpoint_id, @endpoint.id
+            = hidden_field_tag :test_alert, 'true'
+            = submit_tag "Test Alert", :class => "button",:onclick=>"return confirm('Are you sure you want to send an alert?')"
+          - if @endpoint.is_configured?
+            %hr
+            %h2 RESETS
+            =link_to "Factory Reset", "javascript:;", :class => "button", :onclick => "reset()"
+            - if @endpoint.endpoint_type != "CART"
+            
+              =link_to "Reboot Machine", "javascript:;", :class => "button", :onclick => "reboot()"	
+          - if @endpoint.client_admin.show_tech_network?
+            %hr
+            %h2 NETWORK
+            .nd
+              .center
+                .network_div 
+                  %p <b>Network Type:</b> #{ determine_ip_config(@endpoint)} 
+                  - if @endpoint.wifi_status == 1
+                    %p <b>SSID:</b> #{@endpoint.ssid}
+                    %p <b>SSID Password:</b> #{@endpoint.ssid_password}
+                  - if @endpoint.wifi_status == 2
+                    %p <b>Network Name:</b> #{@endpoint.enterprise_network_name}
+                    %p <b>Username:</b> #{@endpoint.enterprise_username}
+                    %p <b>Password:</b> #{@endpoint.enterprise_password}
+                    %p <b>Authentication:</b> #{@endpoint.enterprise_auth}
+                    %p <b>Inner Authentication:</b> #{@endpoint.enterprise_inner_auth}
+                  - if @endpoint.static_ip_status == 1
+                    %p <b>IPv4 Address:</b> #{@endpoint.ip4v}
+                    %p <b>Subnet Mask:</b> #{@endpoint.netmask}
+                    %p <b>Default Gateway:</b> #{@endpoint.gateway}
+                    %p <b>Preferred DNS:</b> #{@endpoint.preferred_dns}
+                    %p <b>Alternate DNS:</b> #{@endpoint.alternate_dns}
+          %hr
+          %h2 COMPONENTS 
+          = form_tag main_components_path  do 
+            = hidden_field_tag :endpoint_id, @endpoint.id
+            = submit_tag "Manage Components", :class => "button"
+
+%br
+%br
+%br
+%br
+.tech_footer
+  .leftside
+    -if @endpoint
+      =link_to 'Start Over', room_tech_path, :class=>'tech_reset'  
+    - else
+      =link_to 'Start Over', room_tech_path, :class=>'tech_reset_process'
+
+  .rightside
+    =link_to 'Support Docs', support_tech_path, :target=>'_blank', :class=>'tech_support'
+
+- if @endpoint
+  %p#e_id.hidden #{@endpoint.id}
+  :javascript
+    cable = ActionCable.createConsumer("wss:#{@server_name}");
+    tunnel_ws = cable.subscriptions.create({
+      channel: "TunnelChannel",
+      machine_name: "#{@endpoint.machine_name}"
+    }, {
+      connected: function() {
+        console.log("connected to the tunnel manager");
+      },
+      disconnected: function() {
+        console.log("disconnected from the tunnel manager");
+      },
+      send_command: function(command) {
+        console.log("sending command");
+        return this.perform('send_command', {
+          command: command
+        });
+      }
+    });
+    $.extend( $.ui.slider.prototype.options, { animate: 300});
+    $("#flat-slider-vertical-5").slider({max: 20,min: 0,range: "min",value:#{@endpoint.default_output * 2},orientation: "vertical"});
+    $("#flat-slider-vertical-5").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+    $("#flat-slider-vertical-5").on("slidestop", function(event, ui) {endPos = ui.value; techOutput(endPos/2); });
+    $("#flat-slider-vertical-6").slider({max: 20,min: 0,range: "min",value:#{@endpoint.default_input * 2},orientation: "vertical"});
+    $("#flat-slider-vertical-6").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+    $("#flat-slider-vertical-6").on("slidestop", function(event, ui) {endPos = ui.value; techInput(endPos/2); });
+    $("#flat-slider-vertical-7").slider({max: 20,min: 0,range: "min",value:#{@endpoint.default_bell * 2},orientation: "vertical"});
+    $("#flat-slider-vertical-7").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+    $("#flat-slider-vertical-7").on("slidestop", function(event, ui) {endPos = ui.value; techBell(endPos/2); });
+    function reset(){
+      swal({
+        title: "Reset Device?",
+        text: "Are you sure reset #{@endpoint.room_info} to a new room?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Reset Now",
+        closeOnConfirm: false
+      },
+      function(){
+        window.location = '#{room_tech_path(:reset=>@endpoint.id)}';
+      });
+    }
+    function reboot(){
+      swal({
+        title: "Reboot Device?",
+        text: "Are you sure reboot power for #{@endpoint.room_info}?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Reboot Now",
+        closeOnConfirm: false
+      },
+      function(){
+        window.location = '#{room_tech_path(:reboot=>@endpoint.id)}';
+      });
+    }
+       
+    function processUpdateForm(e) {
+      if (e.preventDefault) e.preventDefault();
+      swal({ title: "Update URL", text: "Are you sure you want to update this Alert URL?", type: "info", showCancelButton: true, confirmButtonClass: "btn-primary", confirmButtonText: "Update Now", closeOnConfirm: false, closeOnCancel: true},  function(){ var update_form = document.getElementById('update_form');  update_form.submit();});
+      return false;
+    }
+    var update_form = document.getElementById('update_form'); 
+    if (update_form.attachEvent) {
+      update_form.attachEvent('submit', processUpdateForm);
+    }
+    else {
+      update_form.addEventListener('submit', processUpdateForm);
+    }
+    function processDeleteForm(e) {
+      if (e.preventDefault) e.preventDefault();
+      swal({ title: "Delete URL", text: "Are you sure you want to delete this Alert URL?", type: "warning", showCancelButton: true, confirmButtonClass: "btn-primary", confirmButtonText: "Delete Now", closeOnConfirm: false, closeOnCancel: true},  function(){ var delete_form = document.getElementById('delete_form');  delete_form.submit();});
+      return false;
+    }
+    var delete_form = document.getElementById('delete_form'); 
+    if (delete_form.attachEvent) {
+      delete_form.attachEvent('submit', processDeleteForm);
+    }
+    else {
+      delete_form.addEventListener('submit', processDeleteForm);
+    }
+ 
+ 

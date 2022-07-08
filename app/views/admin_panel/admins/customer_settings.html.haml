@@ -1,0 +1,547 @@
+%div{:id=>'top'}
+%p#customer_id.hidden #{@customer.id}
+
+
+#sub_title
+  .leftside
+    %i.far.fa-hospital.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 #{@customer.client_name}
+  .rightside.create_new_link
+    - if our_active_admin.is_not_read_only?
+      =link_to "Edit Name", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('edit_endpoint_name','')"
+      &nbsp;|&nbsp;
+      =link_to "Delete Customer", "javascript:;", :id =>"signup_admin_button",  :class=> '',:onclick=> "open_admin_popup('delete_room', '')"
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround
+    .popup_widget.popup_ui{:id =>"delete_room"}
+      #uhe_admin_popup
+        %h2 Delete Customer 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('delete_room')" do
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        = form_tag customer_settings_admin_panel_admin_path, :class=>'' do 
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+              %p.entry_header
+                Confirm Delete
+              .center
+                = text_field_tag :delete_edittext, nil, placeholder: 'Type DELETE to Confirm', :class => "password_confirm",  :oninput => "check_delete_button_activation('#{@customer.id.to_s}')", :id => "delete_confirm_" + @customer.id.to_s
+              %p.entry_informational You are about to delete #{@customer.client_name}
+          .submit
+            .center
+              = hidden_field_tag :delete_customer, true 
+              = hidden_field_tag :customer_id, @customer.id
+              = submit_tag "Delete", :class=> "inactive", :disabled => "disabled", :id => "delete_btn_" + @customer.id.to_s 
+
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround   
+    .popup_widget.popup_ui{:id => "edit_endpoint_name"}
+      #uhe_admin_popup
+        %h2 Edit Customer 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_endpoint_name')" do
+          <i class="fal fa-times" aria-hidden="true"></i>
+          
+        =form_tag do
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+              %p.entry_header
+                Name *     
+              .center
+                = text_field_tag :client_name, "", :value => @customer.client_name, :maxlength => 200 
+                =hidden_field_tag :edit_customer_name, true
+                =hidden_field_tag :customer_id, @customer.id
+          .submit
+            .center 
+              = submit_tag "Update", :class=> "button" 
+:javascript
+  document.getElementById('customer_name').required = true;
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Customer Information  
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Channel
+                %td.none
+                  %p #{@customer.client_admin.name}
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            %table.endpoint_settings_table_dimensions.onex
+              %tr
+                %th.endpoint_setting_widget
+                  Number Of Rooms 
+                %td.none
+                  %p
+                    =link_to @customer.endpoints.active.count.to_s, endpoints_admin_panel_admin_path(:cust=>@customer.id)
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Advanced Reports  
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            = form_tag do 
+              %table.endpoint_settings_table_dimensions.twox
+                %tr 
+                  %th.endpoint_setting_widget
+                    Display Reports 
+                  %td.none.vertical_center
+                    .center
+                      .dropdowns.endpoint_settings_caret.device_type
+                        %label
+                          = select_tag :use_layerx, options_for_select({'Off'=> '0',  'On' => '1'}, @customer.use_layerx), :class => "input_endpoint_settings"
+                %tr
+                  %th.endpoint_setting_widget
+                    Username      
+                  %td.none.vertical_center
+                    .center
+                      = text_field_tag :layerx_username, @customer.layerx_username, :class=>'input_endpoint_settings', :maxlength => 200
+                %tr
+                  %th.endpoint_setting_widget
+                    Dashboard Id       
+                  %td.none.vertical_center
+                    .center
+                      = text_field_tag :layerx_dashboard_id, @customer.layerx_dashboard_id, :class => 'input_endpoint_settings', :maxlength => 200
+              - if our_active_admin.is_not_read_only?
+                .widget_submit
+                  =hidden_field_tag :advanced_reports, true
+                  =hidden_field_tag :customer_id, @customer.id
+                  =submit_tag :save, :class=>"endpoint_setting_button"
+
+                      
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Epic Interconnect API Settings  
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            = form_tag do 
+              %table.endpoint_settings_table_dimensions.twox
+                %tr 
+                  %th.endpoint_setting_widget
+                    Server  
+                  %td.none.vertical_center
+                    .center
+                      = text_field_tag :interconnect_server, @customer.interconnect_server, :class=>'input_endpoint_settings', :maxlength => 200
+                %tr
+                  %th.endpoint_setting_widget
+                    Username  
+                  %td.none.vertical_center
+                    .center
+                      = text_field_tag :interconnect_username, @customer.interconnect_username, :class=>'input_endpoint_settings', :maxlength => 200
+                %tr
+                  %th.endpoint_setting_widget
+                    Password  
+                  %td.none.vertical_center
+                    .center
+                      = text_field_tag :interconnect_password, @customer.interconnect_password, :class => 'input_endpoint_settings', :maxlength => 200
+
+              - if our_active_admin.is_not_read_only?
+                .widget_submit
+                  =hidden_field_tag :epic, true
+                  =hidden_field_tag :customer_id, @customer.id
+                  =submit_tag :save, :class=>"endpoint_setting_button"
+
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Interpreter Settings  
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            = form_tag customer_settings_admin_panel_admin_path, :id=>'interpreter' do 
+              %table.endpoint_settings_table_dimensions.twox
+                %tr 
+                  %th.endpoint_setting_widget
+                    Interpreter Service  
+                  %td.none.vertical_center
+                    .center
+                      - if our_active_admin.is_not_read_only?
+                        = hidden_field_tag :customer_id, @customer.id
+                        = hidden_field_tag :translation_type, true
+                        .dropdowns.endpoint_settings_caret.device_type
+                          %label
+                            = select_tag :translation_type_id, content_tag(:option,'None',:value=>"0") + options_from_collection_for_select(TranslationType.all, 'id', 'name', @customer.translation_type_id),:class=>'input_endpoint_settings', :onchange=>"submit_form('interpreter')"
+                      - else
+                        %p #{@customer.translation_type.nil? ? 'None' : @customer.translation_type.name}
+            - if @customer.translation_type and @customer.translation_type.use_mapping.to_i == 0
+              -# IN-DEMAND
+              %table.endpoint_settings_table_dimensions.threex
+                = form_tag do
+                  %tr
+                    %th.endpoint_setting_widget
+                      Customer Code
+                    %td.none.vertical_center
+                      .center
+                        = hidden_field_tag :translation_customer_code, true
+                        = text_field_tag :customer_code, @customer.translation_customer_code, :class => 'input_endpoint_settings'
+                %tr 
+                  %th.endpoint_setting_widget
+                    Values  
+                  %td.none.vertical_center
+                    .center
+                      .scrolling_area
+                        %table.table_inside_table
+                          -@customer.translation_type.translation_codes.each do |tc|
+                            %tr
+                              %td
+                                %p #{tc.name}
+                              %td
+                                %p #{tc.prefix}
+            - elsif @customer.translation_type and @customer.translation_type.use_mapping.to_i == 1
+              -# STRATUS
+              - @data = @customer.translation_type.translation_mappings.where('client_id =?', @customer.id)
+              - if @data.count > 0
+                %table.endpoint_settings_table_dimensions.fourx
+                  %tr
+                    %th.endpoint_setting_widget
+                      Values
+                    %td.none.vertical_center
+                      .center
+                        .scrolling_area
+                          %table.table_inside_table
+                            -@data.each do |tc|
+
+                              %tr
+                                =form_tag do 
+                                  %td.none.vertical_center
+                                    .center
+                                      = text_field_tag :translation_description, tc.description, :class=>'input_endpoint_settings'
+                                  %td.none.vertical_center
+                                    .center
+                                      = text_field_tag :translation_uri, tc.uri, :class=>'input_endpoint_settings'
+                                  %td.none.vertical_center
+                                    .center
+                                      = hidden_field_tag :edit_translation_mapping, true
+                                      = hidden_field_tag :t_id, tc.id
+                                      - if our_active_admin.is_not_read_only?
+                                        = hidden_field_tag :customer_id, @customer.id
+                                        = submit_tag "Save", :class=>'endpoint_setting_button'
+                                =form_tag do 
+                                  %td.none.vertical_center
+                                    = hidden_field_tag :delete_translation_mapping, true
+                                    = hidden_field_tag :t_id, tc.id
+                                    - if our_active_admin.is_not_read_only?
+                                      = hidden_field_tag :customer_id, @customer.id
+                                      = button_to '', :class=>'small_fa', :onclick=>"return confirm('Are you sure you want to delete #{tc.description}?')" do 
+                                        %i.fas.fa-trash
+                            
+              - if our_active_admin.is_not_read_only?
+                %table.endpoint_settings_table_dimensions.threex
+                  = form_with scope: :patch, local: true, :html=>{multipart: true} do |f|
+                    %tr
+                      %th.endpoint_setting_widget
+                        Upload Interpreter Data 
+                      %td.none.vertical_center
+                        .center
+                          = hidden_field_tag :upload_data, 'true'
+                          = hidden_field_tag :customer_id, @customer.id
+                          = f.file_field :file, :class => "input_endpoint_settings"
+                          = f.hidden_field :file_cache
+                      %td.none.vertical_center
+                        .center
+                          = submit_tag "Upload", :class => "endpoint_setting_button"                                    
+                      %td.none.vertical_center
+                        .center
+                          = link_to 'javascript:;',:class=> "small_fa", :onclick=>"open_admin_popup('csv','')" do 
+                            %i.far.fa-question-circle{:onclick=>"open_admin_popup('csv','')"}
+              #popup_widget_surround
+                .popup_widget.popup_ui{:id =>"csv"}
+                  #uhe_admin_popup
+                    %h2 CSV Upload File Format 
+                    =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('csv')" do
+                      <i class="far fa-times" aria-hidden="true"></i>
+                    .uhe_admin_popup_body.no_scroll  
+                      .uhe_admin_popup_form
+                        %p.entry_header To upload use a .csv file formated with two data columns separated by a comma.  Header row must have "language,uri".  
+                        %p.entry_header Example:
+                        %p.entry_informational language,uri
+                        %p.entry_informational.second English,englishtranslation@domain.com
+                        %p.entry_informational.second French,frenchtranslation@domain.com 
+            - elsif @customer.translation_type and @customer.translation_type.use_mapping.to_i == 2
+              %table.endpoint_settings_table_dimensions.fourx
+                %tr
+                  %th.endpoint_setting_widget
+                    Cloudbreak ID (Martti ID)
+                  %td.none.vertical_center{:style => "font-size: 12px; padding-left: 20px"}
+                    %a{:href => "#attributes"}
+                      Defined in Customer Attributes
+            - elsif @customer.translation_type and @customer.translation_type.use_mapping.to_i == 3
+              -# PSTN Translator Invite
+              - @data = @customer.translation_type.translation_mappings.where('client_id = ?', @customer.id)
+              - if @data.count > 0
+                %table.endpoint_settings_table_dimensions.fourx
+                  %tr
+                    %th.endpoint_setting_widget
+                      Values
+                    %td.none.vertical_center
+                      .center
+                        .scrolling_area
+                          %table.table_inside_table
+                            -@data.each do |tc|
+                              %tr
+                                =form_tag do 
+                                  %td.none.vertical_center
+                                    .center
+                                      = text_field_tag :translation_description, tc.description, :class=>'input_endpoint_settings'
+                                  %td.none.vertical_center
+                                    .center
+                                      = text_field_tag :translation_uri, tc.uri, :class=>'input_endpoint_settings'
+                                  %td.none.vertical_center
+                                    .center
+                                      = hidden_field_tag :edit_translation_mapping, true
+                                      = hidden_field_tag :t_id, tc.id
+                                      - if our_active_admin.is_not_read_only?
+                                        = hidden_field_tag :customer_id, @customer.id
+                                        = submit_tag "Save", :class=>'endpoint_setting_button'
+                                =form_tag do 
+                                  %td.none.vertical_center
+                                    = hidden_field_tag :delete_translation_mapping, true
+                                    = hidden_field_tag :t_id, tc.id
+                                    - if our_active_admin.is_not_read_only?
+                                      = hidden_field_tag :customer_id, @customer.id
+                                      = button_to '', :class=>'small_fa', :onclick=>"return confirm('Are you sure you want to delete #{tc.description}?')" do 
+                                        %i.fas.fa-trash
+                            
+              - if our_active_admin.is_not_read_only?
+                %table.endpoint_settings_table_dimensions.threex
+                  = form_with scope: :patch, local: true, :html=>{multipart: true} do |f|
+                    %tr
+                      %th.endpoint_setting_widget
+                        Upload Interpreter Data 
+                      %td.none.vertical_center
+                        .center
+                          = hidden_field_tag :upload_pstn_data, 'true'
+                          = hidden_field_tag :customer_id, @customer.id
+                          = f.file_field :file, :class => "input_endpoint_settings"
+                          = f.hidden_field :file_cache
+                      %td.none.vertical_center
+                        .center
+                          = submit_tag "Upload", :class => "endpoint_setting_button"                                    
+                      %td.none.vertical_center
+                        .center
+                          = link_to 'javascript:;',:class=> "small_fa", :onclick=>"open_admin_popup('csv_pstn','')" do 
+                            %i.far.fa-question-circle{:onclick=>"open_admin_popup('csv_pstn','')"}
+              #popup_widget_surround
+                .popup_widget.popup_ui{:id =>"csv_pstn"}
+                  #uhe_admin_popup
+                    %h2{:style => "margin-bottom: unset"} CSV Upload File Format 
+                    =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('csv_pstn')" do
+                      <i class="far fa-times" aria-hidden="true"></i>
+                    .uhe_admin_popup_body.no_scroll  
+                      .uhe_admin_popup_form
+                        %p.entry_header To upload use a .csv file formated with two data columns separated by a comma.  Header row must have "language,phone_number".  
+                        %p.entry_header Example:
+                        %p.entry_informational language,phone_number
+                        %p.entry_informational.second English,2143329838
+                        %p.entry_informational.second French,6323324985 
+    - if @customer.is_jamf_enabled?
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          JAMF MDM Request
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #div.endpoint_settings_widget_dimensions_actions
+            #div.leftside
+              %table.endpoint_settings_table_dimensions.threex
+                = form_with scope: :patch, local: true, :html=>{multipart: true} do |f|
+                  %tr
+                    %th.endpoint_setting_widget
+                      Upload JAMF Data 
+                    %td.none.vertical_center
+                      .center
+                        = hidden_field_tag :upload_jamf_data, 'true'
+                        = hidden_field_tag :customer_id, @customer.id
+                        = f.file_field :file, :class => "input_endpoint_settings"
+                        = f.hidden_field :file_cache
+                    %td.none.vertical_center
+                      .center
+                        = submit_tag "Process", :class => "endpoint_setting_button"                                    
+                    %td.none.vertical_center
+                      .center
+                        = link_to 'javascript:;',:class=> "small_fa", :onclick=>"open_admin_popup('csv_jamf','')" do 
+                          %i.far.fa-question-circle{:onclick=>"open_admin_popup('csv_jamf','')"}
+            #popup_widget_surround
+              .popup_widget.popup_ui{:id =>"csv_jamf"}
+                #uhe_admin_popup
+                  %h2 JAMF CSV Upload File Format 
+                  =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('csv_jamf')" do
+                    <i class="far fa-times" aria-hidden="true"></i>
+                  .uhe_admin_popup_body.no_scroll  
+                    .uhe_admin_popup_form
+                      %p.entry_header To upload use a .csv file formated with one data column.  Header row must be "email".  Any additional columns will be ignored.  The response CSV will have the email addresses and MDM tokens of the users.
+                      %p.entry_header Example:
+                      %p.entry_informational email
+                      %p.entry_informational.second clinician@hospital.com
+                      %p.entry_informational.second nurse@hospital.com
+
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        PerfectServe URL 
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            = form_tag do 
+              %table.endpoint_settings_table_dimensions.threex
+                %tr 
+                  %th.endpoint_setting_widget
+                    POST URL w Protocol
+                  %td.none.vertical_center
+                    .center
+                      = text_field_tag :perfectserve_url, @customer.perfectserve_url, :class=>'input_endpoint_settings'
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Clinician Sidebar Configuration 
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            = form_tag do 
+              %table.endpoint_settings_table_dimensions.threex
+                %tr 
+                  %th.endpoint_setting_widget
+                    Layout  
+                  %td.none.vertical_center
+                    .center
+                      .dropdowns.endpoint_settings_caret.device_type
+                        %label
+                          = select_tag :use_clinician_sidebutton_layout, options_for_select({'Default'=> '0',  'Action Based' => '1'}, @customer.clinician_sidebutton_layout), :class => "input_endpoint_settings"
+                %tr 
+                  %th.endpoint_setting_widget
+                    Screenshot Permission   
+                  %td.none.vertical_center
+                    .center
+                      .dropdowns.endpoint_settings_caret.device_type
+                        %label
+                          = select_tag :screenshot_enabled, options_for_select({'Disabled'=> '0',  'Enabled' => '1'}, @customer.screenshot_enabled), :class => "input_endpoint_settings"
+                %tr 
+                  %th.endpoint_setting_widget
+                    Content Sharing Permission   
+                  %td.none.vertical_center
+                    .center
+                      .dropdowns.endpoint_settings_caret.device_type
+                        %label
+                          = select_tag :content_sharing_enabled, options_for_select({'Disabled'=> '0',  'Enabled' => '1'}, @customer.content_sharing_enabled), :class => "input_endpoint_settings"
+
+              - if our_active_admin.is_not_read_only?
+                .widget_submit
+                  =hidden_field_tag :customer_id, @customer.id
+                  =submit_tag :save, :class=>"endpoint_setting_button"
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        %a{:name => "attributes"}
+        Customer Attributes
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div.endpoint_settings_widget_dimensions_actions
+          #div.leftside
+            = form_tag do 
+              %table.endpoint_settings_table_dimensions.threex
+                - ClientAttributeType.order('group_no ASC, title_display').each do |ca|
+                  %tr 
+                    %th.endpoint_setting_widget
+                      #{ca.title_display}
+                    %td.none.vertical_center
+                      .center
+                        = text_field_tag "ca_change[#{ca.id.to_s}]", @customer.attribute_for(ca.id), :class=>'input_endpoint_settings', :id=>ca.id, :readonly=>(ca.send_to_device == 1 || ca.force_editable == true) ? false : true
+              - if our_active_admin.is_not_read_only?
+                .widget_submit
+                  =hidden_field_tag :customer_id, @customer.id
+                  =hidden_field_tag :client_attribute_change, 'true' 
+                  =submit_tag :save, :class=>"customer_new_attributes"
+
+.hidden
+  .col-md-12
+    .col-md-12
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          Clinician Sidebuttons Layout 
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #div.endpoint_settings_widget_dimensions_actions
+            #div.leftside
+              = form_tag do 
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr 
+                    %th.endpoint_setting_widget
+                      Clinician Sidebuttons 
+                    %td.none.vertical_center
+                      .center
+                        .dropdowns.endpoint_settings_caret.device_type
+                          %label
+                            = select_tag :use_clinician_sidebutton_layout, options_for_select({'Default'=> '0',  'Action Based' => '1'}, @customer.clinician_sidebutton_layout), :class => "input_endpoint_settings"
+                - if our_active_admin.is_not_read_only?
+                  .widget_submit
+                    =hidden_field_tag :customer_id, @customer.id
+                    =submit_tag :save, :class=>"endpoint_setting_button"
+
+
+.hidden
+  .col-md-12
+    .col-md-12
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          Custom iObserver Turn Servers  
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #div.endpoint_settings_widget_dimensions_actions
+            #div.leftside
+              - if @customer == 0
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %th.endpoint_setting_widget
+                      Turn Server  
+                    %td.none.vertical_center
+                      .center
+                        %p
+            

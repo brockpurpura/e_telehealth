@@ -1,0 +1,76 @@
+- if @endpoint.nil?
+  - @t_mobile_client = @api_client
+- else
+  - @t_mobile_client = @endpoint.client 
+#self_view_widget{:class=> is_mobile_device? ? 'self_view hidden' : 'self_view hidden dragme', :style => is_mobile_device? ? 'width: 100%' : ''}
+  = render :partial => 'homes/self_view', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+
+#content_sharing_partial.hidden.content_share
+  = render :partial => 'homes/content_sharing'
+
+.hidden
+  #right_of_header
+  #notif_header
+  #sign_in
+  #login_widget
+
+#mobile_bottom_buttons.mobile_buttons
+  =link_to '', "javascript:;", :id => 'burger_menu', :class => 'burger_menu fa fa-bars fa-2x', :onclick => "toggle_sidebar_panel('settings')"
+  - if is_mobile_device? 
+    .chat_notifications
+      #chat_notification.fa.fa-comment.hidden{:onclick => "toggle_sidebar_panel('chat');", :title => "New Chat Messages"}
+        %p#chat_js_count 0 
+
+  .col-xs-12{:style => "text-align: center"}
+    #mobile_button_frame.mobile_button_frame
+      #burger_menu_div
+        #burger_menu_items{:class => "hidden"}
+          
+          - if !is_mychart
+            // Joystick
+            =link_to "javascript:;", :id => 'joystick_button', :class => '', :onclick => "m_toggle_div('#mobile_controls');m_toggle_div('#burger_menu_items')" do
+              =image_tag image_url('esitter_controller.png')
+
+          #participant_mobile.participant_mobile
+            // Add participant
+            %a{:onclick => "m_hide_div('#m_add_translator'); m_toggle_div('#m_add_participant');m_toggle_div('#burger_menu_items')"}
+              %span{:class => "fa fa-user-plus fa-2x"}
+              
+          - if !@t_mobile_client.nil? and @t_mobile_client.has_translator?
+            // Add translator
+            #translator_mobile.translator_mobile
+              %a{:onclick => "m_hide_div('#m_add_participant'); m_toggle_div('#m_add_translator'); m_toggle_div('#burger_menu_items')"}
+                %span{:class => "fa fa-assistive-listening-systems fa-2x"}
+
+          // Switch cameras
+          .switch_camera_mobile.hidden
+            %a{:onclick => "m_switch_mobile_camera()"}
+              %span{:class => "fa fa-sync-alt fa-2x"}
+
+      -#=link_to "javascript:;", :id => 'camera_switch', :class => 'switch_camera_mobile', :onclick=> "m_switch_mobile_camera()" do 
+        -#%span{:class => "fa fa-sync-alt fa-2x"}
+      - if (@usertype.nil? or @usertype.to_s == '1') and !@invited_guest
+        =link_to 'POH', "javascript:;", :class => 'hidden', :id=>'poh_button_mobile', :onclick=> "runMutePatient()"
+      =link_to '', "javascript:;", :id => 'self_mute', :class => 'hidden mic_on', :onclick=> "muteStreams()"
+      =link_to '', "javascript:;", :id => 'self_video', :class => 'hidden video_on', :onclick=> "toggleShow()"
+      - if is_mychart or @invited_guest
+        =link_to '', "javascript:;", :id => 'self_view_button', :class => 'hidden fa fa-user fa-2x', :onclick=> "toggle_selfview()" 
+      - else
+        =link_to "javascript:;", :id => 'joystick_button', :class => 'hidden', :onclick => "m_toggle_div('#mobile_controls')" do
+          =image_tag image_url('esitter_controller.png')
+      =link_to '', "javascript:;",  :onclick=> "askIfEndCall()", :id=>'end_call_button', :class=>'hidden fa fa-phone fa-2x'
+    =link_to '', "javascript:;",  :onclick=> "toggleMobileButtons()", :id=>'mobile_button_toggle', :class=>'fa fa-chevron-right fa-2x hidden' 
+    
+:javascript
+  toggle_selfview();
+
+  // Move down Translator if Meeting
+  if (isMeeting) {
+    $('#translator_mobile').addClass('meetingTransButton');
+  }
+  // Hide Translator, Add Participant for non-physicians
+  if (isMeetingPatient() || invited){
+    $('#joystick_button').addClass('hidden');
+    $('#participant_mobile').addClass('hidden');
+    $('#translator_mobile').addClass('hidden');
+  }

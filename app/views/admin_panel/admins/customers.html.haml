@@ -1,0 +1,148 @@
+- content_for(:title) { "Caregility Healthcare Admin" }
+- content_for(:description) { "Caregility Healthcare Admin" }
+
+%div{:id=>'top'}
+#sub_title
+  .leftside
+    %i.fas.fa-users.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside    
+    %h3 Customers 
+  - if our_active_admin.is_not_read_only?
+    .rightside.create_new_link
+      =link_to "Add Customer", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('add_client','')"
+
+.col-md-12.min_height
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        .search_field  
+          .leftside 
+            .search_icon
+              %span.far.fa-search
+
+          = form_for :search_customer_form, :url => customers_admin_panel_admin_path, :html => {:id => "search_customer_form" } do |x|
+            .leftside
+              = x.text_field :search_customers, :id => "search_customers", :placeholder=>'Search', :value => @search_value, :class => 'search_field_input'
+            #popup_widget_surround 
+              .popup_widget.popup_ui{:id => "filter_layout"}
+                #uhe_admin_popup
+                  %h2 Filter 
+                  =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+                    <i class="far fa-times" aria-hidden="true"></i>
+                  .uhe_admin_popup_body.no_scroll  
+                    .uhe_admin_popup_form   
+                      - if our_active_admin.is_super_admin?
+                        %p.entry_header
+                          By Channel      
+                        .entry 
+                          .center
+                            .dropdowns
+                              %label
+                                =x.collection_select(:filter_channel, ClientAdmin.active, :id, :name, {:multiple => true, :prompt => "None", :selected => @channel_value}, {:style => ""})
+                      - else
+                        = x.hidden_field :filter_channel, value: our_active_admin.client_admin_id
+    
+                      %p.entry_header
+                        By Advanced Reporting       
+                      .entry
+                        .center
+                          .dropdowns
+                            %label
+                              =x.select :filter_ar, options_for_select({'Off' => '0', 'On' => '1'}, @advanced_reporting_value), :id=> "filter_ar", :class=>'', :prompt => "None"   
+                      .submit
+                        .center 
+                          =x.submit "Apply", :class=> "button", :onclick=>"close_admin_popup('filter_layout')" 
+                      .footer_link
+                        .center
+                          =x.button "Reset Filter", :type =>  'submit', :name => 'reset_filter', :value => 'true', :class => "reset_filter_submit"
+            .leftside
+              .clear_search
+                =x.button "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+                  %span.fal.fa-times
+     
+            .leftside
+              .filter_link          
+                =link_to "Filter", "javascript:;", :class=>"", :onclick=>"open_admin_popup('filter_layout','')"
+
+
+ 	  
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #client_partial
+          = render :partial => 'clients'
+
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround   
+    .popup_widget.popup_ui{:id => "add_client"}
+      #uhe_admin_popup
+        %h2 Add Customer
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_client')" do
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        =form_for @client, :url => customers_admin_panel_admin_path do |x|
+          .uhe_admin_popup_body  
+            .uhe_admin_popup_form
+              -if our_active_admin.is_super_admin?
+                %p.entry_header
+                  Channel *
+                .center
+                  = x.collection_select(:client_admin_id, ClientAdmin.active, :id, :name,  {:prompt=>""}, :id=>'channelDropDown')
+              %p.entry_header
+                Customer Name *  
+              .center
+                =hidden_field_tag :add_client, true      
+                = x.text_field :client_name, :placeholder => "", :class => "", :maxlength => 200
+              %p.entry_header
+                Interpreter Service   
+              .center
+                .dropdowns
+                  %label
+                    =  x.select :translation_type_id, content_tag(:option,'None',:value=>"0") + options_from_collection_for_select(TranslationType.all, 'id', 'name', 0), :class=>''
+              %p.entry_header
+                Interpreter Customer Code 
+              .center
+                = x.text_field :translation_customer_code, :placeholder => "", :class => "", :maxlength => 200
+              %p.entry_header
+                Advanced Reports   
+              .center
+                .dropdowns
+                  %label          
+                    =  x.select :use_layerx, content_tag(:option,'Off',:value=>"0") + content_tag(:option,'On',:value=>"1"), :class=>''
+              %p.entry_header
+                Advanced Reports Username  
+              .center
+                = x.text_field :layerx_username, :placeholder => "", :class => "", :maxlength => 200
+              %p.entry_header
+                Advanced Reports Dashboard Id  
+              .center
+                = x.text_field :layerx_dashboard_id, :placeholder => "", :class => "", :maxlength => 200
+              %p.entry_header
+                Epic Interconnect Server 
+              .center
+                = x.text_field :interconnect_server, :placeholder => "", :class => "", :maxlength => 200
+              %p.entry_header
+                Epic Interconnect Username 
+              .center
+                = x.text_field :interconnect_username, :placeholder => "", :class => "", :maxlength => 200
+              %p.entry_header
+                Epic Interconnect Password 
+              .center
+                = x.text_field :interconnect_password, :placeholder => "", :class => "", :maxlength => 200
+                = x.hidden_field :status, :value =>1
+            
+          .submit
+            .center 
+              //= link_to "Save for later", ""
+              = x.submit "Add", :class=> "button"
+
+
+
+:javascript
+  document.getElementById('client_client_name').required = true;
+  if (document.getElementById('channelDropDown')) { 
+    document.getElementById('channelDropDown').required = true;
+  }
+ 

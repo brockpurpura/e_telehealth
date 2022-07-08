@@ -1,0 +1,146 @@
+#sub_title
+  .leftside
+    %i.fas.fa-upload.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Bulk Upload Clinicians
+  .rightside.create_new_link
+    =link_to 'Back', cgas_admin_panel_admin_path 
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget{:style => "padding: 20px"}
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content#dest_tree
+        .headblock
+        - if our_active_admin.is_super_admin?
+        
+          %p{:style => "font-size: 1.1em"} Use this form to upload a CSV formatted file of up to #{Configurable.max_users_bulk_upload} users.  Bulk upload use is for non-Admin roles only.
+          %p{:style => "font-weight: bold"}
+            Download a template CSV file 
+            =link_to example_clinician_csv_admin_panel_admin_path, {:style => "font-weight: bold; font-size: 11px"}, :remote => true do
+              here
+          %p &nbsp;
+
+          = form_tag bulk_upload_clinician_admin_panel_admin_path, :method => :post, :multipart => true do
+            = file_field_tag "file", style: "line-height: unset; border-style: none; margin: unset; font-size: 12px"
+            %p &nbsp;
+            = submit_tag "Upload", style: "margin-left: 7px; padding: 7px 10px 7px 10px"
+
+          :javascript 
+            $(document).ready(function () {
+                // will call refreshPartial every 3 seconds
+                setInterval(refreshUploadLogs, 3000)
+
+            });
+            function refreshUploadLogs() {
+              console.log("Refreshing Upload Logs for user");
+                $.ajax({
+                    url: "fetch_upload_log?import_type=CLINICIAN"
+                })
+            }
+            refreshUploadLogs();
+          #upload_status_partial
+            = render :partial => "upload_status"
+        - else
+          %p{:style => "font-size: 1.1em"} Please email your bulk upload files to techsupport@caregility.com
+          
+        %br
+        %br 
+        %h5{:style => "color: black"} CSV specification
+        %br
+        %table.upload_params{:border => 1}
+          %tbody
+            %tr
+              %th Field
+              %th Example
+              %th Optional?
+              %th Description
+            %tr
+              %td prefix
+              %td DR
+              %td Y
+              %td The title of the user.  Must be one of; Mr, Mrs, Ms, BSN, DR, NP, PA, PHD, RN
+            %tr
+              %td first_name
+              %td Henry
+              %td N
+              %td The user's first name
+            %tr
+              %td last_name
+              %td Smith
+              %td N
+              %td The user's last name
+            %tr
+              %td channel
+              %td ACME National Medical
+              %td N
+              %td Must match an existing Channel in the Caregility Admin portal.
+            %tr
+              %td customer
+              %td Cyber Medical
+              %td N
+              %td Equivalent to the 'Customer' field in the Clinician selection dropdowns. Must match an existing Customer.
+            %tr
+              %td clinical_role
+              %td Nursing
+              %td N
+              %td Must be one of "Provider", "Nursing", "Ancillary"
+            %tr
+              %td specialty
+              %td LPN
+              %td N
+              %td 
+                Must be a specialty in the chosen 'clinical_role'
+                %br
+                %br
+                %ul
+                  - Admin::CLINICIAN_ROLES.keys.each do |cl_r|
+                    %li{:style => "font-size: .875rem;"} #{cl_r}
+                    %ul
+                      - Admin::CLINICIAN_ROLES[cl_r].each do |cl_sp|
+                        %li{:style => "font-size: .875rem;"} #{cl_sp}
+            %tr
+              %td email
+              %td clinician@hospital.com
+              %td N
+              %td The email address of the Clinician
+            %tr
+              %td phone_number
+              %td 2154432345
+              %td Y
+              %td The phone number of the Clinician
+            %tr
+              %td third_party_auth
+              %td TRUE
+              %td Y
+              %td Whether the Clinician is authenticated by a 3rd party
+            %tr
+              %td has_clinician_role
+              %td TRUE
+              %td N (Unless no other primary Role is selected)
+              %td Whether the Clinician has the Clinician application primary role.   Note that each Clinician created will need to be individually assigned to specific Customers in the 'Edit User' page, in order to make use of the Clinician application.
+            %tr
+              %td has_iobserver_role
+              %td TRUE
+              %td N (Unless no other primary Role is selected)
+              %td Whether the Clinician has the iObserver application primary role.  Valid values are "TRUE" and "FALSE".  Empty is considered to mean "FALSE".
+            %tr
+              %td has_technician_role
+              %td TRUE
+              %td N (Unless no other primary Role is selected)
+              %td Whether the Clinician has the Technician primary role.  Valid values are "TRUE" and "FALSE".  Empty is considered to mean "FALSE".
+            %tr
+              %td has_notification_portal_role
+              %td TRUE
+              %td N
+              %td Whether the Clinician has the Notification Portal application role.  Valid values are "TRUE" and "FALSE".  Empty is considered to mean "FALSE".
+            %tr
+              %td is_read_only
+              %td TRUE
+              %td N
+              %td Whether the Clinician has a Read Only account.  Valid values are "TRUE" and "FALSE".  Empty is considered to mean "FALSE".
+            

@@ -1,0 +1,84 @@
+-if @rooms.present?
+
+  %table{:class=>'table table-bordered', :id => 'room_list'}
+    %thead
+      %tr
+        - if our_active_admin.is_super_admin?
+          %th
+            Channel
+        - if !our_active_admin.is_customer_admin?
+          %th
+            Customer
+        %th
+          Location  
+        %th 
+          Unit 
+    %tbody
+      -@rooms.each_with_index do |room, idx|
+        %tr{:class => idx%2==0 ? 'even' : 'odd'}   
+          - if our_active_admin.is_super_admin?
+            %td.vertical_center{:onclick => "open_edit_room_popup('#{idx}')"}
+              #{room.building.location.client.client_admin.name}
+          - if !our_active_admin.is_customer_admin?
+            %td.vertical_center{:onclick => "open_edit_room_popup('#{idx}')"}
+              #{room.building.location.client.client_name}          
+          %td.vertical_center{:onclick => "open_edit_room_popup('#{idx}')"}
+            #{room.building.name} 
+          %td.hidden{:id=> 'rm_' + idx.to_s}
+            = room.to_json
+          %td.vertical_center
+            = form_tag endpoints_admin_panel_admin_path do
+              = hidden_field_tag :room_id, room.id
+              = submit_tag "#{room.name}", :class=>'link'
+
+        #popup_widget_surround
+          .popup_widget.popup_ui{:id => "edit_room_#{idx}" }
+            #uhe_admin_popup
+              %h2 Edit Unit 
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_room_#{idx}')" do
+                <i class="far fa-times" aria-hidden="true"></i>
+              .uhe_admin_popup_body.no_scroll  
+                .uhe_admin_popup_form 
+                  %p.entry_header
+                    Name *
+                  .center
+                    =  text_field :number, "Name", id: "edit_room_number_#{idx}", :placeholder => "", :class => "", :maxlength => 200                  
+              - if our_active_admin.is_not_read_only?
+                .submit
+                  .center
+                    = link_to "Update", "javascript:;", :class=> "button", :onclick => "update_room_info('#{room.id}','#{idx}')"
+                .footer_link
+                  .center
+                    =link_to "Delete Unit", "javascript:;", :class => "", :onclick=> "open_admin_popup('delete_room_#{idx}','edit_room_#{idx}')"
+ 
+        #popup_widget_surround
+          .popup_widget.popup_ui{:id => "delete_room_#{idx}" }
+            #uhe_admin_popup
+              %h2 Delete Unit 
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('delete_room_#{idx}')" do
+                <i class="far fa-times" aria-hidden="true"></i>
+                
+              = form_tag rooms_admin_panel_admin_path, :class=>'' do 
+                .uhe_admin_popup_body.no_scroll  
+                  .uhe_admin_popup_form 
+                
+                    %p.entry_header
+                      Confirm Delete
+                    .center
+                      = text_field_tag :delete_edittext, nil, placeholder: 'Type DELETE to Confirm', :class => "password_confirm",  :oninput => "check_delete_button_activation('#{room.id.to_s}')", :id => "delete_confirm_" + room.id.to_s
+                    %p.entry_informational You are about to delete #{room.name}
+
+                .submit
+                  .center
+                    = hidden_field_tag :delete_room, room.id 
+                    = submit_tag "Delete", :class=> "inactive", :disabled => "disabled", :id => "delete_btn_" +room.id.to_s
+  .pagination_tr
+    .center
+      = will_paginate @rooms, params: params   
+         
+-else
+  %p.no_matching_info No matching information
+
+
+<script>$(document).ready(function() { $("#room_list").tablesorter(); } );</script> 
+

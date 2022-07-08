@@ -1,0 +1,50 @@
+.component_style
+  = form_tag main_components_path  do 
+    = hidden_field_tag :endpoint_id, @endpoint.id
+    = submit_tag "Return to Components", :class => "top_left_nav"
+   
+  = link_to "Logout", destroy_admin_session_path, :method=>:delete, :class => "top_right_nav"
+  
+  - if @notice.present?
+    %p#notice= @notice
+  - if @error_notice.present? 
+    %p#error_notice= @error_notice
+    
+  .component_wrapper 
+
+    %h2 #{@endpoint.room_info}
+    %h3 #{@component.part_type}   
+    %br
+    = image_tag(@component_image_path, :alt => "Component Image", :width => "200px")
+    %br
+    %br
+    %p.details Universal Product Code
+    = form_for :upc, url: details_components_path  do |x|
+      - if !@component.retired_at.present?
+        = x.text_field :update_upc, :value => "#{@component.upc}", :class => "upc_form upc_save", :placeholder => "Missing UPC", :maxlength => 200
+        = hidden_field_tag :endpoint_id, @endpoint.id
+        = hidden_field_tag :component_id, @component.id
+
+        = x.submit "Save", :class => ""
+        
+      - else
+        = x.text_field :update_upc, :value => "#{@component.upc}", :class => "upc_form", :placeholder => "N/A", :disabled => "disabled"   
+    %br
+    %br
+    %p.details Created: #{@component.created_at.strftime("%b %d %Y. %H:%M %p")   }
+    - if @component.retired_at&.to_s.nil?
+      = form_tag  main_components_path  do 
+        = hidden_field_tag :endpoint_id, @endpoint.id
+        = hidden_field_tag :archive, "true"
+        = hidden_field_tag :component_id, @component.id
+        = submit_tag "Archive", :class => "archive_details",  confirm: 'Are you sure?'
+
+    - else
+      %h3.no_components Archived
+      = @component.retired_at.strftime("%b %d %Y. %H:%M %p")  
+    %br 
+    %br  
+    %br
+    %br
+      
+

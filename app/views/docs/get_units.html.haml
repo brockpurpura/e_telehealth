@@ -1,0 +1,28 @@
+%div.docs_text.col-md-6
+  %h1 Retrieve a list of all Patient Units 
+  %hr
+  %p You can retrieve a list of all patient units and descriptions with a POST call to the API.  You must include your API username and API password in the Header.  
+  %hr
+
+  %h5 HTTP POST to Retrieve Units
+  %p To initialize a call, make an HTTP POST request to the call resource URI:
+  %pre.notranslate.http-request https://healthcare.univago.com/api/get_units
+  %p There are no parameters necessary to send with this call, your client information is retrieved with your API credentials.  Result will return an array of patient unit information.
+  %h5 Request Response 
+  %h4 Successful Result -- JSON response - 200 Header status OK
+  %p Example:{"message":"Success","results":[{"building":"Caregility","room":"2156","patient_unit":"Bed 1","patient_unit_id":6},{"building":"Caregility","room":"2156","patient_unit":"Bed 2","patient_unit_id":20}]}  
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Invalid Requests"}
+
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example:
+    %span curl  -u Mm4cbQ:Tf0sTHtH_70  -H "Content-Type: application/json, Accept: application/json" -X POST  https://healthcare.univago.com/api/get_endpoints
+    %span Where:
+    %span "Mm4cbQ" = your api username 
+    %span "Tf0sThtH_70" = your api password
+    %span Example Result: 
+    %span {"message":"Success","results":[{"building":"Caregility","room":"2156","patient_unit":"Bed 1","patient_unit_id":6},{"building":"Caregility","room":"2156","patient_unit":"Bed 2","patient_unit_id":20}]}  
+
+

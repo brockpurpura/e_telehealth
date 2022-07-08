@@ -1,0 +1,30 @@
+---
+Support_1:
+  id: 20
+  name: Univago HE 1.41 Patch Release Notes 9-7-2019.pdf
+  document: Univago_HE_1.41_Patch_Release_Notes_9-7-2019.pdf
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-09-11 13:15:28.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-09-11 13:15:28.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Support_2:
+  id: 23
+  name: Caregility 1.42 Patch Release Notes 10-15-2019.pdf
+  document: Caregility_1.42_Patch_Release_Notes_10-15-2019.pdf
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-10-09 21:17:58.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-10-09 21:17:58.000000000 Z
+    zone: *2
+    time: *3
+

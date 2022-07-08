@@ -1,0 +1,9 @@
+Report_1:
+  id: 3
+  admin_id: 38
+  report_url: http://iobserver.univago.com/cd_2019-06-01_to_2019-06-30_224f33bea66a434142dc42b02f752afe.csv
+  active: 2
+  report_desc: Yorktel Demo Usage 2019-06-01 to 2019-06-30
+  report_type: USAGE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

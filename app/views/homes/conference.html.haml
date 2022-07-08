@@ -1,0 +1,78 @@
+:javascript
+  invited = false;
+  api_call = false;
+  e_api_call = false;
+.hidden
+  %p#server_name #{@server_name}
+#block_screen.blocked
+%p#mic_first_joined.hidden true
+
+#login_widget_surround{:class=> is_mobile_device? ? 'mobile' : 'favorite_rooms'}
+  #login_widget{:class=> user_signed_in? ? is_mobile_device? ? '' : 'favorite_rooms'  : 'sign_in'}
+    #sign_in{:class=> user_signed_in? ? 'hidden' : ''}
+      //.header_ 
+      //  %p.leftside HealthCare 2.0 Login
+      .user_login
+        %h2.login Clinician Access
+        = email_field_tag :email,'', :placeholder=>'Email', :id=>'user_email', :autocomplete => false
+        = password_field_tag :password,'', autocomplete: "off" , :placeholder=>'Password', :id=>'user_password'
+        = hidden_field_tag :authenticity_token, form_authenticity_token, :id=>'auth_token'
+        %button.btn_login.initial_login{:onclick=>"processLogin()"}
+          LOGIN
+        %br
+        .rightside.height_15
+          = link_to 'Forgot password?', new_user_password_path, :class=>'user_forgot'
+        %br
+        = render :partial=>'privacy'
+    #dial_patient{:class=> user_signed_in? ? '' : 'hidden'}
+
+      //.header_ 
+      //%p.leftside HealthCare 2.0 Login
+      //.rightside
+      //= collection_select(:location_id, :id, Location.all, :id, :name, {},{:class=>'in_header'})
+      %main{:'aria-labelledby' => "patientid"}
+        .user_login
+          %h1.patient{:id =>"patientid"} Dial Patient
+          %label{:for=>"locationSelect", :id=>"customerLabel", :class=>"formSelect"} Customer
+          .dropdowns
+            %span
+            %label.callout#locationSelectRequired.hidden{:for =>"locationSelect", :"aria-label"=>'Please select a Customer'} Select           
+            = collection_select(:client_id, :id, {}, :id, :name, {:prompt => ""}, {:'aria-required'=>"true", :title=>"Customer", :id=>'locationSelect', :onchange=>"checkBuildings(); clearValidation(locationSelect);", autofocus: true})
+          
+          %label{:for=>"buildingSelect", :class=>"formSelect"} Location
+          .dropdowns
+            %span
+            %label.callout#buildingSelectRequired.hidden{:for =>"buildingSelect", :"aria-label"=>'Please select a Location'} Select          
+            = collection_select(:building_id, :id, {}, :id, :name, {:prompt=>""},{:'aria-required'=>"true", :title=>"Location", :id=>'buildingSelect', :onchange=>"checkRooms(); clearValidation(buildingSelect);", :onclick => "dialRoomValidateInput(locationSelect, buildingSelect)", :onfocus => "dialRoomValidateInput(locationSelect, buildingSelect)"})
+
+          %label{:for=>"roomSelect", :class=>"formSelect"} Unit
+          .dropdowns   
+            %span
+            %label.callout#roomSelectRequired.hidden{:for =>"roomSelect", :"aria-label"=>'Please select a Unit'} Select     
+            = collection_select(:room_id, :id, {}, :id, :name, {:prompt=>""},{:'aria-required'=>"true", :title=>"Unit", :id=>'roomSelect', :onchange=>"checkEndpoints(); clearValidation(roomSelect);", :onclick => "dialRoomValidateInput(buildingSelect, roomSelect)", :onfocus => "dialRoomValidateInput(buildingSelect, roomSelect)"})
+
+          %label{:for=>"endpointSelect", :class=>"formSelect"} Room
+          .dropdowns
+            %span
+            %label.callout#endpointSelectRequired.hidden{:for =>"endpointSelect", :"aria-label"=>'Please select a Room'} Select           
+            = collection_select(:endpoint_id, :id, {}, :id, :name,  {:prompt=>""}, {:'aria-required'=>"true", :title=>"Room", :id=>'endpointSelect', :onclick => "dialRoomValidateInput(roomSelect, endpointSelect)", :onfocus => "dialRoomValidateInput(roomSelect, endpointSelect)", :onchange => "clearValidation(endpointSelect);"})
+
+          .call_privacy
+            .leftside
+              %input{:name => "privacy", :id=>'privacy_select', :type=>'checkbox', :class=>'checkbox', :onclick => "dialRoomValidateInput(endpointSelect, privacy_select)", :onfocus => "dialRoomValidateInput(endpointSelect, privacy_select)"}   
+            .leftside
+              %label{:for=>'privacy_select', :class=>'checkbox_label'} Place Patient On Hold     
+
+          .center
+            %button.form_button{:onclick=>"dialRoomSubmitValidation();"}
+              Call
+          - if !is_mobile_device?
+            .center
+              = button_to "Saved Rooms", "javascript:;", :class => 'favorite_rooms_link', :onclick => "open_favorites_sidebar()"
+  
+
+=render :partial=>'conference_view' , :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias} 
+
+#settings_screen.hidden
+%p#disconnecting Disconnecting....
+

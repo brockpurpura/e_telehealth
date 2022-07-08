@@ -1,0 +1,15 @@
+[Unit]
+Description=Redis Sentinel
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+ExecStart=/usr/local/bin/redis-sentinel /etc/redis/sentinel.conf
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=redis-sentinel
+
+[Install]
+WantedBy=multi-user.target

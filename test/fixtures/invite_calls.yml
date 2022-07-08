@@ -1,0 +1,9 @@
+InviteCall_1:
+  id: 1
+  vmr_id: 29
+  user_id: 2
+  call_token: R2rtLzH8Mlkk-aFe
+  invite_email: jschell18@gmail.com
+  expire_amount: 30
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

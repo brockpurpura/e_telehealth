@@ -1,0 +1,96 @@
+VmrMeeting_1:
+  id: 1
+  name: hcm_ab_02922663_abdev
+  uri: /api/admin/configuration/v1/conference/12398/
+  alias: hcm_ab_02922663_abdev@pexip.ytex.net
+  on_deck: 1
+  set_info: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+VmrMeeting_2:
+  id: 2
+  name: hcm_ab_02922664_abdev
+  uri: /api/admin/configuration/v1/conference/12399/
+  alias: hcm_ab_02922664_abdev@pexip.ytex.net
+  on_deck: 1
+  set_info: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+VmrMeeting_3:
+  id: 3
+  name: hcm_ab_02922665_abdev
+  uri: /api/admin/configuration/v1/conference/12400/
+  alias: hcm_ab_02922665_abdev@pexip.ytex.net
+  on_deck: 1
+  set_info: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+VmrMeeting_4:
+  id: 4
+  name: hcm_ab_02922666_abdev
+  uri: /api/admin/configuration/v1/conference/12401/
+  alias: hcm_ab_02922666_abdev@pexip.ytex.net
+  on_deck: 1
+  set_info: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+VmrMeeting_5:
+  id: 5
+  name: hcm_ab_02922667_abdev
+  uri: /api/admin/configuration/v1/conference/12402/
+  alias: hcm_ab_02922667_abdev@pexip.ytex.net
+  on_deck: 1
+  set_info: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+VmrMeeting_6:
+  id: 6
+  name: hcm_ab_02922668_abdev
+  uri: /api/admin/configuration/v1/conference/12403/
+  alias: hcm_ab_02922668_abdev@pexip.ytex.net
+  on_deck: 0
+  used_by_cid: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  is_mobile: true
+
+VmrMeeting_7:
+  id: 7
+  name: hcm_ab_02922669_abdev
+  uri: /api/admin/configuration/v1/conference/12404/
+  alias: hcm_ab_02922669_abdev@pexip.ytex.net
+  on_deck: 0
+  used_by_cid: 17
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  is_mobile: true
+
+VmrMeeting_8:
+  id: 8
+  name: hcm_ab_02922670_abdev
+  uri: /api/admin/configuration/v1/conference/12405/
+  alias: hcm_ab_02922670_abdev@pexip.ytex.net
+  on_deck: 0
+  used_by_cid: 17
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  is_mobile: true
+  endpoint_id: 2
+
+VmrMeeting_9:
+  id: 9
+  name: hcm_ab_02922671_abdev
+  uri: /api/admin/configuration/v1/conference/12406/
+  alias: hcm_ab_02922671_abdev@pexip.ytex.net
+  on_deck: 0
+  used_by_cid: 1
+  start_time: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  is_mobile: true
+  endpoint_id: 3

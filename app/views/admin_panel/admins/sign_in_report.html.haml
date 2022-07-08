@@ -1,0 +1,42 @@
+#sub_title
+  .leftside
+    %i.fas.fa-sign-in-alt.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Sign In Summary 
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content#dest_tree
+        %table{:class=>'table table-bordered', :id=>"sign_in_table"}
+          %thead
+            %tr
+              %th.width_percent_30  
+                Customer(s)
+              %th.width_percent_30  
+                Email 
+              %th.center.width_percent_20
+                Sign In Count 
+              %th.center.width_percent_20
+                Call Amount 
+          %tbody
+            - @sign_in.all.order('id DESC').each_with_index do | u, idx |
+              %tr{:class => idx%2==0 ? 'even' : 'odd'}              
+                %td.width_percent_30
+                  -u.clients.each do |c|
+                    #{c.client_name} &nbsp; 
+                %td.width_percent_30 #{u.email}
+                %td.center.width_percent_20 #{u.sign_in_count}
+                %td.center.width_percent_20 #{u.vmrs.count}
+
+        .pagination_tr
+          .center
+            = will_paginate @sign_in, params: params
+
+<script>$(document).ready(function() { $("#sign_in_table").tablesorter(); } );</script> 
+

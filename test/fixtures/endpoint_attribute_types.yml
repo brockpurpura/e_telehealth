@@ -1,0 +1,7 @@
+EndpointAttributeType_1:
+  id: 1
+  description: EIS integration
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  is_boolean: 0
+  name_tag: eis_enabled

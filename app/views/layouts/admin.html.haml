@@ -1,0 +1,282 @@
+!!! 5
+%html
+  %head
+    - if our_active_admin.has_admin_type?
+      %title Admin  #{get_title_by_controller_value} | Caregility
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => false 
+    = javascript_include_tag 'application', 'data-turbolinks-track' => false 
+    = csrf_meta_tags
+    %meta{:charset=>"UTF-8", :lang=>"en"}
+    %meta{:content => "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1", :name => "viewport"}
+    = stylesheet_link_tag "style"
+    = stylesheet_link_tag "admin"
+    = stylesheet_link_tag "univago_admin"
+
+  .univago_admin
+    %body#admin_body_tag.admin
+      .hidden#popup_overlay{:style => "position: absolute; background-color: rgba(0,0,0,0.6); z-index: 2000; height: 100%; width: 100%;"}  
+      %div.navbar.navbar-fixed-top.bs-docs-nav{:role=>"banner"}
+        %div.logo
+          -if @custom_icon.present?
+            =image_tag @custom_icon
+          -else
+            =image_tag image_url('small_caregility_logo.png'), :class => "height_3"
+        %div  
+          %nav.collapse.navbar-collapse.bs-navbar-collapse{:role=>"navigation"}         
+            %ul.nav.navbar-nav.pull-right
+              %li.dropdown.pull-right
+                =link_to 'javascript:;', :'data-toggle'=>"dropdown", :class=>"dropdown-toggle" do 
+                  <i class="fas fa-user"></i> #{current_admin.email} <b class="caret"></b>   
+                %ul.dropdown-menu
+                  - if current_admin.is_uhe?
+                    %li
+                      =link_to conference_home_path do
+                        <i class="fas fa-user-md" style="margin-left: 2px; margin-right: 6px;"></i>Clinician 
+                  
+                  - if current_admin.is_esitter?
+                    - if Configurable.show_backup_iobserver == 1
+                      %li
+                        =link_to observation_path do
+                          <i class="fas fa-users"></i>iObserver Backup
+
+                    %li
+                      =button_to iobserver_redirect_admin_panel_admin_path do
+                        = hidden_field_tag "refresh_token", ""
+                        <i class="fas fa-users"></i>iObserver 
+
+                  %li 
+                    =link_to edit_admin_registration_path do
+                      <i class="fas fa-key li"></i> Reset Password 
+                  %li 
+                    =link_to admins_sign_out_path, :method=>:delete do
+                      <i class="fa fa-sign-out"></i> Logout
+      -if @banner_color.present? 
+        %header{:style=>"background-color: #{@banner_color}; padding-top: 55px;"}
+          %div.container
+            %div.row
+              %div.col-md-9
+                - if our_active_admin.is_client_admin?
+                  %p{:style => "color: #{@font_color || 'white'}"} #{our_active_admin.client_admin.name} Telehealth Administration
+                - elsif our_active_admin.is_client?
+                  %p{:style => "color: #{@font_color || 'white'}"} #{our_active_admin.client.client_name} Telehealth System
+              - if our_active_admin.is_read_only?
+                .rightside
+                  %p{:style=>"color: yellow"} READ ONLY
+      - else
+        %header{:style=>"background-color: #0082C8; padding-top: 55px;"}
+          %div.container
+            %div.row
+              %div.col-md-9
+                .left_side
+                  - if our_active_admin.is_client_admin?
+                    %p{:style => "color: #{@font_color || 'white'}"}  #{our_active_admin.client_admin.name} Telehealth Administration
+                  - elsif our_active_admin.is_client?
+                    %p{:style => "color: #{@font_color || 'white'}"} #{our_active_admin.client.client_name} Telehealth System 
+                  - else
+                    %p Caregility Telehealth Administration 
+              - if our_active_admin.is_read_only?
+                .rightside
+                  %p{:style=>"color: yellow"} READ ONLY
+      - if  is_mobile_device?
+        %br
+        %br
+        %br
+        %br
+        .col-md-12
+          .col-sm-12
+            .center
+              %p The admin system is accessible by desktop only.
+        %br
+        %br
+        %br
+        %br
+      - else
+        %div.content
+          %div.sidebar
+            %div.sidebar-dropdown
+              <a href='javascript:;'>popup_category()</a>
+            %ul{:id=>"nav"}
+              %li.sidebar_header
+                %p Overall View 
+              %li{:class=>((request.env['PATH_INFO'] == "/admin_panel/admin/health")) ? 'open' : ''}
+                =link_to health_admin_panel_admin_path, :class => '' do 
+                  <i class="far fa-chart-bar fa-lg visuals fade"></i>
+                  .sidebar_plaintext
+                    Monitoring System
+              %li.sidebar_header
+                %p #{our_active_admin.is_super_admin? ? 'Channels' : our_active_admin.is_channel_admin? ? 'Customers' : 'Users'}
+              - if our_active_admin.is_super_admin? 
+                %li{:class=>current_page?(groups_admin_panel_admin_path) ? 'open' : ''}
+                  =link_to groups_admin_panel_admin_path do
+                    %i{:class => "far fa-tachometer-alt fa-lg visuals fade"}
+                    .sidebar_plaintext
+                      Channels
+              - if our_active_admin.is_super_admin? or our_active_admin.is_channel_admin?
+                %li{:class=>(current_page?(customers_admin_panel_admin_path) or (request.env['PATH_INFO'] == "/admin_panel/admin/bulk_functions") or (request.env['PATH_INFO'] == "/admin_panel/admin/customer_settings")) ? 'open' : ''}
+                  =link_to customers_admin_panel_admin_path do
+                    %i{:class => "fas fa-users fa-lg visuals fade"}
+                    .sidebar_plaintext
+                      Customers
+              %li{:class=>((request.env['PATH_INFO'] == "/admin_panel/admin/cgas" or request.env['PATH_INFO'] == "/admin_panel/admin/edit_user_permissions" or request.env['PATH_INFO'] == "/admin_panel/admin/edit_user") && !params[:is_mobile_user] == "true") ? 'open' : ''}
+                =link_to cgas_admin_panel_admin_path do
+                  %i{:class => "fa fa-user fa-lg visuals fade"}
+                  .sidebar_plaintext
+                    Users 
+              %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/cgas_mobile" or request.env['PATH_INFO'] == "/admin_panel/admin/edit_mobile_user_permissions" or request.env['PATH_INFO'] == "/admin_panel/admin/edit_mobile_user" or params[:is_mobile_user] == "true") ? 'open' : ''}
+                =link_to cgas_mobile_admin_panel_admin_path do
+                  %i{:class => "fa fa-tablet-alt fa-lg visuals fade"}
+                  .sidebar_plaintext
+                    Mobile Patients 
+              %li.sidebar_header
+                %p Reporting
+                - if our_active_admin.is_super_admin?
+                  - if Configurable.system_use_layerx.to_s == '1'
+                    %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/advanced_reports") ? 'open' : ''}
+                      =link_to advanced_reports_admin_panel_admin_path, :class => '' do 
+                        <i class="fas fa-chart-pie fa-lg visuals fade"></i>
+                        .sidebar_plaintext
+                          Advanced Reports
+                  %li{:class=>current_page?(usage_report_admin_panel_admin_path) ? 'open' : ''}
+                    =link_to usage_report_admin_panel_admin_path, :class => "" do 
+                      <i class="fas fa-chart-line fa-lg visuals fade"></i>
+                      .sidebar_plaintext
+                        Usage
+                  %li{:class=>current_page?(sign_in_report_admin_panel_admin_path) ? 'open' : ''}
+                    =link_to sign_in_report_admin_panel_admin_path, :class => "" do 
+                      <i class="fas fa-sign-in-alt fa-lg visuals fade"></i>
+                      .sidebar_plaintext
+                        Sign In Summary 
+                  %li{:class=>current_page?(vmr_report_admin_panel_admin_path) ? 'open' : ''}
+                    =link_to vmr_report_admin_panel_admin_path, :class => "" do 
+                      <i class="fa fa-signal fa-lg visuals fade"></i>
+                      .sidebar_plaintext
+                        VMR Availability 
+                  %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/observation_reports" or request.env['PATH_INFO'] == "/admin_panel/admin/observation_report_activities") ? 'open' : ''}
+                    =link_to observation_reports_admin_panel_admin_path, :class => '' do 
+                      <i class="fas fa-chart-area fa-lg visuals fade"></i>
+                      .sidebar_plaintext
+                        iObserver Reports                         
+                - if !our_active_admin.is_super_admin?
+                  %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/reports") ? 'open' : ''}
+                    =link_to reports_admin_panel_admin_path, :class => '' do 
+                      <i class="far fa-chart-line fa-lg visuals fade"></i>
+                      .sidebar_plaintext
+                        Usage Reports 
+                  - if our_active_admin.is_channel_admin?
+                    - if our_active_admin.client_admin.uses_layerx?
+                      %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/advanced_reports") ? 'open' : ''}
+                        =link_to advanced_reports_admin_panel_admin_path, :class => '' do 
+                          <i class="fas fa-chart-pie fa-lg visuals fade"></i>
+                          .sidebar_plaintext
+                            Advanced Reports
+                          
+                  - else
+                    - if !our_active_admin.client.nil? and our_active_admin.client.uses_layerx?
+                      %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/advanced_reports") ? 'open' : ''}
+                        =link_to advanced_reports_admin_panel_admin_path, :class => '' do 
+                          <i class="fas fa-chart-pie fa-lg visuals fade"></i>
+                          .sidebar_plaintext
+                            Advanced Reports
+                  %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/observation_reports" or request.env['PATH_INFO'] == "/admin_panel/admin/observation_report_activities") ? 'open' : ''}
+                    =link_to observation_reports_admin_panel_admin_path, :class => '' do 
+                      <i class="fas fa-chart-area fa-lg visuals fade"></i>
+                      .sidebar_plaintext
+                        iObserver Reports         
+              %li.sidebar_header
+                %p Configuration
+              %li{:class=>current_page?(buildings_admin_panel_admin_path) ? 'open' : ''}
+                =link_to buildings_admin_panel_admin_path, :class => "" do 
+                  %i.fas.fa-hospital.fa-lg.visuals.fade
+                  .sidebar_plaintext
+                    Locations 
+              %li{:class=>current_page?(rooms_admin_panel_admin_path) ? 'open' : ''}
+                =link_to rooms_admin_panel_admin_path, :class => "" do 
+                  %i.fas.fa-notes-medical.fa-lg.visuals.fade
+                  .sidebar_plaintext
+                    Units 
+              %li{:class=>current_page?(endpoints_admin_panel_admin_path) ? 'open' : ''}
+                =link_to endpoints_admin_panel_admin_path, :class => "" do 
+                  %i.fas.fa-user-md.fa-lg.visuals.fade
+                  .sidebar_plaintext
+                    Rooms
+ 
+              %li.sidebar_header
+                %p System
+              %li{:class=>(current_page?(data_values_admin_panel_setting_path) or current_page?(observer_admin_panel_setting_path) )  ?  'has_sub open' : 'has_sub'}
+                =link_to 'javascript:;' do
+                  <i class="far fa-cog fa-lg visuals fade"></i>Settings<span class="pull-right"><i class="fa fa-chevron-right"></i>
+                %ul
+                  - if our_active_admin.is_super_admin?
+                    %li
+                      =link_to 'System', data_values_admin_panel_setting_path , :class=>'dropdown'
+                    - if our_active_admin.allow_demo > 1
+                      %li
+                        =link_to 'Advanced Dev', super_dev_admin_panel_setting_path , :class=>'dropdown'
+                      
+                  %li
+                    =link_to 'iObserver', observer_admin_panel_setting_path, :class=>'dropdown'
+                  - if our_active_admin.is_super_admin?
+                    %li 
+                      =link_to 'Server', background_admin_panel_setting_path, :class=>'dropdown'
+                - if Configurable.use_ldap == 1
+                  %li{:class=>current_page?(ldap_admin_panel_setting_path) ? 'open' : ''}
+                    =link_to ldap_admin_panel_setting_path do
+                      %i{:class => "far fa-cog fa-lg visuals fade"}
+                      .sidebar_plaintext
+                        LDAP 
+              %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/setting/advanced") ? 'open' : ''}
+                =link_to advanced_admin_panel_setting_path do 
+                  <i class="fa fa-desktop fa-lg visuals fade"></i>
+                  .sidebar_plaintext
+                    Developer 
+              %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/setting/system_alerts") ? 'open' : ''}
+                =link_to system_alerts_admin_panel_setting_path do 
+                  <i class="fa fa-exclamation-triangle fa-lg visuals fade"></i>
+                  .sidebar_plaintext
+                    Notifications 
+              %li{:class=>(request.env['PATH_INFO'] == "/admin_panel/admin/support") ? 'open' : ''}
+                =link_to support_admin_panel_admin_path do 
+                  <i class="fa fa-info fa-lg visuals fade"></i>
+                  .sidebar_plaintext
+                    Support
+              - if our_active_admin.is_tech? and our_active_admin.is_tech_approved?
+                %li.sidebar_header
+                  %p Technician 
+                %li
+                  =link_to room_tech_path, :class => '' do 
+                    <i class="fas fa-mobile-alt fa-lg visuals fade"></i>
+                    .sidebar_plaintext
+                      Mobile Page
+
+ 
+          %div.mainbar
+            %div.container{:style => "margin-top: 15px;"}
+              -if flash[:alert] or @message.present? 
+                .col-lg-12
+                  .col-lg-12
+                    .alert.alert-warning.alert-dismissable
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                      = (flash[:alert].try(:html_safe) || @message)
+                - flash[:alert] = nil
+              -if Configurable.in_maintain.to_s == '1'
+                :javascript
+                  swal({ title: "Under Maintenance", text: "This application is currently under maintenance. Please try again later", type: "error", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}, function(){location.reload();}); 
+              - else
+                = yield 
+          %div.clearfix
+
+    %footer
+      %div.container
+      %div.row.height_20
+        .center 
+          <p class="copy">Copyright &copy; #{Time.now.strftime("%Y")} Caregility </p>
+
+
+
+:javascript 
+  var lochash = location.hash.substr(1);
+  var ref_token = lochash.substr(lochash.search(/(?<=^|&)refresh_token=/))
+                  .split('&')[0]
+                  .split('=')[1];
+  document.getElementById("refresh_token").value = ref_token;
+

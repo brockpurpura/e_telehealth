@@ -1,0 +1,3 @@
+$('#monitor_graph_partial').html("<%=escape_javascript( render :partial => 'monitor_graph', :locals => {:endpoint_statuses_graph => @endpoint_statuses_graph, :endpoint_statuses_count => @endpoint_statuses_count, :camera_good_percent => @camera_good_percent, :usb0_percent => @usb0_percent, :usb1_percent => @usb1_percent, :in_a_call=> @in_a_call, :version_percent => @version_percent, :online_percent => @online_percent}) %>")
+
+

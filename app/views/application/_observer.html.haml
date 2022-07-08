@@ -1,0 +1,868 @@
+:javascript
+
+  window.streaming = streaming;
+
+  const WEBRTC_STATS_MIN_RES_HEIGHT = 240;
+  const WEBRTC_STATS_MIN_FPS = 1;
+
+  const elem = id => document.getElementById(id);
+
+  const admin_id = elem('current_admin_id').innerHTML;
+  const userNameInput = elem('userNameInput');
+  const loginButton = elem('loginButton');
+  const logoutButton = elem('logoutButton');
+  const camera = elem('camera');
+  const microphone = elem('microphone');
+  const speakerGroup = elem('speakerGroup');
+  const speaker = elem('speaker');
+  const startLocalStreamButton = elem('startLocalStreamButton');
+  const stopLocalStreamButton = elem('stopLocalStreamButton');
+  const localStreamMessage = elem('localStreamMessage');
+  const showLocalStream = elem('showLocalStream');
+  const localVideo = elem('localVideo');
+  const onlineUsersBox = elem('onlineUsersBox');
+  const onlineUsersGroup = elem('onlineUsersGroup');
+  const remoteVideoGroup = elem('remoteVideoGroup');
+  const canvases = elem('canvases');
+  var this_controller = document.getElementById('current_controller').innerHTML;
+  var logged_in = false;
+
+  const remoteVideo = new Map();
+
+  const onlineUsers = new Map();
+  const onlineUsersMedia = new Map();
+  const autoRefreshedMachines = {};
+  // machines with issues: machineName : { lowResolutionStartTime:<startTime>, lowFpsStartTime:<startTime> }
+  const qualityProblems = {};
+
+  let moverTimer = 0;
+
+  const flagClass = (classList, classes, flag) => classes.forEach(className => {
+    if (className === flag)
+      classList.add(className);
+    else
+      classList.remove(className);
+  });
+
+  const setVideoClass = (element, className) => flagClass(element.classList,
+      ['notListening', 'listening', 'failingToListen', 'offline'], className);
+
+  const checkAudioInput = element => {
+    const mediaType = element.srcObject ? streaming.mediaType(element.srcObject) : 'none';
+    return (mediaType === 'audioVideo' || mediaType === 'audioOnly') ? 'listening' : 'failingToListen';
+  };
+
+  const canListen = element => speaker.value || (speakerGroup.hidden && element !== localVideo) ? checkAudioInput(element) : 'failingToListen';
+
+  const videoClass = (element, tryToListen) => tryToListen ? canListen(element) : 'notListening';
+
+  function updateVideo(element, tryToListen) {
+    const className = videoClass(element, tryToListen);
+    setVideoClass(element, className);
+    const videoElement = getVideoElement(element);
+    videoElement.muted = (className !== 'listening');
+  }
+
+  const tryingToListen = element => !element.classList.contains('notListening');
+
+  const selectThisVideo = mediaId => {
+    console.log('select this video: ' + mediaId);
+    muteAllCalls();
+    const selectedLayout = getSelectedLayout();
+    show_tab('advanced');
+    selectAndShowRoom(machineName(mediaId));
+    var layout_div = document.getElementById(selectedLayout);
+    var boxes = layout_div.getElementsByClassName('vid_box');
+    for (var i=0; i<boxes.length; i++) {
+      if (machineName(boxes[i].id) == machineName(mediaId)) {
+        // if (boxes[i].classList.contains('vid_selected')) {
+          // do not unselect when clicked - causes issues
+          /*boxes[i].classList.remove('vid_selected')
+          $("#location_" + activeMachineName()).removeClass('alert_frame');
+          if (! $('#info_div_'+machineName(mediaId)).hasClass('hidden')) {
+            $('#info_div_'+machineName(mediaId)).addClass('hidden');
+          }
+          reposition_movers()
+          hideCamera(); */
+        // }
+        // else {
+          boxes[i].classList.add('vid_selected')
+          $('#info_div_'+machineName(mediaId)).removeClass('hidden');
+          $('#info_div_dial_'+machineName(mediaId)).addClass('hidden');
+          $('#room_'+machineName(mediaId)).addClass('isSelected');
+          reposition_movers()
+          showCamera();
+        // }
+      }
+      else {
+        boxes[i].classList.remove('vid_selected');
+        reposition_movers();
+        $('#info_div_dial_'+machineName(boxes[i].id)).removeClass('hidden');
+        if (! $('#info_div_'+machineName(boxes[i].id)).hasClass('hidden')) {
+          $('#info_div_'+machineName(boxes[i].id)).addClass('hidden');}
+        if ($('#room_'+machineName(boxes[i].id)).hasClass('isSelected')) {
+          $('#room_'+machineName(boxes[i].id)).removeClass('isSelected');}
+      }
+    }
+  };
+
+
+  streaming.onConnect = id => {
+    console.log('CONNECTED!');
+    if (!logged_in) {
+      var this_admin = document.getElementById('current_admin').innerHTML;
+      console.log('logging in ' + this_admin + ' in observer script');
+      streaming.newUserSession(this_admin);
+    }
+    initiateLocalStreaming();
+    //goThroughCheckmarks();
+  };
+
+  streaming.onDisconnect = () => {
+    console.log('DISCONNECTED!');
+  };
+
+  const updateSpeaker = async element => {
+    try {
+      await element.setSinkId(speaker.value);
+      updateVideo(element, tryingToListen(element));
+    }
+    catch (err) {
+      logMessage(err);
+    }
+  };
+
+  const updateTestSound = async element => {
+    try {
+      await document.getElementById('player').setSinkId(speaker.value);
+    }
+    catch (err) {
+      logMessage(err);
+    }
+  }
+
+  speaker.onchange = () => {
+    updateSpeaker(localVideo);
+    remoteVideo.forEach((video, mediaId) => updateSpeaker(video));
+    updateTestSound();
+    saveObserverAudioSelections();
+  };
+
+  async function startLocalStream() {
+    document.querySelector("#observer_data_expand_screen .camera_indicator").classList.add('hidden');
+    try {
+      await streaming.startLocalStream(streaming.formatMediaConstraints(microphone.value ? microphone.value : null, camera.value ? camera.value : null));
+    }
+    catch (err) {
+      logMessage(`failed to start local stream: ${err}`);
+    }
+  }
+
+  //startLocalStreamButton.addEventListener('click', () => startLocalStream());
+
+  //stopLocalStreamButton.addEventListener('click', () => streaming.stopLocalStream());
+
+  camera.onchange = () => {
+    startLocalStream();
+    saveObserverAudioSelections();
+  }
+
+  microphone.onchange = () => {
+    startLocalStream();
+    saveObserverAudioSelections();
+  }
+
+
+  streaming.onLocalStreamStart = stream => {
+    //localStreamMessage.textContent = 'Local Stream On';
+    localVideo.srcObject = stream;
+    //showLocalStream.disabled = false;
+    //localVideo.hidden = !showLocalStream.checked;
+    //startLocalStreamButton.disabled = true;
+    //stopLocalStreamButton.disabled = false;
+    //camera.disabled = true;
+    //microphone.disabled = true;
+
+    if (stream && stream.getVideoTracks().length) {
+      document.querySelector("#observer_data_expand_screen .camera_indicator").classList.remove('hidden');
+    }
+  };
+
+  //showLocalStream.onchange = () => {
+  //  localVideo.hidden = !showLocalStream.checked;
+  //};
+
+  streaming.onLocalStreamStop = stream => {
+    if (stream === localVideo.srcObject) {
+      //localStreamMessage.textContent = 'Local Stream Off';
+      //showLocalStream.disabled = true;
+      //localVideo.hidden = true;
+      //startLocalStreamButton.disabled = false;
+      //stopLocalStreamButton.disabled = true;
+      //camera.disabled = false;
+      //microphone.disabled = false;
+
+      document.querySelector("#observer_data_expand_screen .camera_indicator").classList.add('hidden');
+    }
+  };
+
+  streaming.onLocalStreamOverconstrained = () => {
+    console.log('RELEASE THE HOUNDS!!!!');
+  };
+
+  localVideo.addEventListener('click', () => selectThisVideo());
+
+  streaming.onRemoteStreamStart = (mediaId, stream, callType) => {
+    console.log('Adding remote video ' + mediaId + ', call type ' + callType + ', stream ' + stream.id);
+
+    assignVideoToBox(mediaId, stream, false);
+
+    var machine_name = machineName(mediaId);
+    // check Video
+    if (!autoRefreshedMachines[machine_name]) {
+      const hasVideo = stream.getVideoTracks().some(track => {
+        return !track.muted;
+      });
+      if (!hasVideo) {
+        console.log('[STREAM] onRemoteStreamStart - machine with no video (sending refresh):', machine_name);
+        autoRefreshedMachines[machine_name] = true;
+        sendRefreshCamera(machine_name);
+      }
+    }
+
+    var els = document.querySelectorAll(".lost_connection_" + machine_name);
+    els.forEach((el) => {
+      el.remove();
+    });
+  };
+
+  function setupVideoElement(mediaId, video) {
+    video.setAttribute('autoplay', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('controls', '');
+    video.classList.add('notListening');
+    video.classList.add('ob_video');
+    video.muted = true;
+
+    video.addEventListener("contextmenu", (e) => { e.preventDefault(); return false; });
+    video.addEventListener('click', () => selectThisVideo(mediaId));
+    video.addEventListener('mouseover', () => hoverMover(mediaId));
+    video.addEventListener('mouseleave', () => hoverMoverRemover(mediaId));
+
+    setLongClick(video);
+    video.ondblclick = (e) => {
+      goToPoint(e, false);
+    };
+  }
+
+  /**
+   * sets the big video if the default video layout is selected
+   * @param machine_name
+   * @param forced
+   * @return true if updated
+   */
+  function setBigVideo(machine_name, forced) {
+    let isUpdated = false;
+    if (getSelectedLayout() === 'default_layout') {
+      machine_name = machineName(machine_name);
+      const videoBox = document.getElementById('location_' + machine_name);
+      const defaultVideoDiv = document.getElementsByClassName('default_vid_box')[0];
+      if (videoBox && (forced || defaultVideoDiv && defaultVideoDiv.childElementCount === 0)) {
+        if (defaultVideoDiv.id) {
+          const elemMover = document.getElementById('mover_big_' + defaultVideoDiv.id.replace('location_big_', ''));
+          if (elemMover) {
+            elemMover.remove();
+          }
+        }
+
+        defaultVideoDiv.id = 'location_big_' + machine_name.trim();
+        const smallVideoContainer = videoBox.firstChild.cloneNode(true);
+        for (let i = 0; i < smallVideoContainer.children.length; i++) {
+          let childElem = smallVideoContainer.children[i];
+          childElem.id = 'big_' + childElem.id;
+
+          if (childElem.tagName.toUpperCase() === 'VIDEO') {
+            setupVideoElement(machine_name, childElem);
+            childElem.srcObject = videoBox.firstChild.children[i].srcObject;
+            childElem.muted = true;
+            childElem.classList.remove('ob_video');
+            childElem.classList.add('canvas_frame');
+          }
+        }
+        defaultVideoDiv.innerHTML = '';
+        defaultVideoDiv.appendChild(smallVideoContainer);
+
+        isUpdated = true;
+      }
+      if (document.getElementById('location_big_' + machine_name) != null
+        && document.getElementById('mover_big_' + machine_name) == null) {
+          create_mover('big_' + machine_name, true);
+          position_mover('big_' + machine_name);
+
+          const moverElem = document.getElementById('mover_big_' + machine_name);
+          moverElem.classList.remove('mover');
+          moverElem.classList.add('static-video');
+          moverElem.onclick = null;
+        } else {
+          updateMoverWithNewInfo('big_' + machine_name);
+        }
+    }
+    return isUpdated;
+  }
+
+  function assignVideoToBox(mediaId, stream, reassign) {
+    var machine_name = machineName(mediaId);
+
+    let video = document.getElementById(machine_name);
+    if (document.getElementById('checkbox_'+machine_name)) {
+      if (video && !reassign) {
+        console.log(`Set ${mediaId} video srcObject to ${stream.id}`);
+        video.srcObject = stream;
+        video.classList.remove('offline');
+
+        if (document.getElementById('location_big_' + machine_name) != null) {
+          setBigVideo(machine_name, true);
+          if (!document.getElementById('location_' + machine_name).classList.contains('vid_selected')) {
+            selectThisVideo(machine_name);
+          }
+        }
+      } else {
+        const fieldset = document.createElement('div');
+        fieldset.classList.add('videoContainer');
+        if (!document.getElementById('mover_'+machine_name)) {
+          create_mover(machine_name);
+        }
+        else {
+          document.getElementById('mover_'+machine_name).classList.remove('hidden');
+        }
+
+        //style video
+        video = document.createElement('video');
+        video.id = machine_name;
+        try {
+          console.log(`Set ${mediaId} video srcObject to ${stream.id}`);
+          video.srcObject = stream;
+        } catch {
+          video.src = URL.createObjectURL(stream);
+          console.log(`Set ${mediaId} video src URL to ${video.src}`);
+        }
+        setupVideoElement(mediaId, video);
+
+        remoteVideo.set(mediaId, video);
+
+        /*if ((document.getElementById('ep_motion_detect_'+machine_name).value == 'Calibrate') && (document.getElementById('ep_motion_detect_check_'+machine_name).checked)) {
+          if (!video.classList.contains('calibrate')) {
+            video.classList.add('calibrate');
+          }
+        }
+        else {
+          video.classList.remove('calibrate');
+        }*/
+
+        var icr = document.createElement('p');
+        icr.classList.add('hidden');
+        icr.id = 'icr_'+machine_name;
+        icr.innerHTML = 'no';
+
+        var m_p = document.createElement('p')
+        m_p.id = 'motion_' + machine_name;
+        m_p.classList.add('hidden');
+        m_p.innerHTML='none';
+        var motionDetect = document.getElementById('ep_motion_detect_check_'+machine_name);
+        if (motionDetect && motionDetect.checked) {
+          m_p.innerHTML = document.getElementById('ep_motion_detect_'+machine_name).value;
+        }
+
+        const zooming = document.createElement('img');
+        zooming.classList.add('observer_zoom');
+        zooming.alt = 'loading ...';
+        zooming.id = 'observer_zoom';
+
+        const doubleTap = document.createElement('div');
+        doubleTap.classList.add('observer_double_tap');
+        doubleTap.id = 'observer_double_tap';
+
+        fieldset.appendChild(icr);
+        fieldset.appendChild(m_p);
+        fieldset.appendChild(video);
+        fieldset.appendChild(zooming);
+        fieldset.appendChild(doubleTap);
+
+        var layout_div = document.getElementById(getSelectedLayout());
+        var boxes = layout_div.getElementsByClassName('vid_box');
+        var not_assigned = true;
+
+        for (var i=0; i < boxes.length ; i++) {
+          if (boxes[i].classList.contains('default_vid_box')) {
+            continue;
+          }
+          if (boxes[i].hasChildNodes() ) {
+          } else {
+            boxes[i].classList.add('current_vid')
+            if (not_assigned) {
+              not_assigned = false;
+              boxes[i].appendChild(fieldset);
+              boxes[i].id = 'location_' + machine_name;
+              position_mover(machine_name);
+
+              if (setBigVideo(machine_name, false)) {
+                // make sure these is a selected video
+                selectThisVideo(machine_name);
+              }
+            } else { // empty box
+              boxes[i].id = 'location_' + i;
+            }
+            $("#" + boxes[i].id).droppable( {
+                drop: function (event, ui) {
+                  var incoming_video_id = ui.draggable.attr("id").replace("mover_", "location_");
+                  var outgoing_video_id = $(this).attr("id");
+                  console.log('incoming: ' + incoming_video_id + ', outgoing: ' + outgoing_video_id);
+                  var idToSelect = incoming_video_id.replace("location_","");
+                  var incoming_video = ui.draggable.attr("id").replace("mover_", "");
+                  var outgoing_video = $(this).attr("id").replace("location_","");
+                  var incoming_children = $('#'+incoming_video_id).children();
+                  var outgoing_children = $('#'+outgoing_video_id).children();
+                  if (incoming_video != outgoing_video) {
+                    $('#'+incoming_video_id).empty();
+                    $('#'+outgoing_video_id).empty();
+                    incoming_children.appendTo('#'+ outgoing_video_id);
+                    outgoing_children.appendTo('#'+ incoming_video_id);
+                    $('#'+incoming_video_id).attr("id", 'temp_' + incoming_video_id);
+                    $('#'+outgoing_video_id).attr("id", 'temp_' + outgoing_video_id);
+                    $('#temp_'+incoming_video_id).attr("id", outgoing_video_id);
+                    $('#temp_'+outgoing_video_id).attr("id", incoming_video_id);
+                    $('#location_'+incoming_video_id).attr("id", 'temp_location_' + incoming_video_id);
+                    $('#location_'+outgoing_video_id).attr("id", 'temp_location_' + outgoing_video_id);
+                    $('#temp_location_'+incoming_video_id).attr("id", 'location_' + outgoing_video_id);
+                    $('#temp_location_'+outgoing_video_id).attr("id", 'location_' + incoming_video_id);
+                    $(this).removeClass('move_selected');
+                    document.getElementById(incoming_video).play();
+                    if (document.getElementById(outgoing_video)) {
+                      document.getElementById(outgoing_video).play();
+                    }
+                    setTimeout(function(){selectThisVideo('camera_' + idToSelect);}, 150);
+                  } else {
+                    moverTimer = setTimeout(() => {
+                      $(this).removeClass('move_selected');
+                      moverTimer = 0;
+                    }, 10000);
+                  }
+                  reposition_movers();
+                  clearSelected();
+                },
+                over: function (event, ui) {
+                  $(this).addClass('move_selected');
+                  if (moverTimer) {
+                    clearTimeout(moverTimer);
+                    moverTimer = 0;
+                  }
+
+                  console.log("moving in");
+                },
+                out: function (event, ui) {
+                  $(this).removeClass('move_selected');
+                  if (moverTimer) {
+                    clearTimeout(moverTimer);
+                    moverTimer = 0;
+                  }
+                  console.log("moving out");
+                }
+              });
+          }
+        }
+
+        $('.mover').css({ position: 'absolute'});
+        $(".mover").draggable({helper:'clone'});
+      }
+    }
+  }
+
+  streaming.onMotionDetected = (mediaId, moving, movingRatio) => {
+    console.log('detected motion change ' + moving);
+    var machine_name = machineName(mediaId);
+    const videoGroup = remoteVideo.get(mediaId);
+    if (videoGroup) {
+      if (moving) {
+        if (!$('#location_'+machine_name).hasClass('motion_detection')){
+          $('#location_'+machine_name).addClass('motion_detection')
+        }
+       } else {
+         $('#location_'+machine_name).removeClass('motion_detection')
+       }
+     }
+  };
+
+  streaming.onRemoteStreamStop = (mediaId, stream) => {
+    const video = remoteVideo.get(mediaId);
+    console.log('Removing remote video ' + mediaId + ', stream ' + stream.id + ', video element ' + (video ? 'exists' : 'does not exist'));
+
+    // check for lost strealost_connectionm
+    var machine_name = machineName(mediaId);
+    var videoBox = document.getElementById(machine_name);
+    var lC = document.getElementById('lost_connection_' + machine_name);
+    console.log('checking...');
+    console.log(videoBox);
+    console.log(lC);
+    removeVideoQosLabels(machine_name);
+    if (!lC) {
+      var lost_connection = document.createElement('p')
+      lost_connection.id = 'lost_connection_' + machine_name;
+      lost_connection.classList.add('lost_connection');
+      lost_connection.classList.add('lost_connection_' + machine_name);
+      lost_connection.innerHTML='Lost Connection to Unit...';
+      if (videoBox) {
+        videoBox.parentNode.insertBefore(lost_connection, videoBox);
+      }
+      if (document.getElementById('big_' + machine_name)) {
+        setBigVideo(machine_name, true);
+      }
+    }
+  };
+
+  streaming.onStats = (mediaId, audioStats, videoStats) => {
+    const video = remoteVideo.get(mediaId);
+    if (!video) {
+      console.log('[STATS] Stats received ' + mediaId + ', videoStats ' + (videoStats && videoStats.id) +
+        ', video element ' + (video ? 'exists' : 'does not exist'));
+      return;
+    }
+
+    // check for lost strealost_connectionm
+    var machine_name = machineName(mediaId);
+    if (document.getElementById('lost_connection_' + machine_name)) {
+      return;
+    }
+
+    const prevValues = qualityProblems[machine_name];
+
+    const lowFps = videoStats && videoStats.framesPerSecond < WEBRTC_STATS_MIN_FPS;
+    const lowFpsStartTime = lowFps
+      ? (prevValues && prevValues.lowFpsStartTime)
+        || (videoStats.statsTimestamp && new Date(videoStats.statsTimestamp).getTime())
+        || Date.now()
+      : null;
+    const lowRes = videoStats && videoStats.frameHeight
+      && videoStats.frameHeight < WEBRTC_STATS_MIN_RES_HEIGHT;
+    const lowResolutionStartTime = lowRes
+      ? (prevValues && prevValues.lowResolutionStartTime)
+      || (videoStats.statsTimestamp && new Date(videoStats.statsTimestamp).getTime())
+      || Date.now()
+      : null;
+    const update = !prevValues || prevValues.lowFpsStartTime !== lowFpsStartTime
+      || prevValues.lowResolutionStartTime !== lowResolutionStartTime;
+    if (update) {
+      qualityProblems[machine_name] = {
+        lowResolutionStartTime: lowResolutionStartTime,
+        lowFpsStartTime: lowFpsStartTime
+      }
+
+      console.log('[STATS] Update detected: ' + mediaId + ', videoStats ' + (videoStats && videoStats.id) +
+      ', LowFPS: ' + lowFps + ', LowRes: ' + lowRes + ' ' + new Date().toString());
+      var videoBox = document.getElementById(machine_name);
+      var lC = document.getElementById('video_qos_' + machine_name);
+      console.log('checking...');
+      console.log(videoBox);
+      console.log(lC);
+      if (!lC && (lowResolutionStartTime || lowFpsStartTime)) {
+        var lost_connection = document.createElement('p')
+        lost_connection.id = 'video_qos_' + machine_name;
+        lost_connection.classList.add('lost_connection');
+        lost_connection.classList.add('video_qos_' + machine_name);
+
+        lost_connection.innerHTML= lowFpsStartTime
+          ? "Video Frozen"
+          : "Poor Video Quality";
+        if (videoBox) {
+          videoBox.parentNode.insertBefore(lost_connection, videoBox);
+        }
+        if (document.getElementById('big_' + machine_name)) {
+          setBigVideo(machine_name, true);
+        }
+      } else if (lC && !(lowResolutionStartTime || lowFpsStartTime)) {
+        // remove the warning
+        removeVideoQosLabels(machine_name);
+        if (document.getElementById('big_' + machine_name)) {
+          setBigVideo(machine_name, true);
+        }
+      }
+    }
+  };
+
+  function removeVideoQosLabels(machine_name) {
+    const els = document.querySelectorAll(".video_qos_" + machine_name);
+    els.forEach((el) => {
+      el.remove();
+    });
+  }
+
+  streaming.onNodeOnline = (nodeId, mediaType) => {
+    logMessage(`${nodeId}: ${mediaType}`);
+  };
+
+  streaming.onNodeOffline = nodeId => {
+    logMessage(`${nodeId}: offline`);
+  };
+
+  streaming.onOnlineUsers = newOnlineUsers => {
+    onlineUsers.clear();
+    while (onlineUsersGroup.firstChild) {
+      onlineUsersGroup.removeChild(onlineUsersGroup.firstChild);
+    }
+    newOnlineUsers.forEach(user => {
+      const btn = document.createElement('button');
+      btn.textContent = `${user.name} - ${user.mediaType}`;
+      //btn.addEventListener('click', () => streaming.streamFromUser(user.name));
+      onlineUsersGroup.appendChild(btn);
+      onlineUsers.set(user.name, btn);
+    });
+    onlineUsersBox.hidden = (newOnlineUsers.length === -1);
+  };
+
+  streaming.onUserOnline = (userName, mediaType) => {
+    let btn = onlineUsers.get(userName);
+    if (!btn) {
+      btn = document.createElement('button');
+      //btn.addEventListener('click', () => streaming.streamFromUser(userName));
+      onlineUsersGroup.appendChild(btn);
+      onlineUsers.set(userName, btn);
+    }
+    btn.textContent = `${userName} - ${mediaType}`;
+    onlineUsersBox.hidden = false;
+  };
+
+  streaming.onUserOffline = userName => {
+    const btn = onlineUsers.get(userName);
+    if (btn) {
+      onlineUsersGroup.removeChild(btn);
+      onlineUsers.delete(userName);
+    }
+    onlineUsersBox.hidden = (onlineUsers.size === -1);
+  };
+
+  const deviceOption = (device, defaultLabel) => {
+    const option = document.createElement('option');
+    option.value = device.deviceId;
+    option.text = device.label || defaultLabel;
+    return option;
+  };
+
+  // running connected on load
+  streaming.connect('https://' + this_controller);
+
+  function initiateLocalStreaming() {
+    (async() => {
+      try {
+      let hasCameraPermission = false;
+      try {
+        let stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true});
+        hasCameraPermission = !!stream;
+      } catch {
+        hasCameraPermission = false;
+      }
+      var camera_sel = document.getElementById('camera');
+      var microphone = document.getElementById('microphone');
+      let devices = await navigator.mediaDevices.enumerateDevices();
+      let anyCamera = false;
+      let anyMicrophone = false;
+      let anySpeaker = false;
+      camera_sel.options.length = 0;
+      microphone.options.length = 0;
+      speaker.options.length = 0;
+      devices.forEach(device => {
+        console.log('finished enumerate devices');
+        if (device.kind === 'videoinput') {
+          camera_sel.appendChild(deviceOption(device, `camera ${camera.length}`));
+          anyCamera = true;
+        } else if (device.kind === 'audioinput') {
+          microphone.appendChild(deviceOption(device, `microphone ${microphone.length}`));
+          anyMicrophone = true;
+        } else if (device.kind === 'audiooutput') {
+          speaker.appendChild(deviceOption(device, `audio output ${speaker.length}`));
+          anySpeaker = true;
+        }
+      });
+
+      if (anyCamera) {
+        camera_sel.appendChild(deviceOption({deviceId: ''}, 'No Camera'));
+        // if no camera permission the default option is 'No Camera'
+        camera_sel.selectedIndex = hasCameraPermission ? 0 : camera_sel.length - 1;
+      }
+
+      if (anyMicrophone)
+        microphone.selectedIndex = 0;
+
+      if (anySpeaker)
+        speaker.selectedIndex = 0;
+      else
+        speakerGroup.hidden = true;
+
+      // Set default values
+      var selected_camera = document.getElementById('d_video').innerHTML;
+      $("#camera option").filter(function() {
+        console.log($(this).text());
+        return $(this).text() == selected_camera;
+      }).prop('selected', true);
+
+      var selected_microphone = document.getElementById('d_audio').innerHTML;
+      $("#microphone option").filter(function() {
+        console.log($(this).text());
+        return $(this).text() == selected_microphone;
+      }).prop('selected', true);
+
+      var selected_speaker = document.getElementById('d_output').innerHTML;
+      $("#speaker option").filter(function() {
+        console.log($(this).text());
+        return $(this).text() == selected_speaker;
+      }).prop('selected', true);
+
+      startLocalStream();
+    }
+    catch (err) {
+      logMessage(err);
+    }
+  })();
+  }
+
+  function saveObserverAudioSelections() {
+
+    console.log('SAVING Observer selections!');
+    var obj = new Object();
+    obj.audio = microphone.options[microphone.selectedIndex].text;
+    obj.video = camera.options[camera.selectedIndex].text;
+    obj.speaker = speaker.options[speaker.selectedIndex].text
+    obj.admin_id = admin_id;
+    var jsonString = JSON.stringify(obj);
+    $.ajax({
+       url:"../endpoint/set_audio_video",
+       method: "POST",
+       data: jsonString,
+       dataType: "JSON",
+       format: 'js',
+       contentType: "application/json",
+       headers: {
+         'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+       },
+       success: function(data) {
+       }
+    });
+
+  }
+
+
+  async function updatePopUpValues(){
+    for (var i=0; i<room_array.length; i++){
+      let mName = room_array[i];
+      let thisDiv = document.getElementById('info_for_' + mName);
+      if (!thisDiv) {
+        var createRoom = await createRoomData(mName);
+      }
+      if (thisDiv){
+        if (document.getElementById('s_ep_notes_check_' +mName).innerHTML == 'false'){ // must be opposite of default for checks
+          document.getElementById('ep_notes_check_' +mName).checked = false;
+        }
+        if (document.getElementById('ep_notes_' +mName)) {
+          document.getElementById('ep_notes_' +mName).value = document.getElementById('s_ep_notes_' +mName).innerHTML;
+        }
+        if (document.getElementById('s_ep_bed_name_check_' +mName).innerHTML == 'false'){ // must be opposite of default for checks
+          document.getElementById('ep_bed_name_check_' +mName).checked = false;
+        }
+        if (document.getElementById('ep_bed_name_' +mName)) {
+          document.getElementById('ep_bed_name_' +mName).value = document.getElementById('s_ep_bed_name_' +mName).innerHTML;
+        }
+        if (document.getElementById('s_ep_name_check_' +mName).innerHTML == 'false'){ // must be opposite of default for checks
+          document.getElementById('ep_name_check_' +mName).checked = false;
+        }
+        if (document.getElementById('ep_name_' +mName)) {
+          document.getElementById('ep_name_' +mName).value = document.getElementById('s_ep_name_' +mName).innerHTML;
+        }
+        if (document.getElementById('s_ep_notes_check_' +mName).innerHTML == 'false'){
+          document.getElementById('ep_notes_check_' +mName).checked = false;
+        }
+        if (document.getElementById('ep_notes_' +mName)) {
+          document.getElementById('ep_notes_' +mName).value = document.getElementById('s_ep_notes_' +mName).innerHTML;
+        }
+        if (document.getElementById('s_ep_profile_check_' +mName).innerHTML == 'false'){
+          document.getElementById('ep_profile_check_' +mName).checked = false;
+        }
+        if (document.getElementById('ep_profile_' +mName)){
+          document.getElementById('ep_profile_' +mName).value = document.getElementById('s_ep_profile_' +mName).innerHTML;
+        }
+        if (document.getElementById('ep_priority_' +mName)){
+          document.getElementById('ep_priority_' +mName).value = document.getElementById('s_ep_priority_' +mName).innerHTML;
+        }
+        if (document.getElementById('s_ep_send_text_check_' +mName) && document.getElementById('s_ep_send_text_check_' +mName).innerHTML == 'true'){
+          document.getElementById('ep_send_text_check_' +mName).checked = true;
+        }
+        if (document.getElementById('ep_send_text_' +mName)) {
+          document.getElementById('ep_send_text_' +mName).value = document.getElementById('s_ep_send_text_' +mName).innerHTML;
+        }
+        if (document.getElementById('s_ep_play_alarm_check_' +mName).innerHTML == 'false'){
+          document.getElementById('ep_play_alarm_check_' +mName).checked = false;
+        }
+      }
+    }
+    return 1;
+  }
+
+  async function updateRoomData(){
+    for (var i=0; i<room_array.length; i++){
+      let mName = room_array[i];
+      var createRoom = await createRoomData(mName);
+    }
+    return 1;
+  }
+
+  async function createRoomData(mName){
+    console.log('mName: ' + mName);
+    let thisDiv = document.getElementById('info_for_' + mName);
+    if (thisDiv){
+        thisDiv.parentNode.removeChild(thisDiv);
+        //return 1;
+    }
+      let oldDiv = document.getElementById('selected_endpoint_row_' + mName);
+      let n_bed_name_check = document.getElementById('ep_bed_name_check_' +mName) ? document.getElementById('ep_bed_name_check_' +mName).checked : 'true';
+      let n_bed_name = document.getElementById('ep_bed_name_' +mName) ? document.getElementById('ep_bed_name_' +mName).value : '';
+      let n_name_check = document.getElementById('ep_name_check_' +mName) ? document.getElementById('ep_name_check_' +mName).checked : 'true';
+      let n_name = document.getElementById('ep_name_' +mName) ? document.getElementById('ep_name_' +mName).value : '';
+      let n_notes_check = document.getElementById('ep_notes_check_' +mName) ? document.getElementById('ep_notes_check_' +mName).checked : 'true';
+      let n_notes = document.getElementById('ep_notes_' +mName) ? document.getElementById('ep_notes_' +mName).value : '';
+      let n_profile_check = document.getElementById('ep_profile_check_' +mName) ? document.getElementById('ep_profile_check_' +mName).checked : 'true';
+      let n_profile = document.getElementById('ep_profile_' +mName) ? document.getElementById('ep_profile_' +mName).value : '';
+      let n_priority = document.getElementById('ep_priority_' +mName) ? document.getElementById('ep_priority_' +mName).value : 1;
+      let n_send_text_check = document.getElementById('ep_send_text_check_' +mName) ? document.getElementById('ep_send_text_check_' +mName).checked : 'false';
+      let n_send_text = document.getElementById('ep_send_text_' +mName) ? document.getElementById('ep_send_text_' +mName).value : '';
+      let n_play_alarm_check = document.getElementById('ep_play_alarm_check_' +mName) ? document.getElementById('ep_play_alarm_check_' +mName).checked : 'true';
+
+      if (oldDiv){
+        let mDiv = 'info_for_' + mName;
+        var pData = "<div id='" + mDiv + "' >" +
+        "<p id ='s_ep_bed_name_check_" + mName + "'>" + n_bed_name_check + "</p>"  +
+        "<p id ='s_ep_bed_name_" + mName + "'>" + n_bed_name + "</p>" +
+        "<p id ='s_ep_name_check_" + mName + "'>" + n_name_check + "</p>"  +
+        "<p id ='s_ep_name_" + mName + "'>" + n_name + "</p>" +
+        "<p id ='s_ep_notes_check_" + mName + "'>" + n_notes_check + "</p>" +
+        "<p id ='s_ep_notes_" + mName + "'>" + n_notes + "</p>" +
+        "<p id ='s_ep_profile_check_" + mName + "'>" + n_profile_check + "</p>" +
+        "<p id ='s_ep_profile_" + mName + "'>" + n_profile + "</p>" +
+        "<p id ='s_ep_priority_" + mName + "'>" + n_priority + "</p>" +
+        "<p id ='s_ep_send_text_check_" + mName + "'>" + n_send_text_check + "</p>" +
+        "<p id ='s_ep_send_text_" + mName + "'>" + n_send_text + "</p>" +
+        "<p id ='s_ep_play_alarm_check_" + mName + "'>" + n_play_alarm_check + "</p>"
+        document.getElementById("info_retain").insertAdjacentHTML('afterbegin', pData);
+      }
+      /*
+      ep_name_check_e_861
+      ep_name_e_861
+      ep_notes_check_e_861
+      ep_notes_e_861
+      ep_profile_check_e_861
+      ep_profile_e_861
+      ep_priority_e_861
+      ep_send_text_check_e_861
+      ep_send_text_e_861
+      ep_play_alarm_check_e_861
+      */
+      return 1;
+  }
+
+

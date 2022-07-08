@@ -1,0 +1,107 @@
+- @endpoints.each_with_index do |ep, idx|
+  %div{:id=>'endpoint_alert_'+ep.machine_name, :class=> idx == 0 ? 'endpoint_alert_class' : 'endpoint_alert_class hidden'}      
+    .tab_data_row
+      .tab_data_left_right.leftside{:style => "margin-top: 2px;" }
+        = check_box_tag :send_text_alerts, "", true, :id=> 'ep_send_text_check_'+ep.machine_name           
+      .tab_data_center.leftside
+        %p.title.inner Send Text Notifications 
+    .tab_data_row
+      .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+        = check_box_tag :turn_on
+      .tab_data_center.leftside
+        //#entry_action.left_action.leftside{:style => "width: 15%;"}
+        //  .flag_box{:onclick => "open_country_dropdown(1, 0)", :style => "margin-top: 0px; margin-left: 0px;"}
+        //    %span{:class => "flag-icon flag-icon-us", :id => "flag1_0", :style => "font-size: 16px; margin-top: 10px; line-height: 14px; width: 18px; height: 14px; margin-left: 5px;"}
+        //    %span.caret
+        //  %ul.dropdown-menu{:id =>"country_phone_select1_0"}
+        //     %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'us', 0)" do
+        //        %span.flag-icon.flag-icon-us{:style => "font-size: 14px;"}
+        //        United States
+        //    %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'gb',0)" do
+        //        %span.flag-icon.flag-icon-gb{:style => "font-size: 14px;"}
+        //        United Kingdoms
+        //    %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'au',0)" do
+        //        %span.flag-icon.flag-icon-au{:style => "font-size: 14px;"}
+        //        Australia
+        //    %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'ca',0)" do
+        //        %span.flag-icon.flag-icon-ca{:style => "font-size: 14px;"}
+        //        Canada        
+        = hidden_field_tag("flag_1", "us", :id => "flag1_value_0")
+  
+        %div{:style => "float: left; width: 100%;"}        
+          =  text_field :phone_number1, "Phone Number",  id: "ep_send_text_" + ep.machine_name , :placeholder => "(888) 888-8888",  :class => "one_action phone_number_field", :value => "" , :autocomplete=>'off'
+      .tab_data_left_right.leftside.hidden
+      .tab_data_row.hidden{:style =>  "height: 60px;"}
+        .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+        = check_box_tag :turn_on
+        .tab_data_center.leftside
+        //#entry_action.left_action.leftside{:style => "width: 15%;"}
+        //  .flag_box{:onclick => "open_country_dropdown(1, 1)", :style => "margin-top: 0px; margin-left: 0px;"}
+        //    %span{:class => "flag-icon flag-icon-gb", :id => "flag1_1", :style => "font-size: 14px; margin-top: 10px; line-height: 14px; width: 18px; height: 14px;  margin-left: 5px;"}
+        //    %span.caret
+        //  %ul.dropdown-menu{:id =>"country_phone_select1_1"}
+        //    %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'us', 1)" do
+        //        %span.flag-icon.flag-icon-us{:style => "font-size: 14px;"}
+        //        United States
+        //    %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'gb',1)" do
+        //        %span.flag-icon.flag-icon-gb{:style => "font-size: 14px;"}
+        //        United Kingdoms
+        //    %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'au',1)" do
+        //        %span.flag-icon.flag-icon-au{:style => "font-size: 14px;"}
+        //        Australia
+        //    %li
+        //      = link_to "javascript:;", :onclick=> "set_country_phone(4,'ca',1)" do
+        //        %span.flag-icon.flag-icon-ca{:style => "font-size: 14px;"}
+        //        Canada        
+        // = hidden_field_tag("flag_2", "us", :id => "flag1_value_1")
+  
+        //%div{:style => "float: left; width: 100%;"}        
+        // =  text_field :phone_number1, "Phone Number",  id: "edit_tech_phone_1", :placeholder => "Phone Number",  :class => "one_action phone_number_field" 
+        
+      .tab_data_left_right.leftside.hidden
+        .center 
+          =link_to '#' , :class=>'link link_blue' do 
+            <span class="fal fa-times-circle fa-2x" aria-hidden="true" style="margin-top: 8px; font-size: 22px;"></span>
+    .tab_data_row.height_20
+      .tab_data_left_right.leftside
+        = check_box_tag :alarm_sound_check, "", true , :id=>'ep_play_alarm_check_' + ep.machine_name
+      .tab_data_center.leftside
+        %p.title.inner Play Sound in Room       
+    .tab_data_row
+      .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+        = check_box_tag :alarm_sound_gap
+      .tab_data_center.leftside  
+        = text_field_tag :alarm_sound, "", :placeholder => "", :disabled => "disabled", :value => "/User/Observation/Music/Bell.mp4"
+      .tab_data_left_right.leftside.hidden
+        .center 
+          .image-upload
+            %label{:for => "file-input-audio"}
+              %span.fal.fa-cloud-upload{:style => "font-size: 22px; margin-top: 8px;"}
+              = file_field_tag :attachment, :class => "", :id => "file-input-audio"
+    .hidden
+      .tab_data_row{:style => "height: 50px;"}
+        .tab_data_left_right.leftside
+          = check_box_tag :motion_detection_check, "", false, :id=> 'ep_motion_detect_check_' + ep.machine_name ,:class=>'motionCheck'
+        .tab_data_center.leftside
+          %p.title Motion Detection       
+      .tab_data_row
+        .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+          = check_box_tag :motion_detection_gap, "", :style => "", :checked => "checked"             
+        .tab_data_center.leftside 
+          %div   
+            .leftside
+              .dropdowns
+                %label
+                  - if current_admin.allows_demo?
+                    = select_tag :motion_detection, options_for_select([['Medium Sensitivity', 'Medium Sensitivity'], ['Calibrate', 'Calibrate']], 'Medium Sensitivity'), :style => "width: 225px;" , :id=>'ep_motion_detect_' + ep.machine_name
+                  - else 
+                    = select_tag :motion_detection, options_for_select([['Medium Sensitivity', 'Medium Sensitivity']], 'Medium Sensitivity'), :style => "width: 225px;" , :id=>'ep_motion_detect_' + ep.machine_name
+:javascript
+  $(document).ready(function() { updatePopUpValues(); } ); 

@@ -1,0 +1,6 @@
+AlertFrequency_1:
+  id: 1
+  endpoint_id: 3
+  a_last_call: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

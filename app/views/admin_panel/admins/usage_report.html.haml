@@ -1,0 +1,90 @@
+#sub_title
+  .leftside
+    %i.fas.fa-chart-line.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Usage 
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        .search_field  
+          .leftside 
+            .search_icon
+              %span.far.fa-search
+
+          = form_for :search_usage_form, :url => usage_report_admin_panel_admin_path, :html => {:id => "search_usage_form" } do |x|
+            .leftside
+              = x.text_field :search_usages, :id=>'search_usages',  :placeholder=>'Search', :value => @search_value, :class=>'search_field_input'    
+            #popup_widget_surround 
+              .popup_widget.popup_ui{:id => "filter_layout"}
+                #uhe_admin_popup
+                  %h2 Filter 
+                  =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+                    <i class="far fa-times" aria-hidden="true"></i>
+                  .uhe_admin_popup_body.no_scroll  
+                    .uhe_admin_popup_form    
+                      -if our_active_admin.is_super_admin?
+                        %p.entry_header
+                          By Channel      
+                        .entry
+                          .center
+                            .dropdowns
+                              %label
+                                = x.collection_select(:filter_channel, ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None", :selected => @channel_value}, {})
+                      -if our_active_admin.is_channel_admin?
+                        %p.entry_header
+                          By Customer      
+                        .entry 
+                          .center
+                            .dropdowns
+                              %label
+                                = x.collection_select(:filter_customer, our_active_admin.client_admin.clients.active, :id, :client_name, { :multiple => true, :prompt => "None", :selected => @customer_value}, {})
+                       
+                  .submit
+                    .center 
+                      = x.submit "Apply", :class=> "button"  
+
+            .leftside
+              .clear_search
+                = form_for :search_usage_clear, :url => usage_report_admin_panel_admin_path, :html => {:id => "search_usage_form" } do |u|
+                  =button_to "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+                    %span.fal.fa-times
+                      
+        <div class="clearfix"></div>
+
+      <!-- Widget content -->
+      .widget-content
+        - if @vmrs.present?
+          %table{:class=>'table table-bordered', :id => "usage_report_table"}
+            %thead
+              %tr
+                %th.width_percent_15
+                  VMR
+                %th.width_percent_20
+                  Used By 
+                %th.width_percent_30
+                  Called
+                %th.center.width_percent_15  
+                  Call Started 
+                %th.center.width_percent_20
+                  Call Length 
+            %tbody
+              -@vmrs.where('used_by is not null').order('id DESC').each_with_index do | v, idx |
+                %tr{:class => idx%2==0 ? 'even' : 'odd'}              
+                  %td.width_percent_15 #{v.name}
+                  %td.width_percent_20 #{v.user.nil? ? 'Deleted User' : v.user.email} 
+                  %td.width_percent_30 #{v.endpoint.room_info if !v.endpoint.nil?}
+                  %td.center.width_percent_15 #{v.start_time}
+                  %td.center.width_percent_20 #{distance_of_time_in_words(v.start_time, v.end_time || v.start_time) if !v.start_time.nil?}
+          .pagination_tr
+            .center
+              = will_paginate @vmrs, params: params
+
+        -else
+          %p.no_matching_info No matching information
+
+<script>$(document).ready(function() { $("#usage_report_table").tablesorter(); } );</script> 
+        

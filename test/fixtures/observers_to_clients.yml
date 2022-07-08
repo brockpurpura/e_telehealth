@@ -1,0 +1,6 @@
+ObserversToClient_1:
+  id: 9
+  admin_id: 261
+  client_id: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

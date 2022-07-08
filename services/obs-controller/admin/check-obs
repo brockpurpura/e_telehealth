@@ -1,0 +1,16 @@
+#!/bin/bash
+
+tmux new-session -s check-obs -n 'obs1 .155' -d 'ssh uheprodobs1'
+tmux split-window -t check-obs -v 'ssh uheprodobs2'
+tmux split-window -t check-obs -v 'ssh uheprodobs3'
+tmux set-option -t check-obs -w synchronize-panes on
+tmux send-keys -t check-obs 'free -g' C-m 'systemctl status redis_6379' C-m
+tmux set-option -t check-obs -w synchronize-panes off
+tmux break-pane -s check-obs:1.2 -t check-obs:2 -d
+tmux break-pane -s check-obs:1.2 -t check-obs:3 -d
+tmux rename-window -t check-obs:2 'obs2 .156'
+tmux rename-window -t check-obs:3 'obs3 .157'
+tmux set-option -t check-obs:1 -p remain-on-exit on
+tmux set-option -t check-obs:2 -p remain-on-exit on
+tmux set-option -t check-obs:3 -p remain-on-exit on
+

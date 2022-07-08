@@ -1,0 +1,16 @@
+[Unit]
+Description=iObserver admin
+
+[Service]
+Type=oneshot
+User=uheadmin
+Group=uheadmin
+WorkingDirectory=/home/uheadmin/telehealth/services/obs-controller/admin
+ExecStart=/usr/bin/node rotate.js
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=obs-admin
+
+[Install]
+WantedBy=redis_6379.service
+

@@ -1,0 +1,8 @@
+{
+    "name": "controller-redis-admin",
+    "version": "0.0.1",
+    "description": "iObserver controller Redis admin",
+    "dependencies": {
+        "ioredis": "^4.9.3"
+    }
+}

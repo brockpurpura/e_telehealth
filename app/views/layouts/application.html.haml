@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+%html{:lang=>"en"}
+  %head
+    %title Clinician #{get_title_by_controller_value} | Caregility
+    %meta{:name=>"format-detection", :content=>"telephone=no"}
+    %meta{:charset=>"UTF-8", :lang=>"en"}
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => false
+    = javascript_include_tag 'application', 'data-turbolinks-track' => false 
+    = csrf_meta_tags 
+    %meta{:content => "width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no", :name => "viewport"}
+    - if is_mobile_device?
+      = stylesheet_link_tag "clinician"
+      = javascript_include_tag 'mobile', 'data-turbolinks-track' => false 
+      = stylesheet_link_tag    'mobile', media: 'all', 'data-turbolinks-track' => false
+    - else
+      = stylesheet_link_tag "clinician"
+    = javascript_include_tag 'keyboard-mover-controls'
+    - if action_name == 'meeting' or action_name == 'join_meeting' or action_name == 'meeting_self_test'
+      = stylesheet_link_tag "meetings"
+    
+  %body#main_body.main_body{:ondragover=>'drag_over(event)', :ondrop=>'drop(event)', :class=>(request.env['PATH_INFO'] == "/home/support") ? 'support using-mouse' : 'using-mouse'}
+    = render :partial=> 'application/pro_alerts'
+    #error_message.alert.alert-info.alert-dismissable.hidden
+      <a href="#" class="close" aria-label="close" onclick="hideError()">&times;</a>
+      %p#e_m
+    %div
+      -if Configurable.in_maintain.to_s == '1'
+        :javascript
+          proAlert("Under Maintenance", "warning", "This application is currently under maintenance. Please try again later", "OK", "reload", false);
+      - else
+        = yield 
+        = javascript_include_tag 'webrtc'
+    :javascript
+      forceKeyboardFocusOnly();
+
+%footer
+  -if flash[:alert] or params[:message]
+    - @m = flash[:alert] || params[:message]
+    - if !@m.include? "Invalid" and !@m.include? "sign" and !@m.blank?
+      :javascript
+        swal({ title: "#{flash[:alert]||params[:message]}", type: "info", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}); 
+
+:javascript
+  window.onload = function () {
+    // redirect iOS mobile non safari browsers
+    var nav = window.navigator;
+    var ua = nav.userAgent;
+    var safari_only = false; 
+    if (ua.indexOf("iPhone")!=-1 && ua.indexOf("Safari")!=-1 && ua.indexOf("CriOS")==-1 && ua.indexOf("FxiOS")==-1){ 
+      safari_only = true; 
+    }
+    if (ua.indexOf("iPad")!=-1 && ua.indexOf("Safari")!=-1 && ua.indexOf("CriOS")==-1 && ua.indexOf("FxiOS")==-1 ){ 
+      safari_only = true; 
+    }
+    console.log('safari_only = ' + safari_only);    
+    var is_mobile_only = #{(is_iphone_mobile_device? || -1) > 0};
+    console.log('is_mobile_only = ' + is_mobile_only);    
+    if (is_mobile_only && !safari_only) { 
+      window.location.href = '/menu/browser_not_supported';
+    }
+  }

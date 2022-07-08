@@ -1,0 +1,173 @@
+- content_for(:title) { "Caregility Healthcare Admin" }
+- content_for(:description) { "Caregility Healthcare Admin" }
+
+%div{:id=>'top'}
+
+
+- if our_active_admin.is_super_admin?
+  <!--   Dashboard Graph starts -->
+  #sub_title    
+    .leftside
+      %i.far.fa-tachometer-alt.fa-2x.dashboard_subheader_icon.dashboard_text_color
+    .leftside
+      %h3 Channels 
+    - if our_active_admin.is_not_read_only? 
+      .rightside.create_new_link
+        =link_to "Add Channel", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('add_cga','')"
+      
+
+  .col-md-12.min_height
+    .col-md-12
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          .search_field  
+            .leftside
+              .search_icon
+                %span.far.fa-search
+            = form_for :search_groups_form, :url => groups_admin_panel_admin_path, :html => {:id => "search_group_form" } do |x|
+              .leftside
+                = x.text_field :search_groups, :id => "search_groups", :placeholder=>'Search', :value => @search_value, :class=>'search_field_input'
+              #popup_widget_surround 
+                .popup_widget.popup_ui{:id => "filter_layout"}
+                  #uhe_admin_popup
+                    %h2 Filter 
+                    =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+                      <i class="far fa-times" aria-hidden="true"></i>
+                    .uhe_admin_popup_body.no_scroll  
+                      .uhe_admin_popup_form   
+                        %p.entry_header
+                          By Advanced Reporting       
+                        .entry
+                          .center
+                            .dropdowns
+                              %label
+                                = x.select :filter_ar, options_for_select({'Off' => '0', 'On' => '1'}, @advanced_reporting_value), :id=> "filter_ar", :class=>'', :prompt => "None"   
+                    .submit
+                      .center 
+                        = x.submit "Apply", :class=> "button", :onclick => "close_admin_popup('filter_layout')" 
+                    .footer_link
+                      .center
+                        =x.button "Reset Filter", :type =>  'submit', :name => 'reset_filter', :value => 'true', :class => "reset_filter_submit"
+
+
+              .leftside
+                .clear_search
+                  =x.button "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+                    %span.fal.fa-times
+ 
+              .leftside
+                .filter_link          
+                  =link_to "Filter", "javascript:;", :class=>"", :onclick=>"open_admin_popup('filter_layout','')"
+
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #groups_partial
+            = render :partial => 'cga_group_list'
+  - if our_active_admin.is_not_read_only?
+    #popup_widget_surround   
+      .popup_widget.popup_ui{:id => "add_cga"}
+        #uhe_admin_popup
+          %h2 Add Channel
+          =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_cga')" do
+            <i class="far fa-times" aria-hidden="true"></i>
+            
+          =form_for @client_admin, :url => groups_admin_panel_admin_path do |x|
+            .uhe_admin_popup_body.no_scroll  
+              .uhe_admin_popup_form
+                %p.entry_header
+                  Channel Name *  
+                .center
+                  = x.text_field :name, :placeholder => "", :class => "", :maxlength => 200    
+                %p.entry_header
+                  Advanced Reports *  
+                .center
+                  .dropdowns
+                    %label
+                      = x.select :use_layerx, options_for_select({'Off'=> '0', 'On' => '1'}), :class => ""     
+                %p.entry_header
+                  Advanced Reports Username  
+                .center
+                  = x.text_field :layerx_username, :placeholder => "", :class => "", :maxlength => 200
+                %p.entry_header
+                  Advanced Reports Dashboard Id  
+                .center
+                  = x.text_field :layerx_dashboard_id, :placeholder => "", :class => "", :maxlength => 200
+                %p.entry_header
+                  Camera Connection Auto Reboot 
+                .center
+                  .dropdowns
+                    %label
+                      = x.select :auto_reboot, options_for_select({'Off'=> '0', 'On' => '1'}), :class => ""     
+
+            .submit
+              .center 
+                = x.submit "Add", :class=> "button" 
+- else 
+  #sub_title
+    .leftside
+      %i.far.fa-tachometer-alt.fa-2x.dashboard_subheader_icon.dashboard_text_color
+    .leftside    
+      %h3 Customers 
+    - if our_active_admin.is_not_read_only?
+      .rightside.create_new_link
+        =link_to "Add Customer", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('add_client','')"
+
+  .col-md-12.min_height
+    .col-md-12
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+
+   	  
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #client_partial
+            = render :partial => 'clients'
+
+  - if our_active_admin.is_not_read_only?
+    #popup_widget_surround   
+      .popup_widget.popup_ui{:id => "add_client"}
+        #uhe_admin_popup
+          %h2 Add Customer
+          =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_client')" do
+            <i class="far fa-times" aria-hidden="true"></i>
+            
+          =form_for @client, :url => add_clients_admin_panel_cga_path do |x|
+            %p.entry_header
+              Customer Name *  
+            .center
+              =hidden_field_tag :add_client, true      
+              = x.text_field :client_name, :placeholder => "", :class => ""
+            %p.entry_header
+              Translation Services *  
+            .center
+              .dropdowns
+                %label
+                  =  select_tag :translator, content_tag(:option,'No translation company',:value=>"0") + options_from_collection_for_select(TranslationType.all, 'id', 'name', 0), :class=>''
+            %p.entry_header
+              Advanced Reports *  
+            .center
+              .dropdowns
+                %label          
+                  =  select_tag :layerx, content_tag(:option,'Off',:value=>"0") + content_tag(:option,'On',:value=>"1"), :class=>''
+            %p.entry_header
+              Advanced Reports Username  
+            .center
+              = x.text_field :layerx_username, :placeholder => "", :class => ""
+            %p.entry_header
+              Advanced Reports Dashboard Id  
+            .center
+              = x.text_field :layerx_dashboard_id, :placeholder => "", :class => ""
+              
+            .submit
+              .center 
+                //= link_to "Save for later", ""
+                = x.submit "Add", :class=> "button"
+              
+:javascript
+  document.getElementById('client_admin_name').required = true;

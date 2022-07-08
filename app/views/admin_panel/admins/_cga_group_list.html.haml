@@ -1,0 +1,190 @@
+-if @client_groups.present?
+  #auto_focus_flag.hidden
+
+
+  %table{:class=>'table table-bordered', :id=>'cga_group_list'}
+    %thead
+      %tr
+        - if our_active_admin.is_super_admin?
+          %th
+            Channel Name
+        - if our_active_admin.is_channel_admin?
+          %th
+            Customer Name
+        %th 
+          .center
+            No. of Customers
+        %th 
+          .center
+            No. of Clinicians 
+        //%th
+        //  .center
+        //    No. of Technicians 
+        %th 
+          .center
+            No. of Rooms 
+        %th
+          .center
+            Advanced Reports
+        %th
+          .center
+            Branding
+      %tbody
+        -@client_groups.each_with_index do |group, idx|
+          %tr{:class => idx%2==0 ? 'even' : 'odd'}              
+            - if our_active_admin.is_super_admin?
+              %td.vertical_center{:onclick=> "open_edit_cga_group_popup('#{group.to_json}', '#{idx}')"}
+                - if group.default_admin.nil?
+                  Error!  Create a default admin for #{group.name}!
+                - else
+                  #{group.name}
+            - if our_active_admin.is_channel_admin?
+              %td.vertical_center{:onclick=> "open_edit_cga_group_popup('#{group.to_json}', '#{idx}')"}
+                #{client.client.client_name}
+            %td.vertical_center{:onclick=> "open_edit_cga_group_popup('#{group.to_json}', '#{idx}')"}
+              .center
+                #{group.clients.active.count}
+            %td.vertical_center{:onclick=> "open_edit_cga_group_popup('#{group.to_json}', '#{idx}')"} 
+              .center
+                #{group.users.count}
+            //%td 
+            //  .center
+            //    #{group.technicians.count}
+            %td.vertical_center{:onclick=> "open_edit_cga_group_popup('#{group.to_json}', '#{idx}')"} 
+              .center
+                #{group.endpoints.active.count}
+            %td{:onclick=> "open_edit_cga_group_popup('#{group.to_json}', '#{idx}')"} 
+              .center
+                - if group.use_layerx == 0 
+                  Off
+                - else  
+                  On
+            %td.vertical_center
+              .center
+                =link_to "", "javascript:;", :class => "fa fa-font" , :onclick=>"open_admin_popup('branding_#{idx}','')"
+                
+                #popup_widget_surround
+                  .popup_widget.popup_ui{:id => "delete_" + group.id.to_s}
+                    #uhe_admin_popup
+                      %h2 Delete Channel 
+                      =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('delete_#{group.id.to_s}')" do 
+                        <i class="far fa-times" aria-hidden="true"></i>
+                        
+                      = form_tag groups_admin_panel_admin_path, :class=>'' do  
+                        .uhe_admin_popup_body.no_scroll 
+                          .uhe_admin_popup_form
+                            .leftside
+                              %p.entry_header
+                                Confirm Delete
+                            .center
+                              = text_field_tag :delete_edittext, nil, placeholder: 'Type DELETE to confirm', :class => "password_confirm", :oninput => "check_delete_button_activation('#{group.id.to_s}')", :id => "delete_confirm_" + group.id.to_s
+                            %p.entry_informational You are about to delete #{group.name}
+  
+                        .submit
+                          .center
+                            = hidden_field_tag :delete_group, group.id 
+                            = submit_tag "Delete", :class=> "inactive", :disabled => "disabled", :id => "delete_btn_" + group.id.to_s
+
+  
+          #popup_widget_surround 
+            .popup_widget.branding.popup_ui{:id => "branding_#{idx}"}
+              #uhe_admin_popup
+                %h2 Branding
+                =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('branding_#{idx}')" do
+                  <i class="far fa-times" aria-hidden="true"></i>
+                  
+                = form_for @icon, url: groups_admin_panel_admin_path, :method => :post, html:{multipart: true} do |x|
+                  .uhe_admin_popup_body.no_scroll  
+                    .uhe_admin_popup_form                  
+                      %p.entry_header
+                        Header Color
+                      .entry
+                        .leftside
+                          = x.text_field :banner_color, :id => "banner_color_input_#{idx}", :class => 'one_action right', :placeholder => "#{group.has_icon? ? determine_branding_banner_color(group) : 'Enter hex code '}", :oninput => "updateBannerColor('#{idx}')", :maxlength => 7
+                        .leftside
+                          #entry_action.color_picker
+                            %input{:id => "color_banner_branding_#{idx}",:oninput => "getBannerColor('#{idx}')",:class => "branding_box", :type => "color", :value => "#{group.has_icon? ? determine_branding_banner_color(group) : '#0082C8'}"}
+                      %p.entry_header
+                        Header Text Color
+                      .entry 
+                        .leftside
+                          = x.text_field :font_color, :id => "font_color_input_#{idx}", :class => 'one_action right', :placeholder =>"#{group.has_icon? ? determine_branding_font_color(group) : 'Enter hex code'}", :oninput => "updateFontColor('#{idx}')", :maxlength => 7
+                        .leftside
+                          #entry_action.color_picker
+                            %input{:id => "color_font_branding_#{idx}", :oninput => "getFontColor('#{idx}')",:class => "branding_box", :type => "color", :value => "#{group.has_icon? ? determine_branding_font_color(group) : '#ffffff'}"}
+                      %p.entry_header
+                        Upload Logo 
+                      .entry_image 
+                        .leftside
+                          .image-upload
+                            %label{:for => "file-input_#{idx}"}
+                              %span.far.fa-file-image
+                        .leftside
+                          -if group.has_icon? and group.icon.attachment_url.present?
+                            = image_tag(group.icon.attachment_url :height=>'40')
+                          - else
+                            %p.padding_top12 Choose File
+                      %p.entry_footer Recommended height: 40px,    JPG & PNG only
+                      = x.hidden_field :client_admin_id, :value=> group.id    
+                      = x.hidden_field :status, :value=>"1"
+                      = hidden_field_tag :update_design, true
+                      .height0
+                        = x.file_field :attachment, :class => "support_upload pdf add_button", :id => "file-input_#{idx}"
+                  .submit
+                    .center 
+                      //= link _to "Save for later", ""
+                      - if our_active_admin.is_not_read_only?
+                        = x.submit "Update", :class=> "button add_button" 
+          #popup_widget_surround
+            .popup_widget.popup_ui{:id => "edit_group_#{idx}" }
+              #uhe_admin_popup
+                %h2 Edit Channel 
+                =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_group_#{idx}')" do 
+                  <i class="far fa-times" aria-hidden="true"></i>
+                .uhe_admin_popup_body.no_scroll  
+                  .uhe_admin_popup_form                
+                    %p.entry_header
+                      Channel Name *      
+                    .center
+                      =  text_field :name, "Channel Name", id: "edit_group_name_#{idx}", :placeholder => "", :class => "", :maxlength => 200   
+                    %p.entry_header
+                      Advanced Reports *      
+                    .center
+                      .dropdowns
+                        %label
+                          = select_tag :layerx, options_for_select({'Off'=> '0',  'On' => '1'}, group.use_layerx), :id => "edit_group_layerx_#{idx}"
+                    %p.entry_header
+                      Advanced Reports Username      
+                    .center                      
+                      = text_field_tag :layerx_username, "", id: "edit_group_layerx_username_#{idx}",  :placeholder => "", :class => "", :maxlength => 200
+                    %p.entry_header
+                      Advanced Reports Dashboard Id      
+                    .center             
+                      = text_field_tag :layerx_dashboard_id, "", id: "edit_group_layerx_dashboard_#{idx}", placeholder: "", :class => "", :maxlength => 200
+                    %p.entry_header
+                      Camera Connection Auto Reboot 
+                    .center
+                      .dropdowns
+                        %label
+                          = select_tag :auto_reboot, options_for_select({'Off'=> '0', 'On' => '1'}, group.auto_reboot), :id => "edit_group_auto_reboot_#{idx}"
+                .submit
+                  .center 
+                    - if our_active_admin.is_not_read_only?
+                      = link_to "Update", "javascript:;", :class=> "button", :onclick => "update_cga_group_info('#{group.to_json}','#{idx}')"
+                .footer_link
+                  .center
+                    - if our_active_admin.is_not_read_only?
+                      =link_to "Delete Channel", "javascript:;", :class => "", :onclick=>"open_admin_popup('delete_"+group.id.to_s+"','edit_group_#{idx}')"
+
+  .pagination_tr
+    .center
+      = will_paginate @client_groups, params: params   
+
+
+-else
+  %p.no_matching_info No matching information
+
+
+
+<script>$(document).ready(function() { $("#cga_group_list").tablesorter(); } );</script> 
+

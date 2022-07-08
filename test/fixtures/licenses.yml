@@ -1,0 +1,14 @@
+License_1:
+  id: 1
+  license_type: license_key
+  license_key: dJRUxfcV7kLVl9hxAoIvJeZNw3VdIxNTMxsAoXXUyJYsiF60tBAUuZfib8D5pxOtl60h7EcC41gZxqIzOUiWpPXzyQjcJNfgeIadzHoiJGnxHKnlay7MpgmlxbGYoVFwPZfSy10sTADEeeXP9CXkTv0W0ZOkZri9tLvaz8mLe5cgvw77q15Z9K3U7LELmE8Jdy1CHRD0LiY+C0ge31WYnWPg09qCX4kNdoeLij4BfjiXUXbhZuYdymW5wuIvjoCJnSe9fKuBFL1Y/i4njD3kZPQFyPg+bYNaffDFFVTc3+YMQjHEvTFaqPP6iscbMcT8E2f7/fLNTzgeaBxfB2ScJw==
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-07-26 11:48:09.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2020-01-02 15:05:12.000000000 Z
+    zone: *2
+    time: *3
+

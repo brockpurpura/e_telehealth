@@ -1,0 +1,22 @@
+.live_chart
+  .center
+    .leftside
+      .wrap
+        .holder
+          <div id="version_bar_id" class="bar cf" style="height: #{@last_version_percent}%" onclick="versionFilter('fetch_data_for_system_monitor_admin')" data-percent="#{@version_percent}%"><span class="label">Version</span></div><div id="online_bar_id" class="bar warning cf" style="height: #{@last_online_percent}%" onclick="onlineFilter('fetch_data_for_system_monitor_admin')" data-percent="#{@online_percent}%"><span class="label light">Online</span></div><div id="usb0_bar_id" class="bar healthy cf" style="height: #{@last_usb0_percent}%" onclick="usb0Filter('fetch_data_for_system_monitor_admin')" data-percent="#{@usb0_percent}%"><span class="label">Alert Button</span></div><div id="camera_good_bar_id" class="bar healthy cf" style="height: #{@last_camera_good_percent}%" onclick="cameraFilter('fetch_data_for_system_monitor_admin')"  data-percent="#{@camera_good_percent}%"><span class="label light">Camera</span></div>
+    .leftside
+      #pie_graphs
+        .hidden
+          #configured_chart{:onclick=> "configured_filter('fetch_data_for_system_monitor_admin')"}
+            %canvas#configured_pie_chart{:height => "150", :width => "200"}
+        #chart_blocker
+        #in_a_call_chart{:onclick=> "inACallFilter('fetch_data_for_system_monitor_admin')"}
+          %canvas#in_a_call_pie_chart{:height => "150", :width => "200"} 
+        #chart_blocker
+        #uhe_vs_non_uhe_chart{:onclick=> ""}
+          %canvas#uhe_vs_non_uhe_pie_chart{:height => "150", :width => "200"}
+  
+<script>setTimeout(function start() {var configured_data = {labels: ["Configured","Not Configured"],datasets: [{data: [#{@configured}, #{@not_configured}], backgroundColor: ["#01b050","#aaa2a2"], hoverBackgroundColor: ["#01b050","#aaa2a2"]}]};var in_a_call_data = {labels: ["In a call","Not in a call"],datasets: [{data: [#{@in_a_call},#{@not_in_a_call}],backgroundColor: ["#01b050","#aaa2a2"],hoverBackgroundColor: ["#01b050","#aaa2a2"]}]};var uhe_vs_api_data = {labels: ["UHE","Std Based"],datasets: [{data: [#{@uhe},#{@non_uhe}],backgroundColor: ["#01b050","#aaa2a2"],hoverBackgroundColor: ["#01b050","#aaa2a2"]}]};if (document.getElementById("pie_animation_flag").HTML == "true"){var ctx = $("#configured_pie_chart");var myChart = new Chart(ctx, {type: 'pie', data: configured_data, options: {animation: {duration: 0}}});var ctx = $("#in_a_call_pie_chart");var myChart = new Chart(ctx, {type: 'pie',data: in_a_call_data, options: {animation: {duration: 0}}});var ctx = $("#uhe_vs_non_uhe_pie_chart");var myChart = new Chart(ctx, {type: 'pie',data: uhe_vs_api_data, options: {animation: {duration: 0}}});}else {var ctx = $("#configured_pie_chart");var myChart = new Chart(ctx, {type: 'pie', data: configured_data});var ctx = $("#in_a_call_pie_chart");var myChart = new Chart(ctx, {type: 'pie',data: in_a_call_data});var ctx = $("#uhe_vs_non_uhe_pie_chart");var myChart = new Chart(ctx, {type: 'pie',data: uhe_vs_api_data});document.getElementById("pie_animation_flag").HTML = "true";}}, 350)</script>
+
+<script>setTimeout(function start(){$('.bar').each(function (i) {var $bar = $(this);$(this).append('<span class="count"></span>'); setTimeout(function () {if(parseFloat($bar.attr('data-percent')) < 79 ){$bar.css("background-color", "#2f4f4f");}else if (parseFloat($bar.attr('data-percent')) < 99){$bar.css("background-color", "#2f4f4f");}else {$bar.css("background-color", "#01b050");}$bar.css('height', $bar.attr('data-percent'));}, 1 * 100);});$('.count').each(function () {$(this).prop('Counter', 0).animate({Counter: $(this).parent('.bar').attr('data-percent')}, {duration: 2000,easing: 'swing',step: function (now) {$(this).text(Math.ceil(now) + '%');}});});}, 0)</script>
+

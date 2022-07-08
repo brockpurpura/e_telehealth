@@ -1,0 +1,1 @@
+$('#bookmark_partial').html("<%=escape_javascript( render :partial => 'bookmarks', :locals => {:endpoint => @endpoint, :user_id => @current_user.id}) %>")

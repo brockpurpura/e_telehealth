@@ -1,0 +1,43 @@
+%div.docs_text.col-md-6
+  %h1 Initializing a call 
+  %hr
+  %p Connecting a call is a two step process.  The first step is to initialize the call.  This is done with a POST request and handles authentication within the Healthcare HE system.  The result will provide you with a call connection token. 
+  %hr
+  %p Your call connection token can be used with a GET request to make the call to your patient side device. 
+  %hr
+
+  %h5 HTTP POST to Initialize Call
+  %p To initialize a call, make an HTTP POST request to the call resource URI:
+  %pre.notranslate.http-request https://healthcare.univago.com/api/initialize_call 
+  %h5 POST Parameters
+  %table.docs_table
+    %thead
+      %th Parameter
+      %th Status 
+      %th Description
+    %tbody
+      %tr
+        %td unit_id 
+        %td * Required 
+        %td ID corresponding to the patient side room device 
+  %h5 Request Response 
+  %h4 Successful Result -- JSON response - 200 Header status OK
+  %p Example: {"call_token":"vXC4LExOyj9RnJt7","message":"Success"}
+  %p Use the call_token from the response in the GET call to #{link_to 'Connect A Call', making_a_call_doc_path}
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Invalid Unit ID"}
+  %p Some reasons for a failed request could be that the endpoint is not registered under your account or your account has not completed provisioning
+
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example:
+    %span curl  -u Mm4cbQ:Tf0sTHtH_70  -H "Content-Type: application/json, Accept: application/json" -X POST -d '{"unit_id":"6"}' https://healthcare.univago.com/api/initialize_call
+    %span Where:
+    %span "Mm4cbQ" = your api username 
+    %span "Tf0sTHtH_70" = your api password
+    %span "6" = your corresponding Endpoint (Bed) ID
+    %span Example Result: 
+    %span {"call_token":"vXC4LExOyj9RnJt7","message":"Success"}
+
+

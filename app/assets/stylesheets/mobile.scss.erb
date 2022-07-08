@@ -1,0 +1,393 @@
+  @mixin border-radius($radius) {
+    -webkit-border-radius: $radius;
+    -moz-border-radius: $radius;
+    border-radius: $radius;
+  }
+  
+  #conf_partial{
+    p, h1, h2, h3, h4, h5, select, input, a, a:link, a:hover, a:focus {
+      -webkit-tap-highlight-color: rgba(255, 255, 255, 1);
+      -webkit-touch-callout: all;
+      -webkit-user-select: all;
+      -khtml-user-select: all;
+      -moz-user-select: all;
+      -ms-user-select: all;
+      user-select: all;
+    }
+    p.added_part{
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  }
+  
+  #mobile_bottom_buttons {
+    width: 100%;
+    position:fixed;
+    bottom:0;
+    height: 100px;
+    z-index: 215000;
+  }
+  
+  #login_widget_surround {
+    top: 10px;
+  }
+  
+  #login_widget_surround .user_login .callout {
+    left: -25px;
+  }
+  
+  #mobile_button_toggle{
+    position: fixed;
+    right: 10px;
+    bottom: 22px;
+  }
+  
+  .mobile_buttons {
+    a, a:link, a:hover, a:focus {
+      float:left;
+      background-color: #000000;
+      color: #bdbdbd;
+      width: 69px;
+      height: 69px;
+      @include border-radius(40px);
+      margin-top: 8px;
+      text-align:center;
+      padding: 20px;
+      border: 2px solid #bdbdbd;
+      &.burger_menu {
+        position: fixed;
+        top: 17px;
+        left: 18px;
+        text-decoration: none;
+      }
+    }
+    &.landscape {
+      width: 50px;
+      height: 50px;
+      border: none;
+    }
+  }
+  
+  #self_view_widget { background-color: transparent;  z-index:9999; top: 0px; left: 0px; padding: 5px; display: none; opacity: 0;}
+ 
+  #move_content_sharing {
+    display: none;
+  }
+ 
+  #end_call_button, #self_view_button, #self_video, #joystick_button, #self_mute {
+    text-decoration: none;
+    opacity: .7;
+  }
+  
+  // Invite Translator and Participant modal for mobile view
+  #mobile_button_frame {
+    position: relative;
+  
+    #burger_menu {
+      text-decoration: none;
+      position: fixed;
+    }
+    #burger_menu_items {
+  
+      #joystick_button {
+        position: absolute; 
+        top: -160px; /* turn back to -320 after flip back in */ 
+        left: 0px;
+        opacity: 0.7;
+      }
+      .participant_mobile {
+        a {
+          position: absolute; 
+          top: -80px; 
+          left: 0px; /* change back to -160 when flip is back */
+       
+          span {
+            position: relative; 
+            left: 0px;
+          }
+        }
+      }
+      .switch_camera_mobile {
+        a {
+          position: absolute; 
+          top: -80px; 
+          left: 0px;
+          
+          span {
+            position: relative;
+          }
+        }
+      }
+      .translator_mobile.meetingTransButton {
+        a {
+          top: -160px; /* change back to -240 when flip is back */ 
+        }
+       }
+       
+      .translator_mobile {
+        a {
+          position: absolute; 
+          top: -240px; /* change back to -240 when flip is back */ 
+          left: 0px;
+          span {
+            position: relative;
+          }
+        }
+      }
+    }
+  }
+  
+  #m_add_participant, #m_add_translator {
+    position: relative; 
+    width: 320px; 
+    height: 340px;
+    margin: 0 auto; 
+    background-color: white; 
+    border-radius: 15px; 
+    z-index: 10000; 
+    padding: 30px;
+  
+    h1, h2 {
+      margin-bottom: 15px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      color: #627a86;
+      font-size: 20px;
+      line-height: 35px;
+      font-weight: 600;
+    }
+  
+    #close_modal {
+      position: absolute;
+      color: #4d4d4d;
+      font-size: 23px;
+      float: right;
+      top: 14px;
+      right: 15px;
+      opacity: 1.0; 
+      font-weight: 600;
+    }
+  
+    #add_participant, #sidebar_translator {
+      height: 215px;
+      
+      ul li {
+        width: 82px;
+        margin: 0 2px 23px 2px;
+      }
+      .invite_button_wrapper {
+        display: inline-block;
+        padding: 10px 0px; 
+      }
+    }
+  }
+  
+  .video_on, .video_off, .mic_on, .mic_off {
+    background-origin: content-box;
+    color: #bdbdbd;
+  }
+  
+  a.fa.fa-phone, a:link.fa.fa-phone {
+    background-color: #f44336;
+    transform: rotate(223deg);
+  }
+  
+  .mobile_button_frame {
+    display: flex;
+    justify-content: space-between;
+    margin: auto; 
+    max-width: 500px;
+    //width: 310px;
+    //position: absolute;
+    //left: 50%;
+    //margin-left: -155px;
+    -webkit-transition-duration: 600ms;
+    transition-duration: 600ms;
+    &.out_of_frame{
+      transform:translate(200%);
+    }
+  }
+  
+  .videocontainer 
+  {
+      height:100%;
+      width:100%;
+      overflow: hidden;
+  }
+  
+  .videocontainer video 
+  {
+      min-width: 100%;
+      min-height: 100%;
+  }
+  
+  #mobile_buttons div { float: left; }
+  
+  .fullscreen-bg {
+    background-color: #000000;
+  }
+  
+  .self_video_div {
+    float: none;
+    position: fixed;
+    top: 20px;
+    #left: 20px;
+    right: 20px;
+    width: auto;
+    height: auto;
+    margin: 0px;
+
+    #poh_icon { 
+      top: 5px;
+    }
+  }
+  
+  #dialing p#room {
+    font-size: 20px;
+    margin-right: 5%;
+    margin-top: 20px; 
+  }
+  
+  #selfvideo {
+    background-color: transparent;
+    border-radius: 10px;
+  }
+  
+  .other_way {
+      -webkit-transform: rotate(180deg);
+      transform: rotate(180deg);
+  }
+  
+  .pro_alert {
+    .pro_alert_box { 
+      width: 380px; 
+      margin-left: -190px;
+    }
+  }
+  
+#content_sharing_partial {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  position: fixed;
+  z-index: 210000;
+  color: white;
+  top: 88px;
+  left: 0px;
+  bottom: 100px;
+  padding: 10px;
+  width: 100%;
+}
+#content_sharing_partial #presVideo {
+  width: 100%;
+  height: 100%;
+}
+.expand_arrow_div {
+  display: none;
+}
+
+.participant_list, .chat_list {
+  overflow: visible;
+}
+
+#chat_close {
+  position: fixed;
+  color: white;
+  z-index: 1000000000;
+  top: 0px;
+  left: 292px;
+  width: unset;
+  bottom: unset;
+  right: unset;
+  height: unset;
+  button {
+    border: none;
+    background: transparent;
+    margin-top: 0px;
+    padding: 0;
+    .far {
+      padding: 6px;
+      background-color: white;
+      color: black;
+      font-size: 25px;
+      margin-top: 7px;
+      margin-left: 5px;
+      opacity: 1;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+    }
+  } 
+}
+
+.chat_notifications {
+  .fa.fa-comment {
+    margin-left: 10px;
+    font-size: 25px;
+    color: #317ab9;
+    opacity: 1.0;
+    margin-top: -2px;
+    -webkit-font-smoothing: unset;
+    position: fixed;
+    top: 15px;
+    left: 75px;
+    &.parts {
+      float: left;
+      margin-top:1px;
+    }
+  }
+  p {
+    font-size: 13px;
+    margin-bottom: 0px;
+    float: right;
+    margin-left: 10px;
+    &.parts {
+      float: left;
+      margin-top:1px;
+    }
+  }
+  #chat_js_count {
+    width: 25px;
+    color: white;
+    text-decoration: none;
+    position: absolute;
+    margin: 0;
+    top: 2px;
+    text-align: center;
+    &hover {
+      text-decoration: none;
+    }
+  }
+}
+
+#poh_button_mobile {
+  text-decoration: none; 
+  font-size: 18px;
+  padding: 25px 0px 0px 0px; 
+  user-select: none !important;
+  opacity: .7; 
+  &.on_hold {
+    background-color: #f44336;
+  }
+}
+
+#mobile_meeting_stopwatch {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  position: absolute;
+  top: 5px;
+}
+
+#meeting_stopwatch {
+  background-color: white;
+  margin: 5px;
+  padding-right: 6px;
+  padding-left: 6px;
+  padding-top: 3px;
+  border-radius: 3px; 
+}

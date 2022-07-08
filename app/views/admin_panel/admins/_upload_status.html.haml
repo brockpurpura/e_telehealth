@@ -1,0 +1,40 @@
+- if @upload_logs.present? 
+  %br
+  %br
+  %h5{:style => "color: black"} Upload Log
+
+  %table{:border => 1}
+    %tr{:style => "font-weight: bold"}
+      %td Filename
+      %td Upload time 
+      %td Status 
+      %td Total rows
+      %td Success count
+      %td Fail count
+      %td 
+    - @upload_logs.each do |upload|
+      %tr
+        %td 
+          = upload.original_filename
+        %td 
+          = upload.created_at.strftime("%e %b, %l:%M%P")
+        %td 
+          - if upload.status.upcase == "PROCESSING"
+            #{((upload.processed_records.to_f / upload.total_records.to_f) * 100).round}% COMPLETE
+          - else 
+            = upload.status
+        %td 
+          = upload.total_records
+        %td
+          - if upload.status.upcase == "PROCESSING"
+            = upload.fail_count
+          - else 
+            = upload.succeeded_count
+        %td
+          - if upload.status.upcase == "PROCESSING"
+            = upload.success_count
+          - else 
+            = upload.failed_count
+        %td 
+          - if upload.status.upcase == "PROCESSED"
+            = link_to "Detailed report", controller: "admins", action: "download_bulk_upload_report", id: upload

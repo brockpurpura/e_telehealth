@@ -1,0 +1,54 @@
+#sub_title
+  .leftside
+    %i.fas.fa-chart-line.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    //%h3 Observation Report Activities
+    - if @activities.first.observation.endpoint.present?
+      %h3 #{@activities.first.observation.endpoint.room_info} Activities
+    - else
+      %h3 Endpoint was removed.
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content#dest_tree
+        %table{:class=>'table table-bordered', :id => "observation_report_activity_table"}
+          %thead
+            %tr   
+              %th.width_percent_15  
+                iObserver Email 
+              %th.width_percent_15
+                Activity Type 
+              %th.width_percent_30
+                Reason
+              %th.width_percent_20
+                .center
+                  Performed At
+          %tbody
+            - @activities.each_with_index do |act, idx|
+              %tr{:class => idx%2==0 ? 'even' : 'odd'}  
+                %td
+                  - if act.observation.admin.present?
+                    #{act.observation.admin.email}
+                  - else
+                    Deleted User 
+                    //{determine_admin(act.admin_id).email}
+                %td
+                  #{act.activity_type}
+                %td
+                  #{act.reason}  
+                %td
+                  .center
+                    #{act.created_at}
+
+      .pagination_tr
+        .center
+          = will_paginate(@activities, :params => { :observation_id => @activities.first.observation.id }) 
+
+<script>$(document).ready(function() { $("#observation_report_activity_table").tablesorter(); } );</script> 
+

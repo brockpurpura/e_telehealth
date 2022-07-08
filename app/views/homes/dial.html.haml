@@ -1,0 +1,41 @@
+%main
+  .univago_login_form
+    .ratings
+      %h1.center Your call has ended
+      .center
+        %i.fas.fa-phone{:"aria-hidden" => "true"}
+      - if @user_id.present? 
+        #ratingSystem
+          %h2 How was the quality of this call? 
+          %ul{:id => "stars"}
+            %li 
+              %input.star{:id => "star_1", :type => "radio", :name => "rating", :value => "1"}
+              %label.fas.fa-star{:for=>"star_1", :id => "star_rating_1",  :title => "1 Star Rating"} 
+            %li 
+              %input{:id => "star_2", :type => "radio", :value => "2"}
+              %label.fas.fa-star{:for=>"star_2", :id => "star_rating_2",  :title => "2 Star Rating"} 
+            %li
+              %input{:id => "star_3", :type => "radio", :value => "3"}
+              %label.fas.fa-star{:for=>"star_3", :id => "star_rating_3",  :title => "3 Star Rating"} 
+            %li 
+              %input{:id => "star_4", :type => "radio", :value => "4"}
+              %label.fas.fa-star{:for=>"star_4", :id => "star_rating_4", :title => "4 Star Rating"} 
+            %li
+              %input{:id => "star_5", :type => "radio", :value => "5"}
+              %label.fas.fa-star{:for=>"star_5", :id => "star_rating_5", :title => "5 Star Rating"} 
+          %label.error{:class => "hidden", :id => "ratingError"} Select Rating 
+ 
+          %input#ratingValue{:class => "hidden"} 
+          %button{:id => "rating_button"} Submit Rating
+
+        #ratingSubmitted{:class => "hidden"}
+          %h2{:role => "alert"} Thank you for your submission! 
+          .response_wrapper
+            %i.fas.fa-star{:"aria-hidden"=> "true"}
+            %p#ratingText 
+
+          .center          
+            %a{:id => "resubmitRating"} Change Rating?
+      
+:javascript 
+  initializeCallRating("#{@user_id}"); 

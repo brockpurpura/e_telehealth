@@ -1,0 +1,34 @@
+.header_control_bar
+  #header_left
+    #notif_header.hidden
+    #search_box_view
+      %button#participant_link.no_notifications{ :onclick=>"toggle_sidebar_panel('participant')", :'aria-expanded'=>"false"} 
+        %p.parts Participants
+        #chat_notification.fa.fa-comment.hidden.animate__animated
+          %p#chat_js_count 0 
+
+    #status_message.hidden
+      %p#s_message Patient is on Hold 
+  #room_time
+    .room_wrapper
+      %p#r_name.r_name 
+        Appt Time: #{@appt_time || 'N/A'} 
+        &nbsp;&nbsp;&nbsp; 
+        %span{:id => 'meeting_stopwatch'}
+          00:00:00
+
+  #right_of_header.rightside{:class=> current_user.nil? ? 'hidden' : ''}
+    - @hide_logout = true
+    #clinician_nav
+      .dropdown
+        %button{:'data-toggle'=>"dropdown", :id=>"menu_button", :class=>"dropdown-toggle", :'aria-controls'=>"dropdownMenu", :'aria-haspopup'=>"true", :'aria-expanded'=>"false"} 
+          %i{:alt=>"Control icon", :class =>  (!@api_make_call && !@hide_logout) ? 'fa fa-user dropdown' : 'fa fa-user dropdown api_username'}
+          %p#top_dr_name{:class => (!@api_make_call && !@hide_logout) ? '' : 'hidden'}
+          %b.caret
+        %ul.dropdown-menu{:role=>"menu", :id=>"dropdown_list", :labelledby=>"menu_button"}
+          %li 
+            =link_to 'javascript:;', :onclick=>'open_media_settings()', :role=>"menuitem" do
+              <i class="fas fa-video li"  alt="Settings icon"></i> 
+              <span>Settings</span> 
+        =render :partial=>'application/settings'
+

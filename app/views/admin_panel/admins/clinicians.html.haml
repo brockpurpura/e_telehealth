@@ -1,0 +1,167 @@
+%div{:id=>'top'}
+
+#sub_title
+  .leftside
+    %i.fa.fa-user-md.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside      
+    %h3 Clinicians
+  .rightside.create_new_link
+    =link_to "Add Clinician", "javascript:;", :id =>"signup_admin_button", :class=> ' ', :onclick => "open_admin_popup('invite_clinician_admin','')"
+
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #clinician_list_partial
+          =render :partial => "clinician_list"
+
+#popup_widget_surround 
+  .popup_widget.popup_ui{:id => "invite_clinician_admin"}
+    #uhe_admin_popup
+      %h2 Add Clinician
+      =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('invite_clinician_admin')" do 
+        <i class="far fa-times" aria-hidden="true"></i>
+        
+      =form_for :invite_clinician,  :url => clinicians_admin_panel_client_path  do |x| 
+        %p.entry_header
+          Email * 
+        .center
+          = x.email_field :email, :placeholder => ""
+        %p.entry_header
+          Name  
+        .entry
+          .leftside           
+            .dropdowns
+              %label
+                = select_tag :prefix, options_for_select(User::USER_PREFIX_SELECT, :selected => ""), :id=>"", :class => "prefix_name_entry prefix_name uhe_admin"                  
+          .leftside
+            = x.text_field :first_name,  :placeholder => "", :class => "prefix_name_entry first_name"
+          .leftside
+            = x.text_field :last_name,  :placeholder => "", :class => "prefix_name_entry last_name"
+        .entry_footer 
+          .leftside
+            %p.prefix_name_entry.prefix_name Prefix 
+          .leftside
+            %p.prefix_name_entry.first_name First
+          .leftside
+            %p.prefix_name_entry.last_name Last
+        %p.entry_header
+          Phone Number      
+        .center
+          .entry#clinician_phone1
+            .leftside
+              #entry_action.left_action
+                .flag_box{:onclick => "open_country_dropdown(1, 'main')"}
+                  %span#flag1_main{:class => "flag-icon flag-icon-us"}
+                  %span.caret
+            .leftside
+              =  text_field :phone_number1, "Phone Number",  id: "clinician_phone_one_main", :placeholder => "",  :class => "one_action left phone_number_field", :onblur=>"checkPhoneLength('clinician_phone_one')" 
+          %ul.dropdown-menu{:id => "country_phone_select1_main"}
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(1,'us', 'main')" do
+                %span.flag-icon.flag-icon-us
+                United States
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(1,'gb', 'main')" do
+                %span.flag-icon.flag-icon-gb
+                United Kingdoms
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(1,'au', 'main')" do
+                %span.flag-icon.flag-icon-au
+                Australia
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(1,'ca', 'main')" do
+                %span.flag-icon.flag-icon-ca
+                Canada    
+
+          = hidden_field_tag("flag1_main", "us", :id => "flag1_value_main")
+                  
+          .hidden.entry.additional_entry{:id => "clinician_phone2_main"}
+            .leftside
+              #entry_action.left_action
+                .flag_box{:onclick => "open_country_dropdown(2, 'main')"}
+                  %span#flag2_main{:class => "flag-icon flag-icon-us"}
+                  %span.caret
+            .leftside
+              =  text_field :phone_number2, "Phone Number",  id: "clinician_phone_two_main", :placeholder => "",  :class => "two_actions phone_number_field"   
+            .leftside
+              #entry_action.right_action
+                = link_to "javascript:;", :class => "", :onclick => "remove_additional_phone(1, '', 'main')" do
+                  <i class="far fa-trash-alt fa-1x" aria-hidden="true"></i>
+                
+          %ul.dropdown-menu{:id => "country_phone_select2_main" }
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(2,'us', 'main')" do
+                %span.flag-icon.flag-icon-us
+                United States
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(2,'gb', 'main')" do
+                %span.flag-icon.flag-icon-gb
+                United Kingdoms
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(2,'au', 'main')" do
+                %span.flag-icon.flag-icon-au
+                Australia
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(2,'ca', 'main')" do
+                %span.flag-icon.flag-icon-ca
+                Canada     
+          = hidden_field_tag("flag2_main", "us", :id => "flag2_value_main")
+
+          .hidden.entry.additional_entry{:id => "clinician_phone3_main"}
+            .leftside
+              #entry_action.left_action
+                .flag_box{:onclick => "open_country_dropdown(3, 'main')"}
+                  %span#flag3_main{:class => "flag-icon flag-icon-us"}
+                  %span.caret
+            .leftside
+              = text_field :phone_number3, "Phone Number",  id: "clinician_phone_three_main", :placeholder => "",  :class => "two_actions phone_number_field "
+            .leftside
+              #entry_action.right_action
+                = link_to "javascript:;", :class => "", :onclick => "remove_additional_phone(2, '','main')" do
+                  <i class="far fa-trash-alt fa-1x" aria-hidden="true"></i>
+                  
+          %ul.dropdown-menu{:id =>  'country_phone_select3_main'}
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(3,'us', 'main')" do
+                %span.flag-icon.flag-icon-us
+                United States
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(3,'gb', 'main')" do
+                %span.flag-icon.flag-icon-gb
+                United Kingdoms
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(3,'au', 'main')" do
+                %span.flag-icon.flag-icon-au
+                Australia
+            %li
+              = link_to "javascript:;", :onclick=> "set_country_phone(3,'ca', 'main')" do
+                %span.flag-icon.flag-icon-ca
+                Canada     
+          = hidden_field_tag("flag3_main", "us", :id => "flag3_value_main")
+
+
+          .entry_footer 
+            .leftside
+              %p Example: (555) 555-5555
+            .leftside
+              //Step 1 pagination
+              =link_to "Add New","javascript:;", id: "open_phone_entry1_main", :class => "entry_footer addition_phones_link", :onclick => "openPhone(1, 'main')"
+              =link_to "Add New", "javascript:;", id: "open_phone_entry2_main", :class => "entry_footer addition_phones_link hidden", :onclick => "openPhone(2, 'main')"
+   
+          .submit
+            .center 
+              //= link_to "Save for later", ""
+              = x.submit "Add", :class=> "button" 
+//:javascript
+//  document.getElementById('invite_clinician_email').required = true;
+//  document.getElementById('invite_clinician_prefix').required = true;
+//  document.getElementById('invite_clinician_first_name').required = true;
+//  document.getElementById('invite_clinician[last_name]').required = true;
+

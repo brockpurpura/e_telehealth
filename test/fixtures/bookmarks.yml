@@ -1,0 +1,8 @@
+Bookmark_1:
+  id: 17
+  endpoint_id: 11
+  user_id: 42
+  name: Wall PC
+  internal_name: b98ef5c47a66
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

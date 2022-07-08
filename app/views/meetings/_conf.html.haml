@@ -1,0 +1,276 @@
+.hidden
+  =audio_tag("dialing.wav", :autoplay=> false, :loop => true, :id=> 'dialing_sound')
+  %p#dr_name #{ user_signed_in? ? current_user.dr_name : ''}
+-if user_signed_in? 
+  #dialing{:class => (@api_make_call.nil? and @invited_guest.nil?) ? 'hidden' : ''}
+    - if !endpoint.nil?
+      %p#room Calling #{endpoint.room_info}
+      .hidden
+        %p#device_type #{endpoint.endpoint_type}
+        %p#cisco_protocol #{endpoint.dial_out_type}
+        %p#cisco_sip #{endpoint.alias}
+        %p#allow_make_host #{endpoint.client.allow_make_host?}
+    #anime.container
+      .dot.dot-1
+      .dot.dot-2
+      .dot.dot-3
+    %p#cameraMicPrompt.mic_audio_prompt If prompted please allow access to Camera/Mic and ensure pop up blocker is disabled
+
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1"><defs><filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" /><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -7"/></filter></defs></svg>
+  =render :partial=>'application/sidebar_panel', :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias}  
+  #conf
+    .hidden
+      %p#endpoint_version #{endpoint.nil? ? 1 : endpoint.endpoint_status.nil? ? 1 : endpoint.endpoint_status.version}
+      %p#call_alias #{@vmr.nil? ? '' : @vmr.alias}
+      %p#conf_node #{Configurable.hcm_conference_node}
+      - if is_mobile_device?
+        %p#use_dynamic_orientation #{Configurable.use_dynamic_orientation}
+        %p#dynamic_orientation_interval #{Configurable.dynamic_orientation_interval}
+      - if user_signed_in?
+        %p#current_user_id #{current_user.id}
+   
+    #videocontainer.videocontainer.fullscreen-bg
+      <video autoplay playsinline id='video' width='100%' height='100%'></video>
+      <canvas id='canvas' width='100%' height='100%'></canvas>
+    #pohcontainer.videocontainer.fullscreen-bg.hidden
+      .center
+        %h1.pohcontainer You have been placed on hold
+    <button id="double_click_me" class="cbutton cbutton--effect-ivana"></button>
+    <button id="hold_me_down" class="cbutton cbutton--effect-simo"></button>
+    <button id="hold_me_down_backwards" class="cbutton cbutton--effect-owen"></button>
+    #participants.hidden
+      %h2#rosterheading Participants
+      #rosterlist.rosterlist
+        %ul#rosterul
+
+    - if is_mobile_device?
+      #mobile_meeting_stopwatch
+        %span{:id => 'meeting_stopwatch'}
+          00:00:00
+
+    %p#mobile_view.hidden #{is_mobile_device? ? 'true' : 'false'}
+    %p#iphone_mobile_view.hidden #{is_iphone_mobile_device? ? 'true' : 'false'}
+    - if is_mobile_device?
+      %p#inc_561_enabled.hidden #{Configurable.inc_561_enabled}
+      %p#inc_561_audio_gain.hidden #{Configurable.inc_561_audio_gain}
+      %p#inc_561_upper_version.hidden #{Configurable.inc_561_upper_version}
+      .div#mobile_buttons_div{:class=> @endpoint.nil? ? 'hidden' : ''} 
+        = render :partial => 'application/buttons_mobile', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id, :is_mychart => true}
+    - else
+      #function_bar_column
+        = render :partial => 'meetings/side_buttons', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+      #self_view_widget{:class=> is_mobile_device? ? 'self_view hidden' : 'not_mobile self_view hidden dragme'}
+        .self_view_mover.fa.fa-arrows.self_video_visuals.fade#move_self_view{:tabindex=>"0", :'aria-label'=>"move self view", :role=>"application"}
+        %button{:id=>'close_self_view', :class => 'fa fa-times-circle close_widget self_video_visuals fade self_view_close', :onclick=> "toggle_widget('self_view_widget', 'self_view_button')", :'aria-label'=>"close self view"}
+        .sv
+          %div.self_video_div
+            <video autoplay playsinline id='selfvideo' height=#{is_mobile_device? ? '120':'170'} muted class='left_20 leftside'></video>
+            #poh_icon{:class=>"hidden"}
+              %h4 POH
+    #pinentry.hidden
+    #maincontent.main.cf.hidden
+  %script{:type=>"text/javascript"}
+    :plain
+      function loadParticipants() {
+        var url_string = '/fetch_meeting_participants?cid=#{@cid}&client=#{@api_client.nil? ? '' : @api_client.id}'
+        $.get(url_string)
+        };
+
+-if @under_maintanence
+  :javascript
+    swal({ title: "Upgrade In Progress", text: "This room is currently under maintenance. Please try again later", type: "error", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}, function(){ if (e_api_call || api_call || invited ) {window.location = '/home/dial';} else {swal.close();}}); 
+-if @out_of_vmrs
+  :javascript
+    swal({ title: "Development VMR limit reached", text: "DEV has a limit on VMR use.  New VMRs are being created.  Please try again in 2 minutes.", type: "error", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}, function(){window.location = '/home/dial';}); 
+-if @api_call_expired
+  :javascript
+    swal({ title: "Unable to Join", text: "This call has expired.", type: "error", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}, function(){window.location = '/home/dial';}); 
+
+-if @api_unauthorized
+  :javascript
+    swal({ title: "Unauthorized Request", text: "You are not authorized to make this call.", type: "error", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}, function(){window.location = '/home/dial';}); 
+
+:javascript
+  var not_ie = detectIE();
+  var r = document.getElementById("room_name");
+  var rm_name = '';
+  cable = ActionCable.createConsumer("wss://#{Configurable.server_name}");
+  if (r) {
+    rm_name = r.innerHTML;
+  }
+  if (!is_mobile()) {
+    var windows = document.querySelectorAll('.self_view, .snapshot');[].forEach.call(windows,function(win){var title = win.querySelector('.self_view_mover, .snapshot_mover'); title.addEventListener('mousedown',function(evt){ var real = window.getComputedStyle(win), winX = parseFloat(real.left), winY = parseFloat(real.top); var mX = evt.clientX, mY = evt.clientY; document.body.addEventListener('mousemove',drag,false); document.body.addEventListener('mouseup',function(){ document.body.removeEventListener('mousemove',drag,false); },false); function drag(evt){ win.style.left = winX + evt.clientX-mX + 'px'; win.style.top  = winY + evt.clientY-mY + 'px'; }; },false); });
+  }
+  function hideFunctions(){
+    $('#screenshot_button').addClass('hidden');
+    $('#content_sharing_button').addClass('hidden');
+    $('#invite_participant_section').addClass('hidden');
+    $('#translator_section').addClass('hidden');
+    //$('#participant_link').addClass('hidden'); -- Now we allow participant list and chat!
+  }
+
+- if user_signed_in?
+  %p#d_audio.hidden #{current_user.d_audio}
+  %p#d_video.hidden #{current_user.d_video}
+  %p#d_output.hidden #{current_user.d_speaker}
+  :javascript
+    defaultAudio = "#{current_user.d_audio}";
+    defaultVideo = "#{current_user.d_video}";
+    defaultOutput = "#{current_user.d_speaker}";
+    console.log('ASSIGNED DEFAULT FROM USER ' + defaultOutput);
+    mediaUserId = #{current_user.id};
+    var patient_is_on_hold = false;
+
+    $(document).ready(function(){
+      initiateMedia();
+      toggle_widget('self_view_widget', 'self_view_button')
+      if (invited) {
+        hideFunctions();
+      }
+      if (epic_patient) {
+        if (document.getElementById('participant_link')) {
+          document.getElementById('participant_link').innerHTML = document.getElementById('participant_link').innerHTML.replace('Participants','Chat Room');
+        }
+      }
+    });
+    function loadAlerts(open) {
+      var url_string = '/fetch_alerts?open=' + open
+      $.get(url_string);
+    };
+    var websocket_disconnect = false;
+    var timer_flag = false;
+    if (isMeeting) {
+      setTimeout(function(){console.log('TIMEOUT: disconnecting websocket.');cable.disconnect();}, #{Configurable.mychart_session_tunnel_expire_in_minutes} * 60 * 1000 );
+    }
+    mychart_session_tunnel = cable.subscriptions.create({
+      channel: "MychartSessionChannel", 
+      user_id: "#{current_user.id}",
+      cid: "#{@cid}",
+      ext_user_id: "#{@userid}",
+      client_id: "#{@client_id}",
+      uhe_c_id: "#{current_user.id}",
+      usertype: "#{@usertype}",
+      vmr_alias: "#{@call_alias}"
+      }, {
+      connected: function() {
+        console.log("connected to the mychart_session tunnel");
+        timer_flag = true;
+        checkForEpicResend();
+      },
+      disconnected: function() {
+        epic_joined = false;
+        websocket_disconnect = true;
+        console.log("disconnected from the mychart_session tunnel");
+      },
+      received: function(data) {
+        console.log("response received from mychart_session tunnel: " + JSON.stringify(data));
+        if (data) {
+          switch (data['command']) {
+            case "pin_part":
+              // Changed to use Pexip Callback updateMeetingRoster()
+              //console.log("pinning: " + data['uuid']);
+              //pinMeetingPartUI(data['uuid']);
+              break;
+            case "toggle_meeting_poh":
+              if (isMeetingPatient()){  // If this is the patient view
+                if(patient_is_on_hold){
+                  $('#video').removeClass('hidden');
+                  $("#video").prop('muted', false)
+                  $('#pohcontainer').addClass('hidden');
+                  patient_is_on_hold = false;
+                } 
+                else {
+                  $('#video').addClass('hidden');
+                  $("#video").prop('muted', true)
+                  $('#pohcontainer').removeClass('hidden');
+                  patient_is_on_hold = true;
+                }
+              }
+              else { // this is a Provider view
+                if(patient_is_on_hold){
+                  patient_is_on_hold = false;
+                  $('#poh_button').attr("aria-pressed","false");
+                  $('#poh_tool_tip').removeClass('deactivated');
+                  $('#poh_button_mobile').removeClass('on_hold');
+                  $('#poh_icon').addClass('hidden');
+                }
+                else{
+                  patient_is_on_hold = true;
+                  $('#poh_button').attr("aria-pressed","true");
+                  $('#poh_tool_tip').addClass('deactivated');
+                  $('#poh_button_mobile').addClass('on_hold');
+                  $('#poh_icon').removeClass('hidden');
+                } 
+              }
+              break;
+            case "turn_off_poh":
+              patient_is_on_hold = false;
+              if (isMeetingPatient()){  // If this is the patient view
+                  $('#video').removeClass('hidden');
+                  $("#video").prop('muted', false)
+                  $('#pohcontainer').addClass('hidden');
+              } else { // this is a Provider view
+                  $('#poh_button').attr("aria-pressed","false");
+                  $('#poh_tool_tip').removeClass('deactivated');
+                  $('#poh_button_mobile').removeClass('on_hold');
+                  $('#poh_icon').addClass('hidden');
+              }
+              break;
+            case "patient_is_on_hold":
+              // INC-172: Communicate POH status when a participant joins
+              patient_is_on_hold = true;
+              break;
+            case "guest_enter":
+              // An invited guest has entered
+              if (patient_is_on_hold) {
+                meeting_tunnel('patient_is_on_hold', null);
+              }
+              break;
+            case "clinician_enter":
+              // If a Clinician has entered and I'm a Patient, tell other participants to start their timer
+              if (epic_patient) {
+                meeting_tunnel('start_stopwatch', null);
+              }
+              break;
+            case "patient_enter":
+              // If a Patient has entered and I'm a Clinician, tell other participants to start their timer
+              if (!epic_patient) {
+                meeting_tunnel('start_stopwatch', null);
+              }
+              if (patient_is_on_hold) {
+                meeting_tunnel('patient_is_on_hold', null);
+              }
+              break;
+            case "clinician_exit":
+              // If a Clinician has exited and I'm a Patient, tell other participants to start their timer
+              if (epic_patient) {
+                meeting_tunnel('stop_stopwatch', null);
+              }
+              break;
+            case "patient_exit":
+              // If a Patient has exited and I'm a Clinician, tell other participants to start their timer
+              if (!epic_patient) {
+                meeting_tunnel('stop_stopwatch', null);
+              }
+              break;
+            case "start_stopwatch":
+              start_stopwatch();
+              break;
+            case "stop_stopwatch":
+              stop_stopwatch();
+              break;
+            default: 
+              console.log("Unknown response: " + data);
+          }
+        }
+      },
+      send_command: function(command) {
+        console.log("sending command " + JSON.stringify(command));
+        return this.perform('send_command', {
+          command: command
+        });
+      }
+    });
+    //document.getElementById("video").style.objectFit = "cover";
+= render :partial => 'application/streaming'
+= render :partial => 'application/media'

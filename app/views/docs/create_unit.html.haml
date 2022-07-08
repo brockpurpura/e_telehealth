@@ -1,0 +1,52 @@
+%div.docs_text.col-md-6
+  %h1 Create a new Patient Unit 
+  %hr
+  %p You can use an API POST call to create a new patient unit within the system under your account.  Once created, the unit will be available to configure to a device and used with the API to make a call to the unit. 
+  %hr
+
+  %h5 HTTP POST to create a Unit 
+  %p To initialize a call, make an HTTP POST request to the call resource URI:
+  %pre.notranslate.http-request https://healthcare.univago.com/api/create_unit
+  %h5 POST Parameters
+  %table.docs_table
+    %thead
+      %th Parameter
+      %th Status 
+      %th Description
+    %tbody
+      %tr
+        %td building_name 
+        %td * Required 
+        %td Name of Building 
+      %tr
+        %td room_name 
+        %td * Required 
+        %td Name of Room 
+      %tr
+        %td unit_name 
+        %td * Required 
+        %td Name of Unit
+  %p If a building or room with the same name exists the system will assing to that building or room.  If a unit in that same location trail with the same name exists, the request will be rejected 
+  %h5 Request Response 
+  %h4 Successful Result -- JSON response - 200 Header status OK
+  %p Example: {"unit_id":23,"message":"Success"} 
+  %p The unit id in this result may be used to #{link_to 'initiate a call', call_init_doc_path } once a patient unit device is set up and assigned to that unit name
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Unit in this location already exists"} 
+  %p Some reasons for a failed request could be that the endpoint is not registered under your account or your account has not completed provisioning
+
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example:
+    %span curl  -u Mm4cbQ:Tf0sTHtH_70  -H "Content-Type: application/json, Accept: application/json" -X POST -d building_name":"Riverview", "room_name":"2146", "unit_name":"Bed 1"}' https://healthcare.univago.com/api/create_unit 
+    %span Where:
+    %span "Mm4cbQ" = your api username 
+    %span "Tf0sThtH_70" = your api password
+    %span "Riverview" = the name of the building the unit is placed in 
+    %span "2146" = the name or number of the room the unit is placed in
+    %span "Bed 1" = the name of the bed or of the unit within the room
+    %span Example Result: 
+    %span {"unit_id":23,"message":"Success"} 
+
+

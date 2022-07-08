@@ -1,0 +1,130 @@
+#sub_title
+  .leftside
+    %i.far.fa-cog.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Advanced Dev Tools 
+  #advanced_dev
+    .col-md-12
+      .widget
+        .widget-head
+          Get Machine Info  
+        .widget-content
+          =form_tag do
+            = hidden_field_tag :machine_info, "true"
+            #div
+              %table.endpoint_settings_table_dimensions.twox
+                %tr
+                  %th.endpoint_setting_widget
+                    Room name (%like%)  
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :machine_room_name, '', :class=>'input_endpoint_settings'
+                - if our_active_admin.is_not_read_only?
+                  %tr
+                    %th.endpoint_setting_widget
+                    %th.endpoint_setting_widget
+                      =submit_tag 'Retrieve Data'
+          - if !@results.nil?
+            %table.endpoint_settings_table_dimensions.twox
+              %th.endpoint_setting_widget
+                Room
+              %th.endpoint_setting_widget
+                Caregility ID  
+              %th.endpoint_setting_widget
+                Machine Name  
+              %th.endpoint_setting_widget
+                Is Online  
+              - @results.each do |room|
+                %tr
+                  %th.endpoint_setting_widget
+                    <b>#{room.name}</b>  
+                  %th.endpoint_setting_widget
+                    <b>#{room.id}</b>  
+                  %th.endpoint_setting_widget
+                    <b>#{room.machine_name}</b>
+                  %th.endpoint_setting_widget
+                    -if room.is_online?
+                      <font color='green'><b>YES</b></font>
+                    -else
+                      <font color='red'><b>NO</b></font>
+
+  #advanced_dev
+    .col-md-12
+      .widget
+        .widget-head
+          Send to Patient Device  
+        .widget-content
+          =form_tag do
+            = hidden_field_tag :send_to_device, "true"
+            #div
+              %table.endpoint_settings_table_dimensions.fourx
+                %tr
+                  %th.endpoint_setting_widget
+                    Machine Name  
+                  %td.vertical_center{:colspan=>2}
+                    .center
+                      =text_field_tag :machine_name, '', :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Command  
+                  %td.vertical_center{:colspan=>2}
+                    .center
+                      =text_field_tag :send_command, '', :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Params (in json)  
+                  %td.vertical_center{:colspan=>2}
+                    .center
+                      =text_field_tag :send_params, "value:something,other_value:something_else (no spaces)", :class=>'input_endpoint_settings'
+                - if our_active_admin.is_not_read_only?
+                  %tr
+                    %th.endpoint_setting_widget
+                    %th.endpoint_setting_widget{:colspan=>2}
+                      =submit_tag 'Send Command Now'
+
+
+  #advanced_dev
+    .col-md-12
+      .widget
+        .widget-head
+          Bulk Patient Device config update 
+        .widget-content
+          =form_tag do
+            = hidden_field_tag :send_bulk_websocket, "true"
+            #div
+              %table.endpoint_settings_table_dimensions.fourx
+                %tr
+                  %th.endpoint_setting_widget
+                    Batch Name 
+                  %td.vertical_center{:colspan=>2}
+                    .center
+                      =text_field_tag :batch_name, '', :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Command Name 
+                  %td.vertical_center{:colspan=>2}
+                    .center
+                      =text_field_tag :command_name, "", :class=>'input_endpoint_settings', :autocomplete => 'new-password'
+                %tr
+                  %th.endpoint_setting_widget
+                    JSON object 
+                  %td.vertical_center{:colspan=>2}
+                    .center
+                      =text_field_tag :json_object, "value::something|other_value::something_else (split by pipe & no spaces. use ++ for comma, note the two ::)", :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Password 
+                  %td.vertical_center{:colspan=>2}
+                    .center
+                      =password_field_tag :form_password, "", :class=>'input_endpoint_settings', :autocomplete => 'new-password'
+                - if our_active_admin.is_not_read_only?
+                  %tr
+                    %th.endpoint_setting_widget
+                    %th.endpoint_setting_widget{:colspan=>2}
+                      =submit_tag 'Send Now',  :data => {:confirm => 'Are you sure you want to send now?'}
+                %tr
+                  %th{:colspan=>2}
+                    %p Changing the characters after submission is necessary to support passed parameters for iObserver
+                    %p Before:  e_status::on|controller::uhehaobsstag1.univago.com:3443++uhehaobsstag2.univago.com:3443++uhehaobsstag3.univago.com:3443
+                    %p After:   {"e_status"=>"on", "controller"=>"uhehaobsstag1.univago.com:3443,uhehaobsstag2.univago.com:3443,uhehaobsstag3.univago.com:3443"} 
+

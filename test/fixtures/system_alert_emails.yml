@@ -1,0 +1,140 @@
+---
+SystemAlertEmail_1:
+  id: 1
+  client_id: 2
+  alert_number: 1
+  email: cgrubb@caregility.com
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-11-05 20:38:44.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-10-07 17:35:12.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_2:
+  id: 7
+  client_id: 40
+  alert_number: 1
+  email: michael.narkawicz@bjc.org
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-11-13 17:22:13.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-11-13 17:22:13.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_3:
+  id: 8
+  client_id: 40
+  alert_number: 2
+  email: mark.hutchins@bjc.org
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-11-13 17:22:13.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-11-13 17:22:14.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_4:
+  id: 10
+  client_id: 1
+  alert_number: 1
+  email: jschell@incubate.pro
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-01-15 14:07:46.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-01-15 14:07:46.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_5:
+  id: 15
+  client_id: 37
+  alert_number: 1
+  email: cgrubb@caregility.com
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-06-21 14:07:19.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-10-07 17:35:20.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_6:
+  id: 35
+  client_id: 2
+  alert_number: 2
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-10-07 17:35:12.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-10-07 17:35:12.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_7:
+  id: 38
+  client_id: 2
+  alert_number: 3
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-10-07 17:35:12.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-10-07 17:35:12.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_8:
+  id: 41
+  client_id: 37
+  alert_number: 2
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-10-07 17:35:20.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-10-07 17:35:20.000000000 Z
+    zone: *2
+    time: *3
+
+---
+SystemAlertEmail_9:
+  id: 44
+  client_id: 37
+  alert_number: 3
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-10-07 17:35:20.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-10-07 17:35:20.000000000 Z
+    zone: *2
+    time: *3
+

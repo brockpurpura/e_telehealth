@@ -1,0 +1,1 @@
+$("#room_info_view").html("<%=escape_javascript(render :partial => 'room_information', :locals=> {:endpoint => @endpoint, :current_user => @current_user, :tunnel=>@tunnel, :call_alias => @call_alias}) %>")

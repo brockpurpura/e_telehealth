@@ -1,0 +1,44 @@
+#sub_title
+  .leftside
+    %i.fa.fa-signal.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 VMR Availability 
+
+
+.col-md-12  
+  .col-md-12
+    .widget
+      .widget-head
+      .widget-content
+        = hidden_field_tag :version, "true"
+        #div
+          %table.endpoint_settings_table_dimensions.onex
+            %tr
+              %th.endpoint_setting_widget
+                VMRs Available
+              %td.vertical_center
+                .center
+                  =text_field_tag :on_deck_list,  Vmr.on_deck_list_general.count, :class=>'input_endpoint_settings', :readonly => "readonly"
+            %tr
+              %th.endpoint_setting_widget
+                VMR Meetings Available
+              %td.none.vertical_center
+                .center
+                  =text_field_tag :meeting_on_deck_list,  VmrMeeting.on_deck_list_general.count, :class=>'input_endpoint_settings', :readonly => "readonly"
+        - ClientAdmin.active.each do |channel|
+          %table.endpoint_settings_table_dimensions.onex
+            %tr
+              %th{:colspan=> 2}
+                <b>#{channel.name}</b>
+            %tr
+              %th.endpoint_setting_widget
+                VMRs Available
+              %td.none.vertical_center
+                .center
+                  =text_field_tag :on_deck_list,  channel.vmrs_on_deck, :class=>'input_endpoint_settings', :readonly => "readonly"
+            %tr.hidden
+              %th.endpoint_setting_widget
+                VMR Meetings Available
+              %td.vertical_center
+                .center
+                  =text_field_tag :meeting_on_deck_list,  channel.vmr_meetings_on_deck, :class=>'input_endpoint_settings', :readonly => "readonly"

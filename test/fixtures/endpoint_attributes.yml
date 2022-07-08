@@ -1,0 +1,15 @@
+EndpointAttribute_1:
+  id: 2
+  endpoint_id: 42
+  endpoint_attribute_type_id: 5
+  value: 192.168.121.152
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+EndpointAttribute_2:
+  id: 3
+  endpoint_id: 4
+  endpoint_attribute_type_id: 1
+  value: true
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

@@ -1,0 +1,9 @@
+Component_1:
+  id: 1
+  endpoint_id: 63
+  part_type: Computer
+  image_type: part
+  retired_at: <%= Time.now.to_date %>
+  image: 6_cam_2x4__left.jpeg
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

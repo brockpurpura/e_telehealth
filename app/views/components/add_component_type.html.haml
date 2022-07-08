@@ -1,0 +1,43 @@
+.component_style
+  = form_tag main_components_path  do 
+    = hidden_field_tag :endpoint_id, @endpoint.id
+    = submit_tag "Return to Components", :class => "top_left_nav"    
+
+  = link_to "Logout", destroy_admin_session_path, :method=>:delete, :class => "top_right_nav" 
+
+  - if @notice.present?
+    %p#notice= @notice
+  - if @error_notice.present? 
+    %p#error_notice= @error_notice
+
+ 
+  .component_wrapper 
+    %h2 Components System
+    = form_for @component_type, url: add_component_type_components_path do |x|
+      %h3 Add New Component Type
+      = x.text_field :name, :placeholder => "Enter Name", :maxlength => 200
+      %br
+      %br
+      %br
+      = hidden_field_tag :endpoint_id, @endpoint.id
+      = x.submit "Save", :class => "save"
+    %h3 Current Component Types
+    %ul 
+      - ComponentType.all.each do |ct|
+        %li 
+          .component_details
+            %p #{ct.name}
+          .component_details.action{:style => "width: unset;"}
+            = form_tag add_component_type_components_path do
+              = hidden_field_tag :endpoint_id, @endpoint.id
+              = hidden_field_tag :delete_component_type, "true"
+              = hidden_field_tag :component_type_id, ct.id
+              %button{:type => "submit", :confirm => "Are you sure?"}
+                Delete
+                .fas.fa-trash
+    
+
+    %br 
+    %br  
+    %br
+    %br      

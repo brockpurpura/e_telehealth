@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+%html{:lang=>"en"}
+  %head
+    %title #{get_title_by_controller_value} | Caregility
+    = stylesheet_link_tag    'application', media: 'all'
+    = stylesheet_link_tag "devise_menu"
+    = javascript_include_tag 'application'
+    = csrf_meta_tags
+    %meta{:charset=>"UTF-8", :lang=>"en"} 
+    %meta{:content => "width=device-width, initial-scale=1", :name => "viewport"}
+  %body{:class => "using-mouse"}
+    = render :partial=> 'application/pro_alerts'
+    = yield 
+    :javascript
+      forceKeyboardFocusOnly();

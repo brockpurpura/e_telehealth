@@ -1,0 +1,83 @@
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+ssl_session_timeout 5m;
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    if ($scheme = http) {
+        return 301 https://$server_name$request_uri;
+    }
+
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    ssl_certificate /etc/ssl/certs/uhe_default.crt;
+    ssl_certificate_key /etc/ssl/certs/uhe_default.key;
+
+    # Additional security settings
+    ssl_prefer_server_ciphers on;
+    ssl_protocols TLSv1.2; # Dropping SSLv3, ref: POODLE 
+    ssl_ciphers !eNULL:!EXP:!DES:!3DES:!RC4:!RC2:!IDEA:!CAMELLIA:!SEED:!MD5:!aNULL:!ADH:!SRP:!PSK:EECDH+AESGCM:EDH+AESGCM:EECDH+AES+TLSv1.2:EDH+AES+TLSv1.2:EECDH+AES:EDH+AES:AES128-SHA;
+    ssl_dhparam /etc/ssl/certs/dhparam.pem; 
+    ssl_session_cache shared:SSL:10m;
+
+    passenger_app_env onprem;
+
+    if ($scheme = http) {
+        return 301 https://$server_name$request_uri;
+    }
+
+    passenger_enabled on; 
+    root /home/uheadmin/e_telehealth/public;
+
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name vasbyevnuniapp.care2.evn.va.gov;
+    add_header "Access-Control-Allow-Origin" *;
+
+    passenger_max_request_time 20;
+    passenger_min_instances 4;
+    passenger_concurrency_model thread;
+    passenger_thread_count 182;
+    passenger_max_request_queue_size 500;
+    passenger_memory_limit 2000;
+    
+    # set upload file size
+    client_max_body_size 1000M;
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+      root html;
+    }
+}
+
+server {
+    listen 8443 ssl;
+    listen [::]:8443 ssl default_server;
+    ssl_certificate /etc/ssl/certs/uhe_default.crt;
+    ssl_certificate_key /etc/ssl/certs/uhe_default.key;
+    server_name vasbyevnuniapp.care2.evn.va.gov;
+    root /home/uheadmin/e_telehealth/public;
+    passenger_enabled on;
+    passenger_app_group_name telehealth_websocket;
+    passenger_app_type rack;
+    passenger_startup_file cable/config.ru;
+    passenger_force_max_concurrent_requests_per_process 0;
+    passenger_max_request_queue_size 2000;
+    passenger_min_instances 2;
+    passenger_app_env onprem;
+    add_header "Access-Control-Allow-Origin"  *;
+
+    # Additional security settings
+    ssl_prefer_server_ciphers on;
+    ssl_protocols TLSv1.2; # Dropping SSLv3, ref: POODLE 
+    ssl_ciphers !eNULL:!EXP:!DES:!3DES:!RC4:!RC2:!IDEA:!CAMELLIA:!SEED:!MD5:!aNULL:!ADH:!SRP:!PSK:EECDH+AESGCM:EDH+AESGCM:EECDH+AES+TLSv1.2:EDH+AES+TLSv1.2:EECDH+AES:EDH+AES:AES128-SHA;
+    ssl_dhparam /etc/ssl/certs/dhparam.pem; 
+    ssl_session_cache shared:SSL:10m;
+
+    #location /versions {
+    #    root /e_telehealth/public/;
+    #}
+
+}
+

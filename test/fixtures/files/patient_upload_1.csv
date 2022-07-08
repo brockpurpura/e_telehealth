@@ -1,0 +1,6 @@
+first_name,last_name,channel,customer,location,unit,specialty,email,password,phone_number,third_party_auth,alias
+HMW 5E Roaming 1,,System Testing Channel,System Testing Customer,Staging Location, Eatontown,InPatient,HMW5ERoaming1s@unit-testing.org,Q38aM116-V17,,,HMW 5E Roam 1
+HMW 5E Roaming 2,,System Testing Channel,System Testing Customer,Staging Location, Eatontown,InPatient, HMW5ERoaming2s@unit-testing.org,E13iW337%O87,,,HMW 5E Roam 2
+HMW 5E Roaming 3,,System Testing Channel,System Testing Customer, Staging Location,  Eatontown,InPatient, HMW5ERoaming3s@unit-testing.org, "X29oP785"""B63",,,HMW 5E Roam 3
+HMW 5E Roaming 4,,System Testing Channel,System Testing Customer,Staging Location, Eatontown,InPatient,HMW5ERoaming4s@unit-testing.org,Q38aM116-V17,,,HMW 5E Roam 4
+HMW 5E Roaming 5,,System Testing Channel,System Testing Customer,Staging Location, Eatontown, InPatient, HMW5ERoaming5s@unit-testing.org, E13iW337%O87,,,HMW 5E Roam 5

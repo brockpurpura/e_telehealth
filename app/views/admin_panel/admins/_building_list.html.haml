@@ -1,0 +1,122 @@
+-if @buildings.present?
+  %table{:class=>'table table-bordered', :id => 'building_list'}
+    %thead
+      %tr
+        - if our_active_admin.is_super_admin?
+          %th
+            Channel
+        - if !our_active_admin.is_customer_admin?
+          %th
+            Customer
+        %th
+          Name
+        %th
+          Address
+        %th
+          City
+        %th 
+          State
+        %th
+          Zip
+    %tbody
+      -@buildings.each_with_index do |building, idx|
+        %tr{:class => idx%2==0 ? 'even' : 'odd'}          
+          - if our_active_admin.is_super_admin?
+            %td.vertical_center{:onclick=> "open_edit_building_popup( '#{idx}')"}
+              #{building.location.client.client_admin.name}
+          - if !our_active_admin.is_customer_admin?
+            %td.vertical_center{:onclick=> "open_edit_building_popup( '#{idx}')"}
+              #{building.location.client.client_name}
+          %td.vertical_center
+            = form_tag rooms_admin_panel_admin_path do
+              = hidden_field_tag :building_id, building.id
+              = submit_tag "#{building.name}", :class=>'link'
+          %td.vertical_center{:onclick=> "open_edit_building_popup( '#{idx}')"}
+            #{building.address1}
+          %td.vertical_center{:onclick=> "open_edit_building_popup( '#{idx}')"}
+            #{building.city}
+          %td.vertical_center{:onclick=> "open_edit_building_popup('#{idx}')"}
+            #{building.state}
+          %td.vertical_center{:onclick=> "open_edit_building_popup('#{idx}')"}
+            #{building.zip}
+          %td.hidden{:id=> 'build_' + idx.to_s}
+            = building.to_json
+  
+
+        #popup_widget_surround
+          .popup_widget.popup_ui{:id => "edit_building_#{idx}" }
+            #uhe_admin_popup
+              %h2 Edit Location
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_building_#{idx}')" do
+                <i class="far fa-times" aria-hidden="true"></i>
+              .uhe_admin_popup_body.no_scroll  
+                .uhe_admin_popup_form                
+                  %p.entry_header
+                    Name *      
+                  .center
+                    =  text_field :name, "Name", id: "edit_building_name_#{idx}", :placeholder => "", :maxlength => 200     
+                  %p.entry_header
+                    Address  
+                  .center
+                    =  text_field :address1, "Address", id: "edit_building_address_#{idx}", :placeholder => "", :maxlength => 200
+                  .entry_footer 
+                    .leftside
+                      %p Street
+                  .entry.additional_entry
+                    .leftside
+                      =  text_field :city, "City", id: "edit_building_city_#{idx}", :placeholder => "", :class => "address_entry address_city", :maxlength => 200    
+                    .leftside
+                      .dropdowns
+                        %label
+                          = select_tag :state, options_for_select(Location::US_STATE_ABRV_SELECT, :selected => ""), id: "edit_building_state_#{idx}", :class => "address_entry address_state"  
+                    .leftside
+                      =  text_field :zip, "Zipcode", id: "edit_building_zip_#{idx}", :placeholder => "", :class => "address_entry address_zip", :maxlength => 200   
+                      =hidden_field_tag :add_building, true
+                  .entry_footer 
+                    .leftside
+                      %p.address_entry.address_city
+                        City
+                    .leftside
+                      %p.address_entry.address_state 
+                        State
+                    .leftside
+                      %p.address_entry.address_zip 
+                        Zipcode
+              - if our_active_admin.is_not_read_only?
+                .submit
+                  .center
+                    = link_to "Update", "javascript:;", :class=> "button", :onclick => "update_building_info(#{building.id},'#{idx}')"
+                .footer_link
+                  .center
+                    =link_to "Delete Location", "javascript:;", :class => "", :onclick=> "open_admin_popup('delete_building_#{idx}','edit_building_#{idx}')"
+  
+        #popup_widget_surround
+          .popup_widget.popup_ui{:id => "delete_building_#{idx}" }
+            #uhe_admin_popup
+              %h2 Delete Location
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('delete_building_#{idx}')" do
+                <i class="far fa-times" aria-hidden="true"></i>
+              = form_tag buildings_admin_panel_admin_path, :class=>'' do  
+                .uhe_admin_popup_body.no_scroll  
+                  .uhe_admin_popup_form
+                    %p.entry_header
+                      Confirm Delete
+                    .center
+                      = text_field_tag :delete_edittext, nil, placeholder: 'Type DELETE to Confirm', :class => "password_confirm",  :oninput => "check_delete_button_activation('#{building.id.to_s}')", :id => "delete_confirm_" + building.id.to_s
+                    %p.entry_informational You are about to delete #{building.name}
+ 
+                .submit
+                  .center
+                    = hidden_field_tag :delete_building, building.id 
+                    = submit_tag "Delete", :class=> "inactive", :disabled => "disabled", :id => "delete_btn_" + building.id.to_s
+            
+
+  .pagination_tr
+    .center
+      = will_paginate @buildings, params: params
+ 
+-else
+  %p.no_matching_info No matching information
+	  
+<script>$(document).ready(function() { $("#building_list").tablesorter(); } );</script> 
+

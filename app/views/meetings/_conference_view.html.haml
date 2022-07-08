@@ -1,0 +1,21 @@
+-if !is_mobile_device?
+  =render :partial=> 'meetings/header'
+- else 
+  #right_of_header
+  #notif_header
+  #sign_in
+  #login_widget
+  -# .hidden
+    -# =render :partial=> 'meetings/header'
+%p#user_id.hidden 
+%p#pexip_enable_legacy_dialout_api #{Configurable.pexip_enable_legacy_dialout_api}
+%p#pexip_sip_routing_prefix #{Configurable.pexip_sip_routing_prefix}
+%p#pexip_h323_routing_prefix #{Configurable.pexip_h323_routing_prefix}
+%p#pexip_skype_routing_prefix #{Configurable.pexip_skype_routing_prefix}
+- if @api_client
+  %p#custom_bandwidth.hidden #{@api_client.custom_bandwidth}
+#conf_partial
+  =render :partial=>'meetings/conf' , :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias} 
+%p#is_dev.hidden #{Rails.env.development? ? 'true' : 'false'} 
+#all_devices.hidden
+ 

@@ -1,0 +1,66 @@
+=form_for :call, :url => test_conference_home_path do |f|
+  = f.collection_select :building_id, Building.all, :id, :name, :prompt => "Select a Hospital"
+  = f.collection_select :room_id, Room.all, :id, :name, :prompt => "Select a Room"
+  = f.collection_select :endpoint_id, Endpoint.all, :id, :name, :prompt => "Select a Bed"
+  = f.submit 'Call'
+
+%br
+%br
+= link_to 'Run Camera Test', test_conference_home_path(:run_test => 'true'), :class=> 'btn btn-primary'
+%br 
+%br
+.col-md-12
+  .col-md-3
+    <center>
+    = button_to 'Up', 'javascript:;', :onmouseup=>'stop();', :onmousedown=>"pan('up');"
+    </center>
+.col-md-2
+  = button_to 'Left', 'javascript:;', :onmouseup=>'stop();', :onmousedown=>"pan('left');"
+.col-md-2
+  = button_to 'Right', 'javascript:;', :onmouseup=>'stop();', :onmousedown=>"pan('right');"
+.col-md-12
+  .col-md-3
+    <center>
+    = button_to 'Down', 'javascript:;', :onmouseup=>'stop();', :onmousedown=>"pan('down');"
+    </center>
+
+
+.hidden
+  %p#tunnel #{@tunnel}
+#pinentry.hidden
+#maincontent.main.cf.hidden
+  %section.top
+    %aside.participants
+      %h2#rosterheading Participants
+      #rosterlist.rosterlist
+        %ul#rosterul
+      #selfview.selfview.hidden
+        %video#selfvideo{:autoplay=>'autoplay', :muted=>'true'}
+    #videocontainer.videocontainer
+      %video#video{:width=>'100%', :height=>'100%', :autoplay=>'autoplay'}
+  %p#call_alias #{@call_alias}
+  %p#roster_test
+  %p#patient_test
+  %p#endpoint #{@end_point}
+  %footer#controls.controls.cf
+    %ul
+      %li <a id="id_selfview" class="webrtcbutton btn-selfview" onclick="toggleSelfview();">Show Selfview</a>
+      %li <a id="id_muteaudio" class="webrtcbutton btn-audio" onclick="muteAudioStreams();">Mute Audio</a>
+      %li <a id="id_mutevideo" class="webrtcbutton btn-video" onclick="muteVideoStreams();">Mute Video</a>
+      %li <a id="id_fullscreen" class="webrtcbutton btn-fullscreen inactive" onclick="goFullscreen();">Fullscreen</a>
+      %li <a id="id_screenshare" class="webrtcbutton btn-presentscreen inactive" onclick="presentScreen();">Present Screen</a>
+      %li <a id="id_presentation" class="webrtcbutton btn-presentation inactive" onclick="togglePresentation();">No Presentation Active</a>
+      %li <a id="id_presentation" class="webrtcbutton btn-presentation inactive" onclick="endCall();">Hang Up!</a>
+      %li <a id="id_disconnect" class="webrtcbutton btn-disconnect" onclick="window.location='test_conference';">Disconnect</a>
+- if @make_call
+  :javascript
+    window.onload = function()
+    {
+      /* Params: conf node, conf name, bandwidth, display name, PIN, source, flash, endpoint */
+      initialise("NANODE1.PEXIP.YTEX.NET", "#{@call_alias}", null, "Jen S", null, null,  null, "#{@call_alias}", "#{@endpoint_id}");
+    }
+:javascript
+  window.onload = function() {
+    // Normalize the various vendor prefixed versions of getUserMedia.
+    navigator.getUserMedia = (navigator.getUserMedia ||  navigator.webkitGetUserMedia ||  navigator.mozGetUserMedia || navigator.msGetUserMedia);
+  } 

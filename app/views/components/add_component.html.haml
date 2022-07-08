@@ -1,0 +1,40 @@
+.component_style
+  = form_tag main_components_path  do 
+    = hidden_field_tag :endpoint_id, @endpoint.id
+    = submit_tag "Return to Components", :class => "top_left_nav"   
+
+  = link_to "Logout", destroy_admin_session_path, :method=>:delete, :class => "top_right_nav"
+  
+  .component_wrapper 
+    %h2 #{@endpoint.room_info}
+        
+    = form_for @component, url: main_components_path do |x|
+      %h3 Component Type
+      .dropdowns
+        %label
+          = x.collection_select :part_type, ComponentType.all, :name, :name, { include_blank: 'Component Type...', selected: @component.part_type}, class: ''
+        = x.hidden_field :endpoint_id, :value => @endpoint.id
+      .actions
+        %br    
+        %br      
+        %h3 Scan Barcode 
+        .image-upload
+          %label{:for => "file-input"}
+            %span.fal.fa-camera-alt
+        %div{:style => "height: 0px;"}
+        = x.file_field :image, { type:'file', accept: 'image/*', capture: 'camera', id: "file-input", :style => "height: 0px; visibility: hidden;"} 
+        %br
+        %br
+        .hidden
+          %p Universal Product Code
+          .center
+            .dropdowns
+              %label
+                = x.select :image_type, options_for_select([["UPC - Validation On","upc"],["UPC - Validation Off","part"]],'part')
+
+        = x.submit "Save", :class => "save"
+
+    %br 
+    %br  
+    %br
+    %br

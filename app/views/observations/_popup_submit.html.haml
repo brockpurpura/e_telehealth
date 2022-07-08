@@ -1,0 +1,13 @@
+.tab_footer
+  .leftside_footer
+    .leftside
+      %span.fas.fa-user{:style => " color: black; margin-right: 10px;"}
+    .leftside
+      #{current_admin.email}
+    .leftside
+      =link_to "Logout", destroy_admin_session_path, :method=>:delete, :class => "", :style => "margin-left: 15px; color: #428bca;"
+  .rightside_footer
+    = link_to 'Apply', '#', :class=>'btn btn-primary apply_footer_btn',:onclick=>'refresh_ob_page()'
+    -if !hideCollapse ||= false
+      = link_to '#', :onclick=>'collapse_data()' do
+        %i#collapse_carrot.fas.fa-chevron-up.collapse.close_data

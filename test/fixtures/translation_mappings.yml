@@ -1,0 +1,53 @@
+Stratus Mapping 1:
+  id: 1
+  translation_type_id: 2
+  client_id: 2
+  uri: 7002020001@sip-test.nimbusvideo.com
+  description: German
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Stratus Mapping 2:
+  id: 2
+  translation_type_id: 2
+  client_id: 2
+  uri: 7002020002@sip-test.nimbusvideo.com
+  description: Karen
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Stratus Mapping 3:
+  id: 3
+  translation_type_id: 2
+  client_id: 2
+  uri: 7002020003@sip-test.nimbusvideo.com
+  description: Australian
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Stratus Mapping 4:
+  id: 4
+  translation_type_id: 2
+  client_id: 2
+  uri: 7002020004@sip-test.nimbusvideo.com
+  description: Klingon
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+LanguageLine Mapping 1:
+  id: 5
+  translation_type_id: 3
+  client_id: 3
+  uri: 7002020003@sip-test.nimbusvideo.com
+  description: Australian
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+LanguageLine Mapping 2:
+  id: 6
+  translation_type_id: 3
+  client_id: 3
+  uri: 7002020004@sip-test.nimbusvideo.com
+  description: Klingon
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

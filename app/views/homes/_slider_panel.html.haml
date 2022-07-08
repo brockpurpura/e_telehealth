@@ -1,0 +1,136 @@
+#sliders.slider_panel{:role=>"dialog", :'aria-label'=>"settings"}
+  .slider_mover.fa.fa-arrows.hud_visuals.fade#move_slider{:tabindex => "0", :'aria-label'=>"move settings", :role=>"application"}
+  
+  - @cv = 'camera_visual'
+  - @ca = 'camera_audio'
+  - if @endpoint and !@endpoint.has_sony_by_device_name
+    - @widget_class = 'stuff acute'
+    - @slider_class = 'slider acute'
+    - @tg_class = 'tg-list-item acute'
+  - elsif @endpoint and @endpoint.endpoint_status and @endpoint.endpoint_status.is_windows?
+    - @widget_class = 'stuff windows'
+    - @cv = 'camera_visual windows'
+    - @ca = 'camera_audio hidden'
+    - @slider_class = 'slider'
+    - @tg_class = 'tg-list-item'
+  - elsif @endpoint and @endpoint.is_360? 
+    - @widget_class = 'stuff'
+    - @slider_class = 'slider'
+    - @tg_class = 'tg-list-item'
+  - else
+    - @widget_class = 'stuff'
+    - @slider_class = 'slider'
+    - @tg_class = 'tg-list-item'
+  %div{:class => @widget_class} 
+    %div{:class=> @cv}
+      %h4.cam_title Patient Video
+      .sliders.hidden
+        .lab
+          %h2 Volume
+        <div id="flat-slider-vertical-1" title="patient video volume level"></div>
+        .fancy_buttons.hidden
+          %ul.tg-list
+            %li.tg-list-item
+              %input#cb1.tgl.tgl-skewed{:type => "checkbox"}
+              %label.tgl-btn{:'data-tg-off' => "Auto", :'data-tg-on' => "Manual", :for => "cb1"}
+      - if @endpoint and @endpoint.has_sony_by_device_name
+        .slider
+          .lab.left_n9
+            %h2 Brightness 
+          <div id="flat-slider-vertical-2" title="patient video brightness level"></div>
+          .fancy_buttons.hidden
+            %ul.tg-list
+              %li.tg-list-item
+                %input#cb2.tgl.tgl-skewed{:type => "checkbox"}
+                %label.as_auto.tgl-btn{:'data-tg-off' => "Auto", :'data-tg-on' => "Manual", :for => "cb2", :onClick=>'autoBrightness()', :id=>'bright_label'}
+      %div{:class => @slider_class}
+        .lab.left_n2
+          %h2 Speed 
+        <div id="flat-slider-vertical-3" title="patient video speed level"></div>
+        .fancy_buttons.hidden
+          %ul.tg-list
+            %li{:class=> @tg_class}
+              %input#cb3.tgl.tgl-skewed{:type => "checkbox"}
+              %label.as_auto.tgl-btn{:'data-tg-off' => "Auto", :'data-tg-on' => "Manual", :for => "cb3", :onClick=>'autoSpeed()', :id=>'speed_label'}
+      - if @endpoint and @endpoint.has_sony_by_device_name
+        .slider
+          .lab.left_n2
+            %h2 Focus
+          <div id="flat-slider-vertical-4" title="patient video focus level"></div>
+          .fancy_buttons.hidden
+            %ul.tg-list
+              %li.tg-list-item
+                %input#cb4.tgl.tgl-skewed{:type => "checkbox"}
+                %label.tgl-btn{:'data-tg-off' => "Auto", :'data-tg-on' => "Manual", :for => "cb4", :onClick=>'autoFocus()', :id=>'focus_label'}
+    %div{:class=>@ca}
+      %h4.cam_title Patient Audio
+      .slider
+        .lab.left_n4
+          %h2 Speaker
+        <div id="flat-slider-vertical-5" title="patient audio speaker level"></div>
+        .fancy_buttons.hidden
+          %ul.tg-list
+            %li.tg-list-item
+              %input#cb5.tgl.tgl-skewed{:type => "checkbox"}
+              %label.as_auto.tgl-btn{:'data-tg-off' => "On", :'data-tg-on' => "Mute", :for => "cb5", :onClick=>"setSpeaker('0',true,true)", :id=>'speaker_label'}
+      .slider
+        .lab.left_n10
+          %h2 Microphone 
+        <div id="flat-slider-vertical-6" title="patient audio microphone level"></div>
+        .fancy_buttons.hidden
+          %ul.tg-list
+            %li.tg-list-item
+              %input#cb6.tgl.tgl-skewed{:type => "checkbox"}
+              %label.as_auto.tgl-btn{:'data-tg-off' => "On", :'data-tg-on' => "Mute", :for => "cb6", :onClick=>"setMicrophone('0',true, true)", :id=>'microphone_label'}
+      .slider
+        .lab.left_n4
+          %h2 Doorbell 
+        <div id="flat-slider-vertical-7" title="patient audio doorbell level"></div>
+        .fancy_buttons.hidden
+          %ul.tg-list
+            %li.tg-list-item
+              %input#cb7.tgl.tgl-skewed{:type => "checkbox"}
+              %label.as_auto.tgl-btn{:'data-tg-off' => "Reset", :'data-tg-on' => "Reset", :for => "cb7", :onClick=>"setBell('0',true, true)", :id=>'doorbell_label'}
+  %button{:id=>'close_sliders', :class => 'fa fa-times-circle fade close_widget', :'aria-label'=> "close settings", :onclick=> "toggle_widget('sliders', 'sliders_button')"}
+
+:javascript
+  $.extend( $.ui.slider.prototype.options, { animate: 300});
+  $("#flat-slider-vertical-1").slider({max: 20,min: 0,range: "min",value: 8,orientation: "vertical"});
+  $("#flat-slider-vertical-1").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+  $($('#flat-slider-vertical-1').children()[1]).attr( { "role": "slider", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": "8"});
+  $("#flat-slider-vertical-1").on("slidestop", function(event, ui) {endPos = ui.value; updateVolume(endPos); $($('#flat-slider-vertical-1').children()[1]).attr("aria-valuenow", endPos); });
+
+  $("#flat-slider-vertical-2").slider({max: 20,min: 0,range: "min",value: 15,orientation: "vertical"});
+  $("#flat-slider-vertical-2").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+  $($('#flat-slider-vertical-2').children()[1]).attr( { "role": "slider", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": "15"});
+  $("#flat-slider-vertical-2").on("slidestop", function(event, ui) {endPos = ui.value; adjBrightness(endPos); $($('#flat-slider-vertical-2').children()[1]).attr("aria-valuenow", endPos); });
+
+  $("#flat-slider-vertical-3").slider({max: 20,min: 0,range: "min",value: #{@endpoint.nil? ? 5 : @endpoint.default_speed},orientation: "vertical"});
+  $("#flat-slider-vertical-3").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+  $($('#flat-slider-vertical-3').children()[1]).attr( { "role": "slider", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": "#{@endpoint.nil? ? 5 : @endpoint.default_speed}"});
+  $("#flat-slider-vertical-3").on("slidestop", function(event, ui) {endPos = ui.value; setSpeed(endPos); $($('#flat-slider-vertical-3').children()[1]).attr("aria-valuenow", endPos); });
+
+  $("#flat-slider-vertical-4").slider({max: 20,min: 0,range: "min",value: 5,orientation: "vertical"});
+  $("#flat-slider-vertical-4").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+  $($('#flat-slider-vertical-4').children()[1]).attr( { "role": "slider", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": "5"});
+  $("#flat-slider-vertical-4").on("slidestop", function(event, ui) {endPos = ui.value; setFocus(endPos);  $($('#flat-slider-vertical-4').children()[1]).attr("aria-valuenow", endPos); });
+
+  $("#flat-slider-vertical-5").slider({max: 20,min: 0,range: "min",value: #{@endpoint.nil? ? 10 : @endpoint.default_output * 2},orientation: "vertical"});
+  $("#flat-slider-vertical-5").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+  $($('#flat-slider-vertical-5').children()[1]).attr( { "role": "slider", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": " #{@endpoint.nil? ? 10 : @endpoint.default_output * 2}"});
+  $("#flat-slider-vertical-5").on("slidestop", function(event, ui) {endPos = ui.value; setSpeaker(endPos/2, false, true);  $($('#flat-slider-vertical-5').children()[1]).attr("aria-valuenow", endPos); });
+
+  $("#flat-slider-vertical-6").slider({max: 20,min: 0,range: "min",value: #{@endpoint.nil? ? 10 : @endpoint.default_input * 2},orientation: "vertical"});
+  $("#flat-slider-vertical-6").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+  $($('#flat-slider-vertical-6').children()[1]).attr( { "role": "slider", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": "#{@endpoint.nil? ? 10 : @endpoint.default_input * 2}" } );
+  $("#flat-slider-vertical-6").on("slidestop", function(event, ui) {endPos = ui.value; setMicrophone(endPos/2, false, true); $($('#flat-slider-vertical-6').children()[1]).attr("aria-valuenow", endPos); });
+
+  $("#flat-slider-vertical-7").slider({max: 20,min: 0,range: "min",value: #{@endpoint.nil? ? 10 : @endpoint.default_bell * 2},orientation: "vertical"});
+  $("#flat-slider-vertical-7").slider("pips", {first: "pip",ast: "pip"}).slider("float");
+  $($('#flat-slider-vertical-7').children()[1]).attr( { "role": "slider", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": "#{@endpoint.nil? ? 10 : @endpoint.default_bell * 2}" } );
+  $("#flat-slider-vertical-7").on("slidestop", function(event, ui) {endPos = ui.value; setBell(endPos/2, false, true); $($('#flat-slider-vertical-7').children()[1]).attr('aria-valuenow', endPos); });
+
+
+
+  var windows = document.querySelectorAll('.slider_panel');[].forEach.call(windows,function(win){var title = win.querySelector('.slider_mover'); title.addEventListener('mousedown',function(evt){ var real = window.getComputedStyle(win), winX = parseFloat(real.left), winY = parseFloat(real.top); var mX = evt.clientX, mY = evt.clientY; document.body.addEventListener('mousemove',drag,false); document.body.addEventListener('mouseup',function(){ document.body.removeEventListener('mousemove',drag,false); },false); function drag(evt){ win.style.left = winX + evt.clientX-mX + 'px'; win.style.top  = winY + evt.clientY-mY + 'px'; }; },false); });
+

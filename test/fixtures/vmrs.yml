@@ -1,0 +1,84 @@
+Vmr_1:
+  id: 15782
+  name: hc_42468429_uhe_stag_ha
+  uri: https://192.188.0.66/api/admin/configuration/v1/conference/337515/
+  alias: hc_42468429_uhe_stag_ha@univago.com
+  destroyed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  on_deck: 0
+  used_by: 713
+  set_info: 1
+  endpoint_id: 1
+  start_time: <%= Time.now.to_date %>
+  end_time: 
+  icr_state: 0
+  client_admin_id: 1
+
+Vmr_2:
+  id: 15785
+  name: hc_44581213_uhe_stag_ha
+  uri: https://192.188.0.66/api/admin/configuration/v1/conference/337517/
+  alias: hc_44581213_uhe_stag_ha@univago.com
+  destroyed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  on_deck: 0
+  used_by: 710
+  set_info: 1
+  endpoint_id: 67
+  start_time: <%= Time.now.to_date %>
+  end_time: <%= Time.now.to_date %>
+  icr_state: 0
+  client_admin_id: 1
+
+Vmr_3:
+  id: 15788
+  name: hc_17446746_uhe_stag_ha
+  uri: https://192.188.0.66/api/admin/configuration/v1/conference/337519/
+  alias: hc_17446746_uhe_stag_ha@univago.com
+  destroyed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  on_deck: 0
+  used_by: 710
+  set_info: 1
+  endpoint_id: 67
+  start_time: <%= Time.now.to_date %>
+  end_time: <%= Time.now.to_date %>
+  icr_state: 0
+  client_admin_id: 1
+
+Vmr_4:
+  id: 15791
+  name: hc_99761350_uhe_stag_ha
+  uri: https://192.188.0.66/api/admin/configuration/v1/conference/337521/
+  alias: hc_99761350_uhe_stag_ha@univago.com
+  destroyed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  on_deck: 0
+  used_by: 713
+  set_info: 1
+  endpoint_id: 67
+  start_time: <%= Time.now.to_date %>
+  end_time: <%= Time.now.to_date %>
+  icr_state: 0
+  client_admin_id: 1
+
+Vmr_5:
+  id: 15794
+  name: hc_72198355_uhe_stag_ha
+  uri: https://192.188.0.66/api/admin/configuration/v1/conference/337523/
+  alias: hc_72198355_uhe_stag_ha@univago.com
+  destroyed_at: <%= Time.now.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  on_deck: 0
+  used_by: 226
+  set_info: 1
+  endpoint_id: 67
+  start_time: <%= Time.now.to_date %>
+  end_time: <%= Time.now.to_date %>
+  icr_state: 0
+  client_admin_id: 1

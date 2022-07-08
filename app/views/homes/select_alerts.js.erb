@@ -1,0 +1,16 @@
+var alert_count = document.getElementById('js_count')
+var old_alert_count = document.getElementById('alert_count').innerHTML
+alert_count.innerHTML = "<%=@alerts.count%>"
+var ele = document.getElementById('alerts');
+var button = document.getElementById('notifs');
+
+if (alert_count.innerHTML > old_alert_count) {
+  document.getElementById('notif_player').play();
+  if(ele.style.opacity < 1) {
+    setTimeout(function () {
+      toggle_widget('alerts', 'notifs');
+    }, 500);
+
+  }
+}
+$("#alert_partial").html("<%=escape_javascript(render :partial => 'alerts', :locals=> {:current_user => @current_user, :alerts=>@alerts, :open=>@open}) %>") 

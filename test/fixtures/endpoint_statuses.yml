@@ -1,0 +1,74 @@
+EndpointStatus_1:
+  endpoint_id: 1
+  connect_good: 0
+  camera_good: 0
+  usb0_good: 0
+  usb1_good: 0
+  in_a_call: 0
+  configured: 1
+  update_freq: 1
+  version: '1.301'
+  last_update_date: <%= 1.minutes.ago.to_datetime %>
+  created_at: <%= 1.days.ago.to_datetime %>
+  updated_at: <%= 1.minutes.ago.to_datetime %>
+  machine_id: '5026506074'
+  cpu_current_load: 33.2527
+  total_mem: 8237450000.0
+  free_mem: 4434420000.0
+  used_mem: 3786000000.0
+  avail_mem: 5582350000.0
+  camera_port_good: 0
+  wifi_enabled: 0
+  error_weight: 2
+  camera_alert_sent: 0
+  visca_alert_sent: 0
+
+EISEndpointStatus:
+  endpoint_id: 4
+  connect_good: 0
+  camera_good: 1
+  usb0_good: 1
+  usb1_good: 1
+  in_a_call: 0
+  configured: 1
+  update_freq: 1
+  version: '1.301'
+  last_update_date: <%= 1.minutes.ago.to_datetime %>
+  created_at: <%= 1.days.ago.to_datetime %>
+  updated_at: <%= 1.minutes.ago.to_datetime %>
+  machine_id: '5026506074'
+  cpu_current_load: 33.2527
+  total_mem: 8237450000.0
+  free_mem: 4434420000.0
+  used_mem: 3786000000.0
+  avail_mem: 5582350000.0
+  camera_port_good: 0
+  wifi_enabled: 0
+  error_weight: 2
+  camera_alert_sent: 0
+  visca_alert_sent: 0
+
+Unit_testing_endpointStatus:
+  endpoint_id: 2
+  connect_good: 0
+  camera_good: 1
+  usb0_good: 1
+  usb1_good: 1
+  in_a_call: 0
+  configured: 1
+  update_freq: 1
+  version: '1.301'
+  last_update_date: <%= 1.minutes.ago.to_datetime %>
+  created_at: <%= 1.days.ago.to_datetime %>
+  updated_at: <%= 1.minutes.ago.to_datetime %>
+  machine_id: '5026506074'
+  cpu_current_load: 33.2527
+  total_mem: 8237450000.0
+  free_mem: 4434420000.0
+  used_mem: 3786000000.0
+  avail_mem: 5582350000.0
+  camera_port_good: 0
+  wifi_enabled: 0
+  error_weight: 2
+  camera_alert_sent: 0
+  visca_alert_sent: 0

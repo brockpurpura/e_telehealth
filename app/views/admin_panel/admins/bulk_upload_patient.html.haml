@@ -1,0 +1,120 @@
+#sub_title
+  .leftside
+    %i.fas.fa-upload.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Bulk Upload Mobile Patients
+  .rightside.create_new_link
+    =link_to 'Back', cgas_mobile_admin_panel_admin_path 
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget{:style => "padding: 20px"}
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content#dest_tree
+        .headblock
+        - if our_active_admin.is_super_admin?
+          %p{:style => "font-size: 1.1em"} Use this form to upload a CSV formatted file of up to #{Configurable.max_users_bulk_upload} Mobile Patients.  Bulk upload use is for Patient, non-Admin roles only.
+          %p{:style => "font-weight: bold"}
+            Download a template CSV file 
+            =link_to example_patient_csv_admin_panel_admin_path, {:style => "font-weight: bold; font-size: 11px"}, :remote => true do
+              here
+          %p &nbsp;
+
+          = form_tag bulk_upload_patient_admin_panel_admin_path, :method => :post, :multipart => true do
+            = file_field_tag "file", style: "line-height: unset; border-style: none; margin: unset; font-size: 12px"
+            %p &nbsp;
+            = submit_tag "Upload", style: "margin-left: 7px; padding: 7px 10px 7px 10px"
+
+          :javascript 
+            $(document).ready(function () {
+                // will call refreshPartial every 3 seconds
+                setInterval(refreshUploadLogs, 3000)
+
+            });
+            function refreshUploadLogs() {
+              console.log("Refreshing Upload Logs for user");
+                $.ajax({
+                    url: "fetch_upload_log?import_type=PATIENT"
+                })
+            }
+            refreshUploadLogs();
+          #upload_status_partial
+            = render :partial => "upload_status"
+        - else
+          %p{:style => "font-size: 1.1em"} Please email your bulk upload files to techsupport@caregility.com
+          
+        %br
+        %br 
+        %h5{:style => "color: black"} CSV specification
+        %br
+        %table.upload_params{:border => 1}
+          %tbody
+            %tr
+              %th Field
+              %th Example
+              %th Optional?
+              %th Description
+            %tr
+              %td first_name
+              %td Henry
+              %td N
+              %td For InPatient roles, use the Room number. For OutPatient roles, use the patient's first name.
+            %tr
+              %td last_name
+              %td Ford
+              %td Y
+              %td The patient's last name.
+            %tr
+              %td channel
+              %td ACME National Medical
+              %td N
+              %td Must match an existing Channel in the Caregility Admin portal.
+            %tr
+              %td customer
+              %td ACME Medical
+              %td N
+              %td Equivalent to the 'Customer' field in the Clinician selection dropdowns. Must match an existing Customer.
+            %tr
+              %td location
+              %td Tucson
+              %td N
+              %td Equivalent to the 'Location' field in the Clinician selection dropdowns. Must match an existing Location.
+            %tr
+              %td unit
+              %td ICU
+              %td N
+              %td Equivalent to the 'Unit' field in the Clinician selection dropdowns. Must match an existing Unit.
+            %tr
+              %td specialty
+              %td InPatient
+              %td N
+              %td Must be one of "InPatient" or "OutPatient"
+            %tr
+              %td email
+              %td patient@hospital.com
+              %td N
+              %td Must be unique           
+            %tr
+              %td password
+              %td Passw0rd
+              %td N
+              %td Must contain a number, uppercase & lowercase character and be at least 8 characters
+            %tr
+              %td phone_number
+              %td 2163444325
+              %td Y
+              %td The patient's phone number
+            %tr
+              %td third_party_auth
+              %td FALSE
+              %td Y
+              %td Whether the Patient is authenticated by a 3rd party.  Valid values are "TRUE" and "FALSE".  Empty is considered to mean "FALSE".
+            %tr
+              %td alias
+              %td John Doe
+              %td Y
+              %td An alias for the patient

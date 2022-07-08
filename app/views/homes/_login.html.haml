@@ -1,0 +1,82 @@
+#login_screen.cotn_principal
+  #cont_centrar{:class => @api_make_call.nil? ? 'cont_centrar' : 'cont_centrar hidden'}
+    .cont_login
+      .cont_info_log_sign_up
+        .col_md_login
+          #welcome.cont_ba_opcitiy_welcome.hidden
+            %h2 Good Afternoon 
+            %h2#dr_name 
+          #please_sign_in.cont_ba_opcitiy
+            %h2 Clinician Access
+            %p Authorized Personnel Only 
+            %button.btn_sign_up{:onclick=>'cambiar_login()'}
+              LOGIN
+        .col_md_sign_up
+          #signed_out{:class=> user_signed_in? ? 'hidden' : ''}
+            .cont_ba_opcitiy
+              %h2 Start Call
+              %p Select Room to Call
+              %button.btn_sign_up.nohover.u_disabled{:onclick=>'cambiar_sign_up()', :readonly=>'true', :disabled=>'true'}
+                SELECT 
+          #signed_in{:class=> user_signed_in? ? '' : 'hidden'}
+            .cont_ba_opcitiy
+              %h2 Start Call
+              %p Select Room to Call
+              %button.btn_sign_up{:onclick=>'cambiar_sign_up()'}
+                SELECT 
+           
+      -if !@api_make_call      
+        .cont_back_info
+          .cont_img_back_grey
+            =image_tag("monitor.jpg")
+        .cont_overlay_signup_forms
+          .cont_img_back_secondary_signup
+            =image_tag("monitor.jpg")
+          .secondary_signup.endpoint_select
+            =link_to "", "javascript:;", :class => "fa fa-times-circle login_x" , :onclick=>"ocultar_sign_up()"
+            %h2 Select Room
+            .row
+              = collection_select(:building_id, :id, Building.all, :id, :name, {:prompt=>"Select a Location"},{})
+              = render :partial => 'homes/check', :locals=>{:place=>'1'}
+            <input type="text" placeholder="Room number" id='room_id' />
+            = render :partial => 'homes/check', :locals=>{:place=>'2'}
+            = collection_select(:endpoint_id, :id, Endpoint.all, :id, :name,  {:prompt=>"Select a Room"},{ })
+            = render :partial => 'homes/check', :locals=>{:place=>'3'}
+            %select{:name => "privacy", :id=>'privacy_select', :style => "margin-top: 20px;"}         
+              %option{:selected => "selected", :value => "2"} Normal mode   
+              %option{:value => "1"} Privacy mode
+            %button.btn_login{:onclick=>"dial_conf()"}
+              CALL 
+	
+
+	
+           
+      .cont_forms
+        - if !@api_make_call
+          .cont_img_back_
+            =image_tag("monitor.jpg")
+          .cont_form_login
+            =link_to "", "javascript:;", :class => "fa fa-times-circle login_x", :onclick=>"ocultar_login()"	     
+            %h2 Clinician Access
+            = email_field_tag :email,'', autofocus: true,  :placeholder=>'Your email', :id=>'user_email' 
+            = password_field_tag :password,'', autocomplete: "off" , :placeholder=>'Password', :id=>'user_password'
+            = hidden_field_tag :authenticity_token, form_authenticity_token, :id=>'auth_token'
+            %button.btn_login{:onclick=>"processLogin()"}
+              LOGIN
+          .cont_form_sign_up.endpoint_select
+            =link_to "", "javascript:;", :class => "fa fa-times-circle login_x", :onclick =>"ocultar_login_sign_up()"
+            %h2 Select Room
+            .row
+              = collection_select(:building_id, :id, Building.all, :id, :name, {:prompt=>"Select a Location"},{})
+              = render :partial => 'homes/check', :locals=>{:place=>'1'}
+            <input type="text" placeholder="Room number" id='room_id' />
+            = render :partial => 'homes/check', :locals=>{:place=>'2'}
+            = collection_select(:endpoint_id, :id, Endpoint.all, :id, :name,  {:prompt=>"Select a Room"},{ })
+            = render :partial => 'homes/check', :locals=>{:place=>'3'}
+            %select{:name => "privacy", :style => "margin-top: 20px;"}         
+              %option{:selected => "selected", :value => "2"} Normal mode   
+              %option{:value => "1"} Privacy mode
+            %button.btn_sign_up_call{:onclick=>"dial_conf()"}
+              CALL 
+
+

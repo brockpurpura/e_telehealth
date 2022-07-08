@@ -1,0 +1,15 @@
+-if !is_mobile_device?
+  = render :partial=> 'homes/header'
+
+  #right_of_header
+  #notif_header
+  #sign_in
+  #login_widget
+%p#user_id.hidden 
+#conf_partial
+  =render :partial=>'homes/conf', :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias} 
+%p#is_dev.hidden #{Rails.env.development? ? 'true' : 'false'} 
+#all_devices.hidden
+:javascript 
+  checkLogin();
+ 

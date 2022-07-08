@@ -1,0 +1,167 @@
+#sub_title
+  .leftside
+    %i.far.fa-cog.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Background Processes 
+    &nbsp;&nbsp;&nbsp;
+    =link_to 'Refresh Page', background_admin_panel_setting_path
+.col-md-12 
+  .col-md-12
+    - if !current_admin.is_super_admin?
+      .widget
+        .widget-head
+          Please contact admin for access
+    - if current_admin.is_super_admin?
+      - if our_active_admin.is_not_read_only?
+        .col-md-12
+          .col-md-12
+            <!-- Widget -->
+            .widget
+              <!-- Widget head -->
+              .widget-head
+                Sidekiq jobs 
+                <div class="clearfix"></div>
+              <!-- Widget content -->
+              .widget-content
+                %table.endpoint_settings_table_dimensions.threex
+                  %tr
+                    %th.endpoint_setting_widget
+                      VMR Worker 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :set_vmr, 'true'
+                          = submit_tag "Set Now", :class => "endpoint_setting_button"
+                  %tr
+                    %th.endpoint_setting_widget
+                      VMR Meeting Worker (MyChart) 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :set_vmr_meeting, 'true'
+                          = submit_tag "Set Now", :class => "endpoint_setting_button"
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      Check for VMR loners 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :set_loners, 'true'
+                          = submit_tag "Set Now", :class => "endpoint_setting_button"
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      TableAudit 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :set_table, 'true'
+                          = submit_tag "Set Now", :class => "endpoint_setting_button"
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      Device Status Check 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :set_device, 'true'
+                          = submit_tag "Set Now", :class => "endpoint_setting_button"
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      VMR Meeting Delete 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :set_meeting_delete, 'true'
+                          = submit_tag "Set Now", :class => "endpoint_setting_button"
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      Reset ALL 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :set_all, 'true'
+                          = submit_tag "Set All", :class => "endpoint_setting_button"
+                  %tr
+                    %th{:colspan => 2} 
+                      .center
+                        If running HA servers, use these commands on a single server to avoid multiple processes. <br/><br/>  #{link_to 'View Sidekiq', sidekiq_web_path}
+        .col-md-12
+          .col-md-12
+            <!-- Widget -->
+            .widget
+              <!-- Widget head -->
+              .widget-head
+                Technician Actions  
+                <div class="clearfix"></div>
+              <!-- Widget content -->
+              .widget-content
+                %table.endpoint_settings_table_dimensions.threex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Upload Software Update  
+                    %td.none.vertical_center
+                      .center
+                        = form_with scope: :patch, local: true, :html=>{multipart: true} do |f|
+                          = hidden_field_tag :upload_patch, 'true'
+                          = f.file_field :file
+                          = f.hidden_field :file_cache
+                          %br
+                          = submit_tag "Upload", :class => "endpoint_setting_button"
+                  %tr
+                    %th.endpoint_setting_widget
+                      Reset Sidekiq
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :reset_sidekiq, 'true'
+                          = submit_tag "Reset", :class => "endpoint_setting_button", :'data-confirm'=> 'Are you sure you want to restart Sidekiq?'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Reset Nginx 
+                    %td.none.vertical_center
+                      .center
+                        = form_tag do
+                          = hidden_field_tag :reset_nginx, 'true'
+                          = submit_tag "Reset", :class => "endpoint_setting_button", :data => {:confirm => 'Are you sure you want to restart Nginx?  This may make the web application unavailable for a short period of time'}
+
+
+      - if our_active_admin.is_not_read_only?
+        .col-md-12
+          .col-md-12
+            <!-- Widget -->
+            .widget
+              <!-- Widget head -->
+              .widget-head
+                SSL Certificates 
+                <div class="clearfix"></div>
+              <!-- Widget content -->
+              .widget-content
+                %table.endpoint_settings_table_dimensions.threex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Upload .crt file 
+                    %td.none.vertical_center
+                      .center
+                        = form_with scope: :patch, local: true, :html=>{multipart: true} do |f|
+                          = hidden_field_tag :upload_crt, 'true'
+                          = f.file_field :file
+                          = f.hidden_field :file_cache
+                          %br
+                          = submit_tag "Upload", :class => "endpoint_setting_button"
+                  %tr
+                    %th.endpoint_setting_widget
+                      Upload .key file 
+                    %td.none.vertical_center
+                      .center
+                        = form_with scope: :patch, local: true, :html=>{multipart: true} do |f|
+                          = hidden_field_tag :upload_key, 'true'
+                          = f.file_field :file
+                          = f.hidden_field :file_cache
+                          %br
+                          = submit_tag "Upload", :class => "endpoint_setting_button"
+
+

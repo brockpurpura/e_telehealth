@@ -1,0 +1,631 @@
+ use_ldap:
+   name: Use LDAP flag
+   type: integer
+   default: 0
+
+ ldap_username: 
+   name: LDAP Bind Username 
+   type: text
+   
+ ldap_password:
+   name: LDAP Bind Password 
+   type: password
+
+ ldap_port:
+   name: LDAP Port
+   type: integer
+   default: 389
+
+ use_ldap_dn:
+   name: Use LDAP DN
+   type: integer
+   default: 0
+ 
+ ldap_dn:
+   name: LDAP Base DN 
+   type: text
+
+ ldap_server_address:
+   name: LDAP Server Address 
+   type: text
+
+ use_ldap_admin_group:
+   name: Use LDAP admin group
+   type: integer
+   default: 0
+
+ ldap_admin_group:
+   name: LDAP Admin Group 
+   type: text
+
+ ldap_readonly_group:
+   name: LDAP Readonly Group 
+   type: text
+
+ ldap_domain_name:
+   name: LDAP Domain Name
+   type: text
+   default: '@example.com'
+
+ ldap_super_admin_role:
+   type: string
+   default: 'super_UHEadmin'
+  
+ ldap_bind_filter:
+   type: string
+   default: 'userprincipalname'
+    
+ ldap_add_on_domain_name:
+   type: string
+   default: '@yorktel.com'
+      
+ in_maintain:
+   name: Maintenance mode
+   type: integer
+   default: 0
+ 
+ pexip_api_base_url:
+   name: Pexip Base API URL 
+   type: text
+   default: 'example.com'
+
+ hcm_pexip_api_base_url:
+   name: Pexip Base API URL (MyChart) 
+   type: text
+   default: 'example.com'
+
+ pexip_vmr_domain_name:
+   type: string
+   default: 'univago.com'
+
+ hcm_pexip_vmr_domain_name:
+   type: string
+   default: 'univago.com'
+     
+ pexip_api_extension_url:
+   name: Pexip Ext API URL 
+   type: text
+   default: '/api/admin/configuration/v1'
+ 
+ pexip_in_call_api_extension_url:
+   name: Pexip Ext IN CALL API URL 
+   type: text
+   default: '/api/admin/command/v1'
+
+ pexip_get_status_api_extension_url:
+   name: Pexip get status API URL 
+   type: text
+   default: '/api/admin/status/v1'
+ 
+ pexip_do_action_api_extension_url:
+   name: Pexip do action API URL 
+   type: text
+   default: '/api/admin/command/v1'
+ 
+ pexip_api_username:
+   name: Pexip API Username
+   type: text
+   default: 'username'
+ 
+ pexip_api_password:
+   name: Pexip API Password 
+   type: password 
+
+ hcm_pexip_api_username:
+   name: Pexip API Username (MyChart)
+   type: text
+   default: 'username'
+ 
+ hcm_pexip_api_password:
+   name: Pexip API Password (MyChart)
+   type: password 
+
+ vmr_on_deck_amount:
+   name: Amount of VMRs to have on deck 
+   type: integer 
+   default: 25 
+ 
+ vmr_meeting_on_deck_amount:
+   name: Amount of VMRs to have on deck 
+   type: integer 
+   default: 25 
+
+ vmr_on_deck_by_channel_amount:
+   name: Amount of VMRs to have on deck 
+   type: integer 
+   default: 25 
+ 
+ vmr_meeting_on_deck_by_channel_amount:
+   name: Amount of VMRs to have on deck 
+   type: integer 
+   default: 25 
+
+ mailer_username:
+   name: Mailer UserName 
+   type: text
+   default: 'username'
+
+ mailer_password:
+   name: Mailer Password 
+   type: password 
+
+ mailer_domain:
+   name: Mailer Domain 
+   type: text
+   default: 'example.com'
+
+ mailer_port:
+   name: Mailer Port 
+   type: integer 
+   default: 587
+ 
+ mailer_address:
+   name: Mailer Address 
+   type: text
+   default: 'smtp.example.net'
+
+ mailer_default_email:
+   name: Mailer Default Email
+   type: text
+   default: 'example@domain.com'
+
+ test_tunnel:
+   name: Test tunnel
+   type: text
+
+ server_name:
+   name: This Server Name 
+   type: text
+   default: 'example.com:8443'
+ 
+ server_tag:
+   name: This Server Tag for VMRS 
+   type: text
+   default: "prod"
+
+ server_tag_underscore:
+   type: integer
+   default: 1
+
+ clinician_vmr_prefix:
+   type: text
+   default: "hc"
+
+ clinician_prefix_underscore:
+   type: integer
+   default: 1
+
+ outpatient_vmr_prefix:
+   type: text
+   default: "hcm"
+
+ outpatient_prefix_underscore:
+   type: integer
+   default: 1
+ 
+ update_freq:
+   name: Frequency of Endpoint Health Updates
+   type: integer
+   default: 2
+
+ update_freq_variable:
+   name: System variable of how many x before alert from last update 
+   type: integer
+   default: 3
+
+ api_call_timeout_in_minutes:
+   name: API call timeout in minutes
+   type: integer
+   default: 5
+
+ production_version: 
+   name: Latest Release Version
+   type: text 
+   default: "1.0"
+
+ version_file_name: 
+   name: Distro version file name 
+   type: text 
+   default: "endpoint-1.062.deb"
+ 
+ pexip_theme_uri: 
+   name: Pexip Theme Info 
+   type: text 
+ 
+ pexip_meeting_theme_uri: 
+   name: Pexip Theme Info 
+   type: text 
+
+ conference_node:
+   name: Pexip Conference node
+   type: text
+   default: 'proxy.example.com'
+
+ hcm_conference_node:
+   name: Pexip Conference node (MyChart)
+   type: text
+   default: 'proxy.example.com'
+
+ web_app_version:
+   name: Web App Version Number
+   type: text
+   default: "0.9021"
+
+ invite_server_name:
+   name: Server to generate invitation urls
+   type: text
+   default: 'example.com'
+
+ esitter_controller_default:
+   name: Esitter controller default name
+   type: text
+
+ layerx_address:
+   name: LayerX URL
+   type: text
+
+ pagination_per_page:
+   name: Pagination Per Page
+   type: integer
+   default: 50 
+
+ monitor_pagination_per_page:
+   name: Pagination Per Page
+   type: integer
+   default: 50 
+
+ second_paginate_per_page: 
+   name: Pagination Per Page2
+   type: integer
+   default: 50 
+
+ on_prem:
+   name: On Prem Flag
+   type: integer
+   default: 0
+
+ license_active_date:
+   name: license_active_date
+   type: text 
+
+ epic_client_id:
+   name: epic_client_id
+   type: text
+   default: '85590a37-c443-430e-b729-a0f258974c09' 
+
+ alert_message_sending:
+   type: text
+   default: 'SMS'
+
+ clinician_default_speed:
+   type: integer
+   default: 5
+
+ release_underway:
+   type: integer
+   default: 0
+
+ system_use_layerx:
+   type: integer
+   default: 0
+
+ system_layerx_username:
+   type: string
+
+ system_layerx_dashboard_id:
+   type: string
+
+ admin_timeout_in_minutes:
+   type: integer
+   default: 30 
+
+ health_status_update_freq:
+   type: integer
+   default: 60000
+   
+ no_host_limit:
+   type: integer
+   default: 3 
+
+ pexip_get_alias_wait_seconds:
+   type: integer
+   default: 3 
+
+ clinician_estimated_room_join_in_milliseconds:
+   type: integer
+   default: 8000
+   
+ uhe_report_host:
+   type: string
+  
+ uhe_report_host_path:
+   type: string
+ 
+ uhe_report_username:
+   type: string
+ 
+ uhe_report_password:
+   type: string
+
+ api_pagination_per_page:
+   name: API Pagination Per Page
+   type: integer
+   default: 30 
+
+ default_non_admin_client_id:
+   type: integer
+   default: 1
+
+ camera_email_timediffminutes:
+   type: integer
+   default: 2
+ 
+ auto_reboot_timediffminutes:
+   type: integer
+   default: 2
+ 
+ ## This default admin must be created and have full clinician access and super admin rights
+ perfectserve_default_admin_id:
+   type: integer 
+
+ first_key_code:
+   type: string
+   default: 16
+
+ zoom_in_key_code:
+   type: string
+   default: 187
+
+ zoom_out_key_code:
+   type: string
+   default: 189
+
+ stream_reconnect_time_in_milliseconds:
+   type: integer
+   default: 200
+
+ twilio_alert_number:
+   type: string
+   default: '+17326318804'
+
+ twilio_messaging_service_sid:
+   type: string
+   default: 'MG0bd5b5b97bd61c6793ffbfb17b142a3a'
+
+ twilio_obs_alert_number:
+   type: string
+   default: '+17326318859'
+
+ twilio_invite_number:
+   type: string
+   default: '+17326318859'
+
+ hours_to_delete_vmr_meeting:
+   type: integer
+   default: 48
+
+ delete_limit:
+   type: integer
+   default : 100 
+
+ loner_wait_time_in_min:
+   type: integer 
+   default: 60
+  
+ browser_matrix_url:
+   type: string
+   default: "https://adam.braunton.gitlab.io/table/table.html"
+
+ notification_portal_url:
+   type: string
+   default: "https://uhemobiledev.univago.com/sync-patient-call/"
+
+ notification_portal_api_url:
+   type: string
+   default: "https://uhemobiledev.univago.com/api/profile-manager"
+   
+ trp_redirect_url:
+   type: string
+   default: "https://api.caregility.ignishealth.com/auth/third-party-auth/caregility/"
+
+ trp_redirect_token_param:
+   type: string
+   default: "access_token"
+
+ mobile_api_system_username:
+   type: string
+   default: "VUhFIE1vYmlsZSBBUEkgU3lzdGVtIFVzZXI="
+
+ mobile_api_system_password:
+   type: string
+   default: "613de30c7b1d25c3f0b70266674ae3b0b8ccfa889fa1720e789af5186d0a205c8e876df0928ecf0fa0d2bcb6dbce8dd375a15e4b7a3684b31fab86ff45ae1c57"
+   
+ use_sso:
+  type: integer
+  default: 0
+
+ sso_login_url:
+  type: string
+  default: "https://uhemobiledev.univago.com/sso"
+
+ sso_logout_url:
+  type: string
+  default: "https://uhemobiledev.univago.com/sso/logout"
+
+ mychart_expiration_in_hours:
+  type: integer
+  default: 8
+
+ # Base URL for Cloudbreak Translation integration
+ cloudbreak_api_base_url:
+  type: string
+  default: "https://marttix-dev.cloudbreak.us"
+
+ cloudbreak_api_session_id:
+  type: string
+  default: "2b2b8ac6-ba10-47af-9be1-3825b2b8e629"
+
+ jwt_system_expiry_minutes:
+  type: integer
+  default: 1440
+
+ jwt_user_expiry_minutes:
+  type: integer
+  default: 1440
+
+ jwt_redirect_expiry_minutes:
+  type: integer
+  default: 1440
+ 
+ max_users_bulk_upload:
+  type: integer
+  default: 1000
+
+ pstn_invite_enabled:
+  type: integer
+  default: 1
+
+ default_meeting_invite_expiry_time:
+  type: integer
+  default: 30
+
+ mychart_session_tunnel_expire_in_minutes:
+   type: integer
+   default: 180
+
+ clinician_vmr_pin_length: 
+   type: integer
+   default: 0
+
+ meetings_vmr_pin_length: 
+   type: integer
+   default: 0
+ 
+ use_dynamic_orientation:
+   type: integer
+   default: 1
+
+ dynamic_orientation_interval:
+   type: integer
+   default: 450
+
+ bulk_firmware_delay_in_sec:
+   type: integer
+   default: 5
+
+ third_party_mailer_base_uri:
+  type: string
+  default: 'https://apiservice-bus-dev.kp.org/service/care_deliv_sprt/com_mgmt/v1/SDS'
+
+ third_party_mailer_template_system:
+   type: integer
+   default: 0
+
+ third_party_mailer_template_type:
+   type: string
+   default: 'KP'
+  
+ third_party_mailer_user_id:
+   type: string
+ 
+ third_party_mailer_user_password:
+   type: string
+
+ third_party_mailer_unique_id:
+   type: string
+
+ eis_base_url:
+   type: string
+   default: "https://eis_server_host.com"
+
+ eis_workflow_path:
+   type: string
+   default: "/api/location/v1/external/workflow"
+
+ pexip_enable_legacy_dialout_api:
+   type: integer
+   default: 1
+
+ pexip_sip_routing_prefix:
+   type: string
+   default: ""
+
+ pexip_h323_routing_prefix:
+   type: string
+   default: ""
+
+ pexip_skype_routing_prefix:
+   type: string
+   default: ""
+
+ out_patient_v2_routing:
+   type: string
+   default: "http://www.caregility.com"
+
+ observer_two_url:
+   type: string
+   default: "https://iobserver.caregility.net"
+
+ tytocare_api_base_url:
+   type: string
+   default: "https://app-stage1.tytocare.com/api"
+
+ tytocare_api_username:
+   type: string
+   default: "API@Caregility_Stage1"
+
+ tytocare_api_password:
+   type: string
+   default: "Rt8c}Ilz?WyT"
+   
+ use_server_tag_for_unique_api_name:
+   type: integer
+   default: 1
+   
+ show_backup_iobserver:
+   type: integer
+   default: 0
+
+ apd_notification_api_base_url:
+   type: string
+   default: "https://devmobile.uheplatform.com"
+
+ api_request_forwarding_service_philips:
+   type: string
+   default: ""
+
+ api_request_forwarding_service_epic:
+   type: string
+   default: ""
+
+ inc_561_enabled:
+   type: integer
+   default: 1
+
+ inc_561_audio_gain:
+   type: integer
+   default: 12
+
+ inc_561_upper_version:
+   type: string
+   default: "15.2"
+
+ eko_base_url:
+   type: string
+   default: "https://env2ekointegration.servicebus.windows.net"
+
+ eko_key_name:
+   type: string
+   default: "env2-eko-integration-sas-ns"
+
+ eko_key_value:
+   type: string
+   default: "ySSMAcV6roBdpXUNwZiylaN+GbUwyrlbl8Kk19MchXU="
+
+ eko_topic:
+   type: string
+   default: "eko-integration-topic"
+   
+ migrated_site_redirection:
+   type: string
+   default: "https://landing.caregility.net"

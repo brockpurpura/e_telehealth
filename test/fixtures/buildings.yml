@@ -1,0 +1,56 @@
+Building_1:
+  id: 1
+  name: Staging Location
+  state: NJ
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  location_id: 1
+
+Building_2:
+  id: 2
+  name: BH Little Rock
+  state: NJ
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  location_id: 1
+
+Building_3:
+  id: 3
+  name: EIS Building
+  state: AZ
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  location_id: 2
+
+Building_4:
+  id: 4
+  name: Common Building Name
+  state: NJ
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  location_id: 3
+
+Building_5:
+  id: 5
+  name: Common Building Name
+  state: AZ
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  location_id: 4
+
+Building_6:
+  id: 6
+  name: Common Location Name
+  state: AZ
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  location_id: 3
+
+
+Building_7:
+  id: 7
+  name: Staging Location
+  state: AZ
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  location_id: 5

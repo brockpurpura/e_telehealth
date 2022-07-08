@@ -1,0 +1,32 @@
+.zoom{:role=>"application"}
+  %button{:id => 'raise_audio_button', :class => 'border', :onmousedown=> "zoom('wide')", :onmouseup=>"zoom('stop')", :onmouseleave=>"zoom('stop')", :draggable=>"false", :'aria-label'=>"zoom out", :onkeypress => "zoomWithKeyboard('wide', event)",  :onkeyup => "zoomWithKeyboard('stop', event)"}
+    %i.fal.fa-minus
+      
+  %button{:id => 'control_home_button', :class => 'border', :onclick => "go_to_bookmark('Home')", :draggable=>"false", :'aria-label'=>"camera home"}
+    %i.fas.fa-home
+
+  %button{:id => 'lower_audio_button', :class => '', :onmousedown=> "zoom('tele')", :onmouseup=>"zoom('stop')", :onmouseleave=>"zoom('stop')", :draggable=>"false", :'aria-label'=>"zoom in", :onkeydown => "zoomWithKeyboard('tele', event)",  :onkeyup => "zoomWithKeyboard('stop', event)"}
+    %i.fal.fa-plus
+#icr_checkbox
+  .leftside
+    %p.for_icr Night View
+  .leftside
+    .switch    
+      %input{:type => "checkbox", :onclick => "toggleICR()", :id => "toggle-2", :class => " cmn-toggle cmn-toggle-round-flat off"}
+      %label{:for => "toggle-2"} Night View
+  %p#icr_state.icr_state.hidden OFF 
+  - @icr_s = (@icr_state || false)
+#reboot_camera
+  - if @endpoint.client.show_soft_reboot?
+    .leftside
+      %button{:id => '', :class => 'reboot_cam small', :onclick=> "checkForReboot()"} Refresh 
+    .rightside
+      %button{:id => '', :class => 'reboot_cam small', :onclick=> "checkForSoftReboot()"} Reboot 
+  - else 
+    .center
+      %button{:id => '', :class => 'reboot_cam small', :onclick=> "checkForReboot()"} Refresh Camera     
+
+:javascript
+  if (#{@icr_s}) {
+    document.getElementById('toggle-2').checked = true; 
+  }

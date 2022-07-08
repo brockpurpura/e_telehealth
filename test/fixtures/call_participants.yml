@@ -1,0 +1,59 @@
+CallParticipant1:
+  id: 1
+  vmr_id:	15782
+  user_id: 1
+  p_uuid: uuid1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invited: 0
+  api: 0
+  current_host: 0
+  display_name: user_1
+
+CallParticipant2:
+  id: 2
+  vmr_id:	15785
+  user_id: 2
+  p_uuid: uuid2
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invited: 0
+  api: 0
+  current_host: 1
+  display_name: user_2
+
+CallParticipant3:
+  id: 3
+  vmr_id:	15785
+  user_id: 2
+  p_uuid: uuid3
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invited: 0
+  api: 0
+  current_host: 1
+  display_name: user_3
+
+CallParticipant4:
+  id: 4
+  vmr_id:	15788
+  user_id: -1
+  p_uuid: uuid4
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invited: 0
+  api: 0
+  current_host: 1
+  display_name: user_4
+
+CallParticipant5:
+  id: 5
+  vmr_id:	15788
+  user_id: -1
+  p_uuid: uuid5
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  invited: 0
+  api: 0
+  current_host: 1
+  display_name: user_5

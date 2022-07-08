@@ -1,0 +1,635 @@
+.main-view
+  #observer_data_expand_screen
+    .observation
+      .tab_header
+        .center
+          = link_to '#', :onclick=>'expand_data()' do
+            %i.fas.fa-angle-right
+    .camera_indicator.hidden
+      %i.fas.fa-camera
+
+  #observer_data_expand_screen_menu.hidden
+    .observation
+      .tab_header
+        .center
+          = link_to '#', :onclick=>'collapse_data()' do
+            menu
+            %i.fas.fa-angle-left
+      .tab_range_side
+        =link_to '#', :class=>'tab_link', :onclick=>"show_tab('rooms', true)" do
+          #rooms_tab_d.tab.selected
+        =link_to '#', :class=>'tab_link', :onclick=>"show_tab('advanced', true)" do
+          #advanced_tab_d.tab
+        =link_to '#', :class=>'tab_link', :onclick=>"show_tab('ob_alerts', true)" do
+          #ob_alerts_tab_d.tab
+        =link_to '#', :class=>'tab_link' , :onclick=>"show_tab('layout', true)" do
+          #layout_tab_d.tab
+        =link_to '#', :class=>'tab_link', :onclick=>"show_tab('end_session', true)" do
+          #end_session_tab_d.tab{:style => "color: red;"}
+        =link_to '#', :class=>'tab_link', :onclick=>"show_tab('av_settings', true)" do
+          #av_settings_tab_d.tab.camera_indicator.last
+  #observer_data_screen.hidden
+
+    .leftside.hidden
+      %h1 <font color='black'> remote group:</font>
+      #remoteVideoGroup
+
+    #canvases
+
+    %p#server_name.hidden #{Configurable.server_name.gsub(':8443','').gsub('/cable','')}
+    %p#current_admin.hidden #{Configurable.server_tag}_#{@current_admin.id.to_s}
+    %p#current_admin_id.hidden #{@current_admin.id.to_s}
+    %p#trp_url_jwt.hidden #{@current_admin_jwt}
+    %p#trp_url_param.hidden #{Configurable.trp_redirect_token_param}
+    %p#trp_url.hidden #{Configurable.trp_redirect_url}
+    %p#current_admin_email.hidden #{@current_admin.email}
+    %p#current_workstation.hidden #{Configurable.server_tag}_#{@current_admin.id.to_s}_workstation
+    %p#current_controller.hidden #{@esitter_controller}
+    %p#active_machine_name.hidden
+    %p#observation_session_id.hidden
+    %p#d_video.hidden #{@current_admin.n_video}
+    %p#d_audio.hidden #{@current_admin.n_audio}
+    %p#d_output.hidden #{@current_admin.n_speaker}
+    #settings_pop_up.observation{:style => "position: absolute; width: 100%;  z-index: 100000000000; height: 100%; background-color: rgba(0,0,0,0.6); ", :class => "hidden"}
+      %div{:style => "background: white; height: 209px;  width: 323px; top: 24%; left: 42%; position: absolute; border: 1px solid #E0E0E0"}
+        =link_to "javascript:;", :class => " rightside", :onclick => "open_settings_box(0)" do
+          <span class="fal fa-times" aria-hidden="true" style="margin-top: 15px;  margin-right: 15px; font-size: 16px;"></span>
+
+        .tab_content{:style => "margin-top: 10px; height: 163px;"}
+          .tab_data_row
+            .tab_data_left_right.leftside
+              = check_box_tag :profile_a, :style => ""
+            .tab_data_full.leftside
+              %p{:style => "margin-top: 7px; margin-left: 10px;"} Profile A - Potential Fall Risk
+
+            .tab_data_left_right.leftside
+          .tab_data_row
+            .tab_data_left_right.leftside
+              = check_box_tag :profile_b, "", :style => "", :checked => "checked"
+            .tab_data_full.leftside
+              %p{:style => "margin-top: 7px; margin-left: 10px;"} Profile B - Visitor Detection
+
+
+            .tab_data_left_right.leftside
+          .tab_data_row
+            .tab_data_left_right.leftside
+              = check_box_tag :profile_c, "", :style => "", :checked => "checked"
+            .tab_data_full.leftside
+              %p{:style => "margin-top: 7px; margin-left: 10px;"} Profile C - Patient Pain Detection
+            .tab_data_left_right.leftside
+
+
+    =link_to 'Go Full Screen', '#', :id=>'fullscreen', :class=>'hidden', :onclick=>'toggleFullScreen()'
+    #ob_pop_up.observation{:style => "height: 100%; width: 100%; z-index: 10000; "}
+      .select_menu
+        = render :partial => "tabs_header"
+        .tab_content
+          #rooms.hidden
+            .tab_data_row{:style => "height: 75px; margin-top:5px;"}
+              .tab_data_full
+                %br
+                .dropdowns
+                  %label
+                  = collection_select(:client_id, :id, {}, :id, :name, {:prompt => "Hospital"}, {:id=>'locationSelect', :onchange=>'checkObsBuildings()', :class => "labelText selectLabel"})
+
+                  %div{:style => "position: relative"}
+                    %div{:class => "left" , :style=> "width: 70%"}
+                      %span.far.fa-search{:style => "padding: 10px 10px 10px 15px;  position: absolute; font-size: 18px; left: 0;"}
+                      <input id="autocomplete" class="labelText inputLabel" placeholder="Select a room">
+                  #observation_endpoints_partial
+                    = render :partial=>'observation_endpoints'
+                  :javascript
+                    $(document).ready( function() {
+                      updateTabs(true);
+                      checkObsLocations();
+                      initAutocomplete();
+                    });
+
+            %i#loading.fa.fa-spinner.hidden
+
+          #layout
+            #checkboxes
+              #default_room_layouts
+                %h2 Default Layout
+                .layout_data_row
+                  .tab_data_full
+                    .two_column_layout
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.default{:for => "default_layout_check"}
+                        %input#default_layout_check.layout{:type => "checkbox", :value => "0", :class => "layout_box", :onclick => "trigger_layout_checkbox('#default_layout_check')", :checked=>'true'}
+
+              #three_room_layouts
+                %h2 3 Room Layout
+                .layout_data_row
+                  .tab_data_full
+                    .two_column_layout
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.three.one_by_two{:for => "1x2_left_check"}
+                        %input#1x2_left_check.layout{:type => "checkbox", :value => "4", :class => "layout_box", :onclick => "trigger_layout_checkbox('#1x2_left_check')"}
+
+                      .tab_data_box_padding.leftside.hidden
+                        %label.box.camera_layouts.three.one_by_two_top{:for => "1x2_check"}
+                        %input#1x2_check.layout{:type => "checkbox", :value => "5", :class => "layout_box", :onclick => "trigger_layout_checkbox('#1x2_check')"}
+
+                      .tab_data_box.leftside
+                        %label.box.camera_layouts.three.one_by_two_reverse{:for => "1x2_right_check"}
+                        %input#1x2_right_check.layout{:type => "checkbox", :value => "6", :class => "layout_box", :onclick => "trigger_layout_checkbox('#1x2_right_check')"}
+
+              #six_room_layouts
+                %h2 6 Room Layout
+                //.layout_data_row
+                //  .tab_data_full
+                //    %div.leftside{:style => "width: 32%;"}
+                //      %hr{:style => "width: 100%; margin-top: 20px; margin-bottom;"}
+                //    %div.leftside{:style => "width: 38.7%;"}
+                //      .leftside
+                //        = button_to "4", "#", :class => "", :disabled => "disabled", :style => "width: 50px; border-bottom-right-radius: 0px;   border-top-right-radius: 0px; background-color: rgba(0,0,0,0.1)"
+                //      .leftside
+                //        = button_to "6", "#", :class => "",:disabled => "disabled", :style => " border: 1px solid #2B98F0; color: #2B98F0; width: 50px; border-bottom-right-radius: 0px; border-top-right-radius: 0px; border-bottom-left-radius: 0px;   border-top-left-radius: 0px;"
+                //      .leftside
+                //        = button_to "9", "#", :class => "",:disabled => "disabled", :style => "width: 50px; border-bottom-right-radius: 0px;  border-top-right-radius: 0px; border-bottom-left-radius: 0px;   border-top-left-radius: 0px;  background-color: rgba(0,0,0,0.1)"
+                //      .leftside
+                //        = button_to  "12", "#",:class => "",:disabled => "disabled", :style => "background: white; height: 37px;color: #757575; border: 1px solid #bdbdbd; border-radius: 5px; padding: 5px; width: 50px;margin-bottom: 0px; border-bottom-left-radius: 0px;   border-top-left-radius: 0px; ;  background-color: rgba(0,0,0,0.1"
+                //      //%i.fa.fa-refresh{:style=> "margin: 0px;border-bottom-left-radius: 0px;   border-top-left-radius: 0px; color: #757575"}
+                //    %div.leftside{:style => "width: 28.3%;"}
+                //      %hr{:style => "width: 100%; margin-top: 20px; margin-bottom;" }
+                .layout_data_row
+                  .tab_data_full
+                    .two_column_layout
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.six.one_by_five{:for => "1x5_left_check"}
+                        %input#1x5_left_check.layout{:type => "checkbox", :value => "6", :class => "layout_box", :onclick => "trigger_layout_checkbox('#1x5_left_check')"}
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.six.two_by_three{:for => "2x3_check"}
+                        %input#2x3_check.layout{:type => "checkbox", :value => "2", :class => "layout_box", :onclick => "trigger_layout_checkbox('#2x3_check')"}
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.six.one_by_five_reverse{:for => "1x5_right_check"}
+                        %input#1x5_right_check.layout{:type => "checkbox", :value => "4", :class => "layout_box", :onclick => "trigger_layout_checkbox('#1x5_right_check')"}
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.six.two_by_four_top{:for => "2x4_check"}
+                        %input#2x4_check.layout{:type => "checkbox", :value => "5", :class => "layout_box", :onclick => "trigger_layout_checkbox('#2x4_check')"}
+
+              #twelve_room_layouts
+                %h2 12 Room Layout
+                .layout_data_row
+                  .tab_data_full
+                    .two_column_layout
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.twelve.one_by_eleven{:for => "1x11_left_check"}
+                        %input#1x11_left_check.layout{:type => "checkbox", :value => "4", :class => "layout_box", :onclick => "trigger_layout_checkbox('#1x11_left_check')"}
+
+                      .tab_data_box_padding.leftside
+                        %label.box.camera_layouts.twelve.four_by_three{:for => "4x3_check"}
+                        %input#4x3_check.layout{:type => "checkbox", :value => "5", :class => "layout_box", :onclick => "trigger_layout_checkbox('#4x3_check')"}
+
+                      .tab_data_box.leftside.hidden
+                        %label.box.camera_layouts.twelve.one_by_eleven_reverse{:for => "1x11_right_check"}
+                        %input#1x11_right_check.layout{:type => "checkbox", :value => "6", :class => "layout_box", :onclick => "trigger_layout_checkbox('#1x11_right_check')"}
+            %hr
+            .tab_footer
+              .rightside_footer
+                = link_to 'Apply', '#', :class=>'btn btn-primary apply_footer_btn',:onclick=>'refresh_ob_page()'
+
+          // Alerts section
+          #ob_alerts.hidden
+            .tab_data_row{:style => "height: 75px; margin-top: 5px;"}
+              .tab_data_full
+                %div{:style => "padding-top: 15px; padding-bottom: 15px;font-size: 14px;"}
+                  .leftside
+                    //%p#info_room_name_alerts #{@endpoints.first.name if @endpoints.size > 0}
+                    %p Room Notification Information
+                  %br.clear
+                  %br.clear
+                  .dropdowns
+                    %label
+                      = select_tag :alert_room_selection, options_for_select('', 1), :onchange=>"adjustRooms('alert_room_selection')", :prompt => 'Admit Rooms to enter Notification Information'
+            #alerts_info_view
+              = render :partial => 'alert_information', :locals => {:endpoint_array => []}
+            %hr
+            .tab_footer
+              .rightside_footer
+                = link_to 'Apply', '#', :class=>'btn btn-primary apply_footer_btn',:onclick=>'refresh_ob_page()'
+
+          // Room INFO Area
+          #advanced.hidden
+            //=link_to "javascript:;", :class=>'link_blue', :onclick=> "open_settings_box(1)" do
+            //  .center
+            //    <img src="https://ralphlosey.files.wordpress.com/2014/12/webber_beta-binomial_formula1.png" alt="!" style="margin-top: 125px;" />
+            .tab_data_row{:style => "height: 75px; margin-top:5px;"}
+              .tab_data_full
+                %div{:style => "padding-top: 15px; padding-bottom: 15px;font-size: 14px;"}
+                  .leftside
+                    //%p#info_room_name #{@endpoints.first.name if @endpoints.size > 0}
+                    %p Patient Information
+                  %br.clear
+                  %br.clear
+                  .dropdowns
+                    %label
+                      = select_tag :room_selection, options_for_select('', 1), :onchange=>"adjustRooms('room_selection')", :prompt=>'Admit Rooms to enter Patient Information'
+            #room_info_view
+              = render :partial => 'room_information', :locals => {:endpoint_array => []}
+
+            %hr
+            .tab_footer
+              .rightside_footer
+                = link_to 'Apply', '#', :class=>'btn btn-primary apply_footer_btn',:onclick=>'refresh_ob_page()'
+
+          #end_session.hidden
+            .tab_data_row{:style => "height: 165px;"}
+              .tab_data_left_right.leftside{ :style => "display: none; visibility: hidden;"}
+                = check_box_tag :end_session_gap, "", :style => "", :checked => "checked"
+              .tab_data_full.leftside
+                %div{:style => "float: left; margin-right: 25px; margin-top: 18px; margin-bottom: 25px;"}
+                  %div{:style => "padding: 15px 0px; font-size: 14px"}
+                    End Session
+                  = link_to 'End', 'javascript:;', :class=>'btn btn-danger',:onclick=>'confirmEndSession()', :style => "padding: 7px 36px; color: white;  "
+                  %div{:style => "padding: 10px 0px; font-size: 12px"}
+                    Close all video feeds
+                %hr{:style => "margin-bottom: 0px; margin-top: 0px;"}
+            .tab_data_row{:style => "height: 125px;"}
+              .tab_data_left_right.leftside{ :style => "display: none; visibility: hidden;"}
+                = check_box_tag :send_alarm_sound, "", :style => "", :checked => "checked"
+              .tab_data_full.leftside
+                %div{:style => "float: left; margin-top: 20px; margin-bottom:20px;"}
+                  %div{:style => "padding: 15px 0px; font-size: 14px; width: 100%"}
+                    Transfer Session
+                  = link_to 'Start', 'javascript:;', :id=>'transfer_button', :class=>'btn btn-info btn-primary',:onclick=>'startTransferConfirm()', :style => "padding: 7px 36px;"
+                  %p#transfer_notification.hidden Waiting for Transfer... &nbsp; &nbsp;  #{link_to 'Cancel', 'javascript:;', :onclick=>'confirmCancelTransfer()', :id=>'cancel_transfer'}
+                  %p#stored_transfer_id.hidden
+                  %div{:style => "padding: 10px 0px; font-size: 12px"}
+                    Move your session to another user
+                %hr{:style => "margin-bottom: 0px; margin-top: 20px;"}
+            #import_session_div
+              .tab_data_row{:style => "height: 45px;"}
+                .tab_data_left_right.leftside{ :style => "display: none; visibility: hidden;"}
+                  = check_box_tag :import_session_gap, "", :style => "", :checked => "checked"
+              .tab_data_full.leftside
+                %div{:style => "float: left; margin-top: 20px;"}
+                  %div{:style => "padding: 15px 0px; font-size: 14px"}
+                    Import Session
+              .tab_data_row
+                .tab_data_left_right.leftside{ :style => "display: none; visibility: hidden;"}
+                  = check_box_tag :risk_selection_gap, "", :style => "", :checked => "checked"
+                .tab_data_full.leftside
+                  %div{:style => "height: 37px;"}
+                    .leftside
+                      .dropdowns
+                        %label
+                          = select_tag :transfer_selection, options_for_select(@transfers, -1), :style => "width: 301px;", :prompt=>"Select session to import"
+                    .leftside{:style => "width:100%"}
+                      = link_to 'Transfer', 'javascript:;', :class=>'btn btn-info btn-primary',:onclick=>'startTransferNowConfirm()', :style => "padding: 7px 25px; margin-top: 10px;"
+                  %br.clear
+                  %div{:style => "padding: 15px 0px; font-size: 12px; float: left; width: 100%"}
+                    Import another user's session
+                %hr{:style => "margin-bottom: 0px; margin: 20px 20px 0 20px;"}
+            .tab_data_row{:style => "height: 125px;"}
+              .tab_data_left_right.leftside{ :style => "display: none; visibility: hidden;"}
+                = check_box_tag :send_alarm_sound, "", :style => "", :checked => "checked"
+              .tab_data_full.leftside
+                %div{:style => "float: left; margin-top: 20px; margin-bottom:20px;"}
+                  %div{:style => "padding: 15px 0px; font-size: 14px; width: 100%"}
+                    iObserver Reports
+                  = link_to 'Launch Dashboard', 'javascript:;', :class=>'btn btn-primary',:onclick=>'openReporting()', :style => "padding: 7px 36px;"
+                  %div{:style => "padding: 10px 0px; font-size: 12px"}
+                    View iObserver Reporting Dashboard
+
+          #av_settings.hidden
+            .observation_settings_view
+              #video_frame
+                %video{:id=>"localVideo", :class=>"notListening", :autoplay=>"autoplay", :playsinline=>'playsinline', :muted => 'muted'}
+              %fieldset
+                %p Camera
+                .dropdowns.observer_settings_caret.device_type
+                  %label
+                    =select_tag :camera
+                %p Microphone
+                .dropdowns.observer_settings_caret.device_type
+                  %label
+                    =select_tag :microphone
+                %p Speaker
+                .dropdowns.observer_settings_caret.device_type
+                  %label
+                    =select_tag :speaker, {}, {:class => "sound_test"}
+                %audio{:id=>"player", :src=>"#{asset_path('sound_test.wav')}"}
+                =link_to "Test Sound", 'javascript:;', :onclick=>"document.getElementById('player').play()"
+              #onlineUsersBox
+                #onlineUsersGroup
+      -#=render :partial => "popup_submit", :locals => {:hideCollapse => false}
+
+
+
+  #main_observer_layout_screen.no_data.no_settings
+
+    #camera_partial.layout_type.default_layout
+      = render :partial=>'default_layout'
+
+    #camera_partial.layout_type.1x2_left.hidden
+      = render :partial=>'1x2_left'
+    #camera_partial.layout_type.1x2.hidden
+      = render :partial=>'1x2'
+    #camera_partial.layout_type.1x2_right.hidden
+      = render :partial=>'1x2_right'
+
+    #camera_partial.layout_type.2x4_left.hidden
+      = render :partial=>'2x4_left'
+    #camera_partial.layout_type.2x4_right.hidden
+      = render :partial=>'2x4_right'
+    #camera_partial.layout_type.1x5_left.hidden
+      = render :partial=>'1x5_left'
+    #camera_partial.layout_type.1x5_right.hidden
+      = render :partial=>'1x5_right'
+    #camera_partial.layout_type.2x3.hidden
+      = render :partial=>'2x3'
+    #camera_partial.layout_type.2x4.hidden
+      = render :partial=>'2x4'
+
+
+    #camera_partial.layout_type.1x11_left.hidden
+      = render :partial=>'1x11_left'
+    #camera_partial.layout_type.4x3.hidden
+      = render :partial=>'4x3'
+    #camera_partial.layout_type.1x11_right.hidden
+      = render :partial=>'1x11_right'
+
+    %p#final_transfer_id.hidden
+    #temp_holder.hidden
+
+    :javascript
+      function transfer_info_data(incoming_info, r_email) {
+        console.log("running transfer info")
+        for (var i=0; i < incoming_info.length; i++) {
+          var imn = incoming_info[i].machine_name;
+          if (document.getElementById('ep_priority_'+imn)) {
+            document.getElementById('ep_priority_'+imn).value = incoming_info[i].priority;}
+          if (document.getElementById('ep_profile_check_'+imn)) {
+            document.getElementById('ep_profile_check_'+imn).checked = incoming_info[i].use_profile;}
+          if (document.getElementById('ep_profile_' + imn)) {
+            document.getElementById('ep_profile_' + imn).value = incoming_info[i].profile;}
+          if (document.getElementById('ep_name_check_' + imn)) {
+            document.getElementById('ep_name_check_' + imn).checked = incoming_info[i].use_name;}
+          if (document.getElementById('ep_name_' + imn)) {
+            document.getElementById('ep_name_' + imn).value = incoming_info[i].patient_name;}
+          if (document.getElementById('ep_bed_name_check_' + imn)) {
+            document.getElementById('ep_bed_name_check_' + imn).checked = incoming_info[i].use_bed_name;}
+          if (document.getElementById('ep_bed_name_' + imn)) {
+            document.getElementById('ep_bed_name_' + imn).value = incoming_info[i].bed_name;}
+          if (document.getElementById('ep_notes_check_' + imn)) {
+            document.getElementById('ep_notes_check_' + imn).checked = incoming_info[i].use_notes;}
+          if (document.getElementById('ep_notes_' + imn)) {
+            document.getElementById('ep_notes_' + imn).value = incoming_info[i].notes;}
+          updateMoverWithNewInfo(imn);
+         }
+         send_command_by_user(r_email, 'transfer_complete', null);
+      }
+      var cable = ActionCable.createConsumer("wss:#{Configurable.server_name}");
+      var user_tunnel = cable.subscriptions.create({
+         channel: "UserChannel",
+         user_id: "obs_#{current_admin.email}"
+         }, {
+        connected: function() {
+          console.log("connected to the user tunnel");
+        },
+        disconnected: function() {
+          console.log("disconnected from the user tunnel");
+        },
+        received: function(data) {
+          console.log("response received from user tunnel: " + JSON.stringify(data));
+          if (data) {
+            switch (data['command']) {
+             case "request_transfer_info":
+                console.log('request_transfer_info recieved');
+                var obj = new Object;
+                var vids = document.getElementsByClassName('ob_video');
+                var t_info = [];
+                for (var i=0; i<vids.length; i++){
+                  var mn = vids[i].id;
+                  var o_info = {
+                    machine_name: vids[i].id,
+                    priority: document.getElementById('ep_priority_'+mn).value,
+                    use_profile: document.getElementById('ep_profile_check_'+mn).checked,
+                    profile:  document.getElementById('ep_profile_' + mn).value ,
+                    use_name: document.getElementById('ep_name_check_' + mn).checked,
+                    patient_name: document.getElementById('ep_name_' + mn).value,
+                    use_bed_name: document.getElementById('ep_bed_name_check_' + mn).checked,
+                    bed_name: document.getElementById('ep_bed_name_' + mn).value,
+                    use_notes: document.getElementById('ep_notes_check_' + mn).checked,
+                    notes: document.getElementById('ep_notes_' + mn).value
+                  };
+                  t_info.push(o_info)
+                }
+                obj = {transfer_info: t_info, r_email: document.getElementById('current_admin_email').innerHTML}
+                send_command_by_user(data['params'].r_email, 'transfer_info', obj);
+                break;
+             case "transfer_complete":
+                console.log("transfer complete recieved");
+                endAllObservations(false);
+                swal({ title: "Your session has been transferred.", type: "info", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}, function(){window.location.reload(false);});
+                break;
+             case "transfer_info":
+              console.log("recieved transfer info")
+              var incoming_info = data['params'].transfer_info;
+              setTimeout(function(){transfer_info_data( incoming_info,data['params'].r_email);}, 5000);
+              break;
+              default:
+                console.log("Unknown response: " + data);
+            }
+          }
+        },
+          send_command: function(command) {
+            return this.perform('send_command', {
+              command: command
+            });
+          }
+      });
+
+  #settings_observer_expand_screen.hidden
+    .observation
+      .camera_indicator.hidden
+        %i.fas.fa-camera
+      .tab_footer
+        .center
+          = link_to '#', :onclick=>'setting_bar_animation()' do
+            %i.fas.fa-headphones.collapse.plain.media.hidden
+
+#camera_controls
+  .video_control_line
+    .left_side_part
+      =link_to '#', :id=>'nightvision', :onclick=>"toggle_obs_icr()", :class=> 'btn btn_observation_sides video_ctrl_btn' do
+        = image_tag('24-nightmode.png')
+        .t_ &nbsp;Night Mode
+      = link_to '#', :id=>'home', :onclick=>'go_esitter_home()', :class => 'btn btn_observation_sides video_ctrl_btn' do
+        %i.fa.fa-1x.fa-home
+        .t_ &nbsp;Home
+      = link_to '#', :id=>'pin', :onclick=>'create_bookmark()', :class => 'btn btn_observation_sides video_ctrl_btn' do
+        %i.fa.fa-1x.fa-thumbtack
+        .t_ &nbsp;Pin
+
+    .center_part
+      =link_to '#', :id=>'move_in', :class=> 'btn btn_observation video_ctrl_btn video_ctrl_zoom_btn', :onmousedown=>"zoom('tele')", :onmouseup => "zoom('stop')" do
+        = image_tag('24-zoom-in.png')
+
+      #camera_joystick
+        =link_to '#', :id=>'move_left', :class => 'nav_btn', :onmousedown=>"pan('left')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-left{:style => "font-size: 45px;"}
+        =link_to '#', :id=>'move_up_left', :class => 'nav_btn', :onmousedown=>"pan('upleft')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-left{:style => "font-size: 45px;"}
+        =link_to '#' , :id=>'move_right', :class => 'nav_btn', :onmousedown=>"pan('right')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-right{:style => "font-size: 45px;"}
+        =link_to '#' , :id=>'move_down_right', :class => 'nav_btn', :onmousedown=>"pan('downright')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-right{:style => "font-size: 45px;"}
+        =link_to '#', :id=>'move_up', :class => 'nav_btn', :onmousedown=>"pan('up')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-up{:style => "font-size: 45px;"}
+        =link_to '#', :id=>'move_up_right', :class => 'nav_btn', :onmousedown=>"pan('upright')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-up{:style => "font-size: 45px;"}
+        =link_to '#', :id=>'move_down', :class => 'nav_btn', :onmousedown=>"pan('down')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-down{:style => "font-size: 45px;"}
+        =link_to '#', :id=>'move_down_left', :class => 'nav_btn', :onmousedown=>"pan('downleft')", :onmouseup => "pan_stop()" do
+          -#%i.fa.fa-4x.fa-caret-down{:style => "font-size: 45px;"}
+
+      =link_to '#', :id=>'move_in', :class=> 'btn btn_observation video_ctrl_btn video_ctrl_zoom_btn', :onmousedown=>"zoom('wide')", :onmouseup => "zoom('stop')" do
+        = image_tag('24-zoom-out.png')
+
+    .right_side_part
+      =link_to '#', :onclick=>'turnOnSound()', :class => 'btn btn_observation_sides video_ctrl_btn listen_button' do
+        %i.fa.fa-1x.fa-volume-up.l_i
+        .l_ &nbsp;Listen
+      =link_to '#', :onclick=>'talkToRoom()', :class => 'btn btn_observation_sides video_ctrl_btn talk_button talk_button' do
+        %i.fa.fa-1x.fa-microphone.t_i
+        .t_ &nbsp;Talk
+      =link_to '#', :id=>'move_in', :class=> 'btn btn_observation_sides video_ctrl_btn send_alert_button', :onclick=>'sendAlert()' do
+        %i.fas.fa-1x.fa-exclamation-triangle
+        .t_ &nbsp;Notify
+
+  .settings_alert
+    .univago_admin
+      #popup_widget_surround
+        .popup_widget.popup_ui{:id => "no_room_selected_popup" }
+          #uhe_admin_popup
+            %h2 No Room Selected
+            =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('no_room_selected_popup')" do
+              <i class="far fa-times" aria-hidden="true"></i>
+            .uhe_admin_popup_body.no_scroll
+              .uhe_admin_popup_form
+                %p.entry_informational This feature is unavailable until you select a room. Please do so and try again!
+            .submit
+              .center
+                = link_to "Close", "javascript:;", :class=> "button", :onclick => "close_observation_popup('no_room_selected_popup')";
+
+        // ALERTS POPUPS
+
+      #popup_widget_surround
+        .popup_widget.popup_ui{:id => "alerts_popup"}
+          #uhe_admin_popup
+            %h2 Notification Activated
+            .uhe_admin_popup_body.no_scroll
+              .uhe_admin_popup_form
+                %p.entry_informational An alert has been sent. Please press <b>Disable Notification</b> only when you are finished for reporting reasons!
+            .submit
+              .center
+                = link_to "Disable Notification", "javascript:;", :class=> "button", :onclick => "sendAlert()";
+
+      #popup_widget_surround.iobserver_interventions
+        .popup_widget.popup_ui.iobserver_interventions{:id => "alerts_documentation_popup"}
+          #uhe_admin_popup
+            %h2 Notification Summary
+            .uhe_admin_popup_body.no_scroll
+              .uhe_admin_popup_form.iobserver_interventions
+                %p.entry_header
+                  Intervention Reason
+                .entry
+                  .center
+                    .dropdowns
+                      %label
+                        = select_tag :alert_intervention_reason, options_for_select([['Patient partially out of bed/chair', 'Patient partially out of bed/chair'],  ['Patient out of bed/chair', 'Patient out of bed/chair'], ['Patient pulling or removed lines, tubes, drains', 'Patient pulling or removed lines, tubes, drains'], ['Patient with very suspicious behavior that needs to be stopped','Patient with very suspicious behavior that needs to be stopped' ], ['Visitor with very suspicious behavior that needs to be stopped','Visitor with very suspicious behavior that needs to be stopped'], ['Accidental button push', 'Accidental button push']], -1), :class=>"iobserver_interventions"
+
+            .submit
+              .center
+                = link_to "Save", "javascript:;", :class=> "button", :onclick => "endObservationActivity('alert')"
+
+
+        // TALK POPUPS
+
+      #popup_widget_surround
+        .popup_widget.popup_ui{:id => "talk_popup"}
+          #uhe_admin_popup
+            %h2 Talk Activated
+            .uhe_admin_popup_body.no_scroll
+              .uhe_admin_popup_form
+                %p.entry_informational Talking has been enabled. Please press <b>Disable Talking</b> only when you are finished for reporting reasons!
+            .submit
+              .center
+                = link_to "Disable Talking", "javascript:;", :class=> "button", :onclick => "talkToRoom()";
+
+      #popup_widget_surround.iobserver_interventions
+        .popup_widget.popup_ui.iobserver_interventions{:id => "talk_documentation_popup"}
+          #uhe_admin_popup
+            %h2 Talk Summary
+            .uhe_admin_popup_body.no_scroll
+              .uhe_admin_popup_form.iobserver_interventions
+                %p.entry_header
+                  Intervention Reason
+                .entry
+                  .center
+                    .dropdowns
+                      %label
+                        = select_tag :talk_intervention_reason, options_for_select([['Patient attempting to get out of bed/chair or out of bed/chair', 'Patient attempting to get out of bed/chair or out of bed/chair'],  ['Patient pulling at lines, tubes, drains', 'Patient pulling at lines, tubes, drains'], ['Patient restless with suspicious behavior', 'Patient restless with suspicious behavior'], ['Patient is requesting or needing assistance','Patient is requesting or needing assistance' ], ['Patient privacy for toileting, bath or procedure – clinical staff present','Patient privacy for toileting, bath or procedure – clinical staff present'],['Clinical staff requesting or needing assistance','Clinical staff requesting or needing assistance'], ['Visitor requesting, needing assistance or suspicious behavior','Visitor requesting, needing assistance or suspicious behavior'],['Patient / visitor program education','Patient / visitor program education'], ['Accidental button push', 'Accidental button push']], -1), :class => "iobserver_interventions"
+
+            .submit
+              .center
+                = link_to "Save", "javascript:;", :class=> "button", :onclick => "endObservationActivity('talk')";
+
+
+        // LISTEN POPUPS
+
+      #popup_widget_surround
+        .popup_widget.popup_ui{:id => "listen_popup"}
+          #uhe_admin_popup
+            %h2 Listen Activated
+            //=link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('alerts_popup')" do
+            //  <i class="far fa-times" aria-hidden="true"></i>
+            .uhe_admin_popup_body.no_scroll
+              .uhe_admin_popup_form
+                %p.entry_informational Listening has been enabled. Please press <b>Disable Listening</b> only when you are finished for reporting reasons!
+            .submit
+              .center
+                = link_to "Disable Listening", "javascript:;", :class=> "button", :onclick => "turnOnSound()";
+
+      #popup_widget_surround.iobserver_interventions
+        .popup_widget.popup_ui.iobserver_interventions{:id => "listen_documentation_popup"}
+          #uhe_admin_popup
+            %h2 Listen Summary
+            //=link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('alerts_documentation_popup')" do
+            //  <i class="far fa-times" aria-hidden="true"></i>
+            .uhe_admin_popup_body.no_scroll
+              .uhe_admin_popup_form.iobserver_interventions
+                %p.entry_header
+                  Intervention Reason
+                .entry
+                  .center
+                    .dropdowns
+                      %label
+                        = select_tag :listen_intervention_reason, options_for_select([['Patient talking or muttering to self or others', 'Patient talking or muttering to self or others'],  ['Patient restless with suspicious behavior', 'Patient restless with suspicious behavior'], ['Clinician/provider entered room / interacting with patient', 'Clinician/provider entered room / interacting with patient'], ['Visitors entered room / interacting with patient','Visitors entered room / interacting with patient'],['Accidental button push', 'Accidental button push']], -1), :class => "iobserver_interventions"
+
+            .submit
+              .center
+                = link_to "Save", "javascript:;", :class=> "button", :onclick => "endObservationActivity('listen')";
+
+
+  #transfer_wait.hidden
+    %p{:style => "color: #b22222;  background-color: #CECECE"} Waiting For Transfer
+
+#info_retain.hidden
+%script{:type=>"text/javascript"}
+  :plain
+    function loadRoomInformation(endpoint_array) {
+      //var url_string = '/fetch_room_information?endpoint_array='.concat(endpoint_array).concat('&current_admin_id=').concat(document.getElementById('current_admin_id').innerHTML)
+      //$.get(url_string)
+      };
+    function loadAlertInformation(endpoint_array) {
+      //var url_string = '/fetch_alert_information?endpoint_array='.concat(endpoint_array).concat('&current_admin_id=').concat(document.getElementById('current_admin_id').innerHTML)
+      //$.get(url_string)
+      };
+=render :partial => "streaming"
+=render :partial => "observer"
+
+

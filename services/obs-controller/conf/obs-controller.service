@@ -1,0 +1,17 @@
+[Unit]
+Description=iObserver controller
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=uheadmin
+Group=uheadmin
+WorkingDirectory=/home/uheadmin/telehealth/services/obs-controller
+ExecStart=/usr/bin/node server.js
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=obs-controller
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,2101 @@
+:javascript
+  'use strict';
+
+  // Functions:
+  //
+  // formatMediaConstraints(audioDeviceId, videoDeviceId)
+  //   Format media constraints for the specified device IDs: null for no audio/video, "" for any.
+  //
+  // startLocalStream(mediaConstraints)
+  //   Start local stream with the specified media constraints.
+  //
+  // stopLocalStream()
+  //
+  // motionDetection(canvas)
+  //
+  // connect(controllers, nodeId)
+  //   Connect to the specified controllers, which is a comma-separated list of web socket
+  //   URLs, such as "wss://server1.example.com:1443,wss://server2.example.com:2443".
+  //   If the controller is a high-availability cluster, then all members of the cluster
+  //   should be given here.
+  //   The nodeId parameter specifies the identity of the current node; if null then the
+  //   server will assign a new unique ID.
+  //
+  // disconnect()
+  //
+  // login(userName)
+  //
+  // logout()
+  //
+  // getCurrentUser()
+  //   Returns a promise with the value of the currently logged in userName. The resolved
+  //   value is null if no user is currently logged in.
+  //
+  // mediaType(stream)
+  //
+  // startCall(sinkId, type)
+  //   type: 'audioCall', 'videoCall'
+  //
+  // endCall(sinkId)
+  //
+  // getMediaRelays(mediaRelayGroup)
+  //   Requests the controller to query the media relay configuration for the specified
+  //   group. The mediaRelayGroup is 'default' if unspecified. Returns a promise with an
+  //   array of {address, proto, username, credential}
+  //     address: IP address of media relay
+  //     proto: TURN or STUN
+  //     username and credential: server authentication secrets
+  //
+  // setMediaRelays(mediaRelays, mediaRelayGroup)
+  //   Set the media relays to use for the specified group. The mediaRelayGroup is
+  //   'default' if unspecified. The mediaRelays parameter is an array of objects with
+  //   these properties:
+  //     address: IP address of media relay (required)
+  //     proto: optional protocol, either "TURN" or "STUN"; default is "TURN"
+  //     username: optional username for server authentication
+  //     credential: optional credential (password) for server authentication
+  //
+  // getMediaRelayGroups()
+  //   Requests the media relay group names that have been configured. Returns a promise
+  //   with an array of group names.
+  //
+  // useMediaRelayGroup(mediaRelayGroup)
+  //   Specify the current node to use a configured non-default media relay group.
+  //
+  //
+  //
+  // directLink(nodeId, userName, options)
+  //   options:
+  //     calibrateMotion: flag indicating whether to link the motion calibration video
+  //
+  // directUnlink(nodeId, userName, options)
+  //   options:
+  //     calibrateMotion: flag indicating whether to unlink the motion calibration video
+  //
+  // indirectLink(sourceId, mediaId, userName)
+  //
+  // indirectUnlink(sourceId, mediaId, userName)
+  //
+  // unlinkUser(userName)
+  //
+  //
+  // newUserSession(userName)
+  //
+  // closeUserSession()
+  //
+  //
+  // isConnected()
+  //
+  // relay(sourceId, sinkId)
+  // relay(sourceId, mediaId, sinkId)
+  //
+  // stream(sourceId, mediaId, sinkId)
+  //
+  // monitorMotion(mediaId, userName)
+  //
+  // unmonitorMotion(mediaId, userName)
+  //
+  // motionDetected(moving, movingRatio)
+  //   moving: flag indicating whether motion is detected
+  //   movingRatio: optional calibration feedback
+  //
+  // startLocalDummy(canvas)
+  //
+  // Properties:
+  //
+  // maxKbps
+  //
+  //
+  // Events:
+  //
+  // onLocalStreamStart(stream)
+  //
+  // onLocalStreamStop(stream)
+  //
+  // onLocalStreamSending(sending)
+  //
+  // onLocalStreamDegraded(mediaType)
+  //
+  // onLocalStreamReacquiring()
+  //
+  // onLocalStreamOverconstrained()
+  //
+  // onConnect(id)
+  //
+  // onDisconnect()
+  //
+  // onRemoteStreamChange(mediaId, state, stream)
+  //
+  // onRemoteStreamStart(mediaId, stream, callType, calibrateMotion)
+  //   callType: 'monitor', 'audioCall', 'videoCall', 'relay'
+  //   calibrateMotion: flag indicating whether the stream is for motion calibration
+  //
+  // onRemoteStreamStop(mediaId, stream, calibrateMotion)
+  //
+  // onStats(mediaId, audioStats, videoStats)
+  //
+  // onNodeOnline(nodeId, mediaType)
+  //
+  // onNodeOffline(nodeId)
+  //
+  // onOnlineUsers(onlineUsers)
+  //
+  // onUserOnline(userName, mediaType)
+  //
+  // onUserOffline(userName)
+  //
+  // onMotionDetected(mediaId, moving, movingRatio)
+  //   Indicates whether motion is detected from a media node.
+  //
+  // onMotionVisualization(needed)
+  //   Indicates whether motion visualization is needed for streaming.
+  //
+
+  const streaming = {};
+
+  const getWithDefault = (map, key, defaultConstructor) => {
+    let value = map.get(key);
+    if (!value) {
+      value = defaultConstructor();
+      map.set(key, value);
+    }
+    return value;
+  };
+
+  let controllerInit = false;
+  let localNodeId = null;
+  let userName = null;
+
+  let currentMediaRelayGroup = 'default';
+  // TODO: https://groups.google.com/g/discuss-webrtc/c/Zrsn2hi8FV0/m/KIbn0EZPBQAJ
+  // Support for plan B ends in Aug 2021 (M93 (Stable in August, 2021): Plan B is removed)
+  let rtcBaseConfiguration = { sdpSemantics: 'plan-b', offerExtmapAllowMixed: false };
+  let rtcConfiguration = rtcBaseConfiguration;
+
+  let streamHoldTime = 0;
+
+  let localStream = null;
+  let mediaState = 'off';
+  let localCallType = 'none';
+  let mediaConstraints = null;
+  let maxMediaType = null;
+
+  let localCanvasStream = null;
+  let initLocalCanvas = false;
+  let canvasSinks = new Set();
+
+  const controllers = new Map();
+  let masterUrl = null;
+  let masterSocket = null;
+
+  let localSenders = new Set();
+
+  let pollStatsCounter = 0;
+
+
+  // Distributed system state ////////////////////////////////////////////////////
+
+  // node ID -> {connected, up, mediaType, streamId, canvasStreamId, callType}
+  const remoteNodes = new Map();
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  // TODO: max-bundle IceRestart
+
+  // Peer connections ////////////////////////////////////////////////////////////
+
+  // peer node ID -> {
+  //   conn: RTCPeerConnection
+  //   preparing: flag
+  //   negotiating: flag
+  //   renegotiate: flag
+  //   closing: flag
+  //   candidates: Array of queued ICE candidates
+  //   receivingMedia: Set of receiving mediaId values
+  //   inboundStreams: MediaStreamTrack ID -> MediaStream}
+  //   outboundMedia: MediaStreamTrack ID -> media ID
+  //   stats: RTCStats ID -> stats
+  //   ? inboundStats: MediaStreamTrack ID -> RTCStats ID
+  const peers = new Map();
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  // Inbound streams /////////////////////////////////////////////////////////////
+
+  // media node ID -> {closing, requested, sourceId, state}
+  const mediaSource = new Map();
+
+  // MediaStreamTrack -> [stream, sink ID]
+  //const trackClones = new Map();
+
+
+  // Outbound streams ////////////////////////////////////////////////////////////
+
+  // Set of mediaId:sinkId
+  const mediaSinks = new Set();
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  function socketEmit(...args) {
+    if (masterSocket) {
+      masterSocket.emit(...args);
+    }
+  }
+
+  //const logMessage = console.log;
+  function logMessage(first, ...rest) {
+    const d = new Date();
+    const pad = n => n.toString().padStart(2, '0');
+    const now = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    if (typeof first === 'string') {
+      console.log(`${now} ${first}`, ...rest);
+      socketEmit('log', first, ...rest);
+    } else {
+      console.log(now, first, ...rest);
+      console.trace();
+      socketEmit('log', JSON.stringify(first), ...rest);
+    }
+  }
+
+  const nodeCanvasId = nodeId => `${nodeId}*`
+  const isNodeCanvasId = id => id[id.length-1] === '*';
+  const isLocalNodeCanvasId = id => id === `${localNodeId}*`;
+  const nodeFromCanvasId = id => id.substring(0, id.length-1);
+  const realNodeId = id => isNodeCanvasId(id) ? nodeFromCanvasId(id) : id;
+
+  const defaultNodeInfo = () => ({connected: false, up: false, mediaType: 'none'});
+  const lookupNodeInfo = nodeId => getWithDefault(remoteNodes, nodeId, defaultNodeInfo);
+
+  const isNodeConnected = nodeId => lookupNodeInfo(nodeId).connected;
+
+  function* connectedNodes() {
+    for (let [nodeId, {connected}] of remoteNodes) {
+      if (connected)
+        yield nodeId;
+    }
+  }
+
+  function nodeIsConnected(nodeId, nodeInfo) {
+    // Get any existing media info for the node
+    let prevInfo = remoteNodes.get(nodeId);
+
+    // Determine whether to notify the UI of a change in node status
+    let change = !prevInfo || !prevInfo.connected || prevInfo.mediaType !== nodeInfo.mediaType;
+
+    // Set the new node status and media info
+    remoteNodes.set(nodeId, {
+      connected: true,
+      up: true,
+      mediaType: nodeInfo.mediaType,
+      streamId: nodeInfo.streamId,
+      canvasStreamId: nodeInfo.canvasStreamId,
+      callType: nodeInfo.callType
+    });
+
+    // Notify the UI of any change in node status
+    if (change && streaming.onNodeOnline)
+      streaming.onNodeOnline(nodeId, nodeInfo.mediaType);
+
+    // TODO identify outstanding streams by media ID
+  }
+
+  function nodeIsDisconnected(nodeId) {
+    let nodeInfo = remoteNodes.get(nodeId);
+    if (nodeInfo && nodeInfo.connected) {
+      nodeInfo.connected = false;
+      streaming.onNodeOffline && streaming.onNodeOffline(nodeId);
+    }
+
+    // TODO close down streams by media ID
+  }
+
+  /*
+  function getStreamIdByMediaId(mediaId) {
+    if (mediaId === localNodeId)
+      return localStream.id;
+    const media = remoteNodes.get(mediaId);
+    if (media)
+      return media.streamId;
+    return null;
+  }
+  */
+
+  function getStreamByMediaId(mediaId) {
+    if (mediaId === localNodeId)
+      return localStream;
+    if (isLocalNodeCanvasId(mediaId))
+      return localCanvasStream;
+    const sourceInfo = mediaSource.get(mediaId);
+    if (!sourceInfo || !sourceInfo.sourceId)
+      return null;
+    const nodeInfo = remoteNodes.get(realNodeId(mediaId));
+    if (!nodeInfo || !nodeInfo.streamId)
+      return null;
+    const findStreamId = isNodeCanvasId(mediaId) ? nodeInfo.canvasStreamId : nodeInfo.streamId;
+    const peer = peers.get(sourceInfo.sourceId);
+    if (!peer)
+      return null;
+    for (let [, stream] of peer.inboundStreams) {
+      if (stream.id === findStreamId)
+        return stream;
+    }
+    return null;
+  }
+
+  function getStreamByTrackId(trackId) {
+    if (localStream) {
+      for (let track of localStream.getTracks()) {
+        if (track.id === trackId)
+          return localStream;
+      }
+    }
+    for (let [, {inboundStreams}] of peers) {
+      for (let [checkTrackId, stream] of inboundStreams) {
+        if (checkTrackId === trackId)
+          return stream;
+      }
+    }
+    return null;
+  }
+
+  function getMediaInfoByStreamId(streamId) {
+    for (let [nodeId, nodeInfo] of remoteNodes) {
+      if (nodeInfo.streamId === streamId) {
+        return [nodeId, nodeInfo];
+      }
+      if (nodeInfo.canvasStreamId === streamId) {
+        return [nodeCanvasId(nodeId), nodeInfo];
+      }
+    }
+    return [null, null];
+  }
+
+  function getMediaInfoByTrackId(trackId) {
+    const stream = getStreamByTrackId(trackId);
+    if (!stream)
+      return [null, null];
+    return getMediaInfoByStreamId(stream.id);
+  }
+
+  function getMediaType(stream) {
+    if (!stream) {
+      logMessage('*** missing stream parameter to getMediaType');
+      return 'none';
+    }
+    if (!stream.getAudioTracks || !stream.getVideoTracks) {
+      logMessage(`*** broken stream ID ${stream ? stream.id : 'none'} missing required properties`);
+      return 'none';
+    }
+    const audioTracks = stream.getAudioTracks().filter(track => track.readyState === 'live');
+    const audioId = audioTracks.length > 0 ? audioTracks[0].id : null;
+    const videoTracks = stream.getVideoTracks().filter(track => track.readyState === 'live');
+    const videoId = videoTracks.length > 0 ? videoTracks[0].id : null;
+    if (audioId && videoId)
+      return 'audioVideo';
+    if (videoId)
+      return 'videoOnly';
+    if (audioId)
+      return 'audioOnly';
+    return 'none';
+  }
+
+  streaming.mediaType = getMediaType;
+
+  function inferStreamByPeerId(stream, peerId) {
+    let nodeInfo = remoteNodes.get(peerId);
+    if (nodeInfo) {
+      if (nodeInfo.streamId) {
+        logMessage(`inferring ${peerId} stream ID is now ${stream.id}, replacing ${nodeInfo.streamId}`);
+      } else {
+        logMessage(`inferring ${peerId} stream ID is ${stream.id}`);
+      }
+      nodeInfo.streamId = stream.id;
+    } else {
+      nodeInfo = {
+        connected: true,
+        up: true,
+        mediaType: getMediaType(stream),
+        streamId: stream.id,
+        callType: 'none'
+      };
+      remoteNodes.set(peerId, nodeInfo);
+      logMessage(`inferring ${peerId} remote node info ${JSON.stringify(nodeInfo)}`);
+    }
+    return nodeInfo;
+  }
+
+  function getLocalNodeInfo() {
+    const nodeInfo = {
+      callType: localCallType,
+      mediaRelayGroup: currentMediaRelayGroup
+    };
+    if (localStream) {
+      nodeInfo.mediaType = getMediaType(localStream);
+      nodeInfo.streamId = localStream.id;
+      if (localCanvasStream) {
+        nodeInfo.canvasStreamId = localCanvasStream.id;
+      }
+    } else {
+      logMessage('*** missing localStream for getLocalNodeInfo');
+      nodeInfo.mediaType = 'none';
+    }
+    return nodeInfo;
+  }
+
+  function formatMediaConstraints(audioDeviceId, videoDeviceId) {
+    logMessage(`getUserMedia constraints derived from ${JSON.stringify(audioDeviceId)} audio and ${JSON.stringify(videoDeviceId)} video`);
+    const constraints = {};
+    if (audioDeviceId != null) {
+      if (audioDeviceId) {
+        constraints.audio = {deviceId: {exact: audioDeviceId}};
+      } else {
+        constraints.audio = true;
+      }
+    }
+    if (videoDeviceId != null) {
+      if (videoDeviceId) {
+        if (is_safari) {
+          constraints.video = {deviceId: {exact: videoDeviceId}};
+        }
+        else {
+          constraints.video = {deviceId: {exact: videoDeviceId}, width: 1280, height: 720, frameRate: {ideal: 30, max: 30}};
+        }
+      } else {
+        if (is_safari) {
+          constraints.video = true;
+        }
+        else {
+          constraints.video = {width: 1280, height: 720, frameRate: {ideal: 30, max: 30}};
+        }
+      }
+    }
+    return constraints;
+  }
+  streaming.formatMediaConstraints = formatMediaConstraints;
+
+  async function acquireLocalStream() {
+    // Explictly end any existing local stream
+    const prevLocalStream = localStream;
+    if (localStream) {
+      mediaState = 'turning off';
+      localStream.getTracks().forEach(track => track.stop());
+    }
+
+    const usingDefaultConstraints = !mediaConstraints;
+    if (usingDefaultConstraints) {
+      mediaConstraints = formatMediaConstraints("", "");
+    }
+
+    mediaState = 'turning on';
+    let stream;
+    try
+    {
+      logMessage(`getUserMedia with constraints ${JSON.stringify(mediaConstraints)}`);
+      stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    }
+    catch (err) {
+      localStream = null;
+      mediaState = 'off';
+      socketEmit('node info', getLocalNodeInfo());
+      if (prevLocalStream && streaming.onLocalStreamStop) {
+        streaming.onLocalStreamStop && streaming.onLocalStreamStop(prevLocalStream);
+      }
+      if (err.name === 'OverconstrainedError') {
+        if (streaming.onLocalStreamOverconstrained) {
+          if (usingDefaultConstraints) {
+            logMessage('Failed local stream: OverConstrainedError using default constraints');
+          } else {
+            logMessage('OverConstrainedError from getUserMedia; calling handler before retrying with default constraints');
+            streaming.onLocalStreamOverconstrained();
+            mediaConstraints = null;
+            await acquireLocalStream();
+          }
+        } else {
+          logMessage('Failed local stream: OverConstrainedError from getUserMedia and no onLocalStreamOverconstrained handler available');
+        }
+      } else {
+        if (usingDefaultConstraints) {
+          logMessage(`Failed local stream with default constraints: getUserMedia error: ${err}`);
+        } else {
+          logMessage(`Failed local stream with ${err}; retrying with default constraints`);
+          mediaConstraints = null;
+          await acquireLocalStream();
+        }
+      }
+      return;
+    }
+
+    if (!stream || !stream.getTracks) {
+      logMessage('acquired local media is defunct' + (stream ? ' - object missing getTracks' : ''));
+      return
+    }
+
+    let initAudio = false;
+    let initVideo = false;
+    for (let track of stream.getTracks()) {
+      if (track.getSettings) {
+        logMessage(`acquired local ${track.kind} track ${track.id} with settings: ${JSON.stringify(track.getSettings())}`);
+      } else {
+        logMessage(`acquired local ${track.kind} track ${track.id}`);
+      }
+      if (track.kind === 'audio') {
+        initAudio = true;
+      } else if (track.kind === 'video') {
+        initVideo = true;
+      }
+    }
+
+    // Assign the new local stream and register 'onended' handlers
+    mediaState = 'on';
+    localStream = stream;
+    logMessage(`local stream assigned to stream ${stream ? stream.id : 'null'}`);
+    stream.getTracks().forEach(track => {
+      track.onended = () => {
+        if (mediaState !== 'turning off') {
+          lostLocalTrack(track, stream);
+        }
+      };
+    });
+
+    const localNodeInfo = getLocalNodeInfo();
+    if (localNodeInfo.mediaType === 'none' && (initAudio || initVideo)) {
+      logMessage(`*** acquired local ${initAudio && initVideo ? 'audioVideo' : (initAudio ? 'audioOnly' : 'videoOnly')} media immediately degraded to none`);
+      localStream = null;
+      return;
+    }
+    const prevMaxMediaType = maxMediaType;
+    if (!maxMediaType) {
+      if (localNodeInfo.mediaType !== 'none') {
+        maxMediaType = localNodeInfo.mediaType;
+      }
+    } else {
+      if (localNodeInfo.mediaType !== 'none' && maxMediaType !== 'audioVideo') {
+        maxMediaType = localNodeInfo.mediaType;
+      }
+    }
+    if (maxMediaType !== prevMaxMediaType) {
+      logMessage(`new local max media type is ${maxMediaType}`);
+    } else if (localNodeInfo.mediaType !== maxMediaType) {
+      logMessage(`got local media type ${localNodeInfo.mediaType} but max is ${maxMediaType}`);
+    } else {
+      logMessage(`got max media type ${maxMediaType}`);
+    }
+
+    socketEmit('node info', localNodeInfo);
+
+    streaming.onLocalStreamStart && streaming.onLocalStreamStart(localStream);
+  }
+
+  function closePeer(peerId) {
+    const peer = peers.get(peerId);
+    if (peer && peer.conn) {
+      if (peer.conn.signalingState === 'closed') {
+        logMessage(`peer connection with ${peerId} is already closed`);
+        return;
+      }
+      logMessage(`closing peer connection with ${peerId}`);
+      peer.closing = true;
+      peer.conn.close();
+      peer.negotiating = false;
+
+      if (canvasSinks.has(peerId)) {
+        canvasSinks.delete(peerId);
+        if (canvasSinks.size === 0 && streaming.onMotionVisualization) {
+          streaming.onMotionVisualization(false);
+        }
+      }
+
+      //socketEmit('peer closed', peerId);
+    }
+  }
+
+  function closeAllPeers() {
+    for (let peerId of peers.keys()) {
+      closePeer(peerId);
+    }
+  }
+
+  function startOutboundStream(mediaId, stream, sinkId) {
+    socketEmit('started stream', mediaId, sinkId, getMediaType(stream));
+    logMessage(`starting ${mediaId} stream ${stream.id} to ${sinkId}`);
+    const peer = peerConnection(sinkId);
+
+    if (isLocalNodeCanvasId(mediaId)) {
+      canvasSinks.add(sinkId);
+      if (canvasSinks.size === 1 && streaming.onMotionVisualization) {
+        streaming.onMotionVisualization(true);
+      }
+    }
+
+    peer.preparing = true;
+    stream.getTracks().forEach(track => {
+      //let clone = track.clone();
+      //stream.addTrack(clone);
+      //trackClones.set(clone, [stream, sinkId]);
+      peer.conn.addTrack(track, stream); //peer.conn.addTrack(clone, stream);
+      peer.outboundMedia.set(track.id, mediaId); //peer.outboundMedia.set(clone.id, mediaId);
+    });
+    peer.preparing = false;
+    negotiatePeer(sinkId);
+
+    if (mediaId === localNodeId) {
+      let isFirstLocalSender = (localSenders.size === 0);
+      localSenders.add(sinkId);
+      if (isFirstLocalSender && streaming.onLocalStreamSending) {
+        streaming.onLocalStreamSending(true);
+      }
+    }
+  }
+
+  async function acquireStreamByMediaId(mediaId) {
+    const stream = getStreamByMediaId(mediaId);
+    if (stream) {
+      return stream;
+    }
+    if (mediaId === localNodeId) {
+      logMessage(`requested local stream has not started; attempting to acquire stream with ${mediaConstraints ? JSON.stringify(mediaConstraints) : 'no constraints'}`);
+      if (streaming.onLocalStreamReacquiring) {
+        streaming.onLocalStreamReacquiring();
+      }
+      await acquireLocalStream();
+      if (!localStream) {
+        logMessage('waiting to acquire requested local stream before sending');
+        return null;
+      }
+      let mediaType = getMediaType(localStream);
+      if (mediaType !== maxMediaType) {
+        logMessage(`requested local stream is degraded to ${mediaType}; attempting to reacquire local ${maxMediaType ? maxMediaType : 'unknown max type'} stream`);
+        if (streaming.onLocalStreamReacquiring) {
+          streaming.onLocalStreamReacquiring();
+        }
+        await acquireLocalStream();
+        if (!localStream) {
+          logMessage('cannot send unavailable local stream');
+          return null;
+        }
+        mediaType = getMediaType(localStream);
+        if (!mediaType !== maxMediaType) {
+          logMessage(`re-acquired local stream is still degraded to ${mediaType}`);
+        }
+      }
+      return localStream;
+    }
+    logMessage(`waiting to receive requested ${mediaId} stream before sending`);
+    return null;
+  }
+
+  function addMediaSink(mediaId, sinkId) {
+    mediaSinks.add(mediaId+':'+sinkId);
+  }
+
+  function removeMediaSink(mediaId, sinkId) {
+    mediaSinks.delete(mediaId+':'+sinkId);
+  }
+
+  function* getMediaSinks(mediaId) {
+    for (let mediaSink of mediaSinks) {
+      let [checkMediaId, sinkId] = mediaSink.split(':', 2);
+      if (checkMediaId === mediaId) {
+        yield sinkId;
+      }
+    }
+  }
+
+  function hasMediaSink(mediaId, sinkId) {
+    return mediaSinks.has(mediaId+':'+sinkId);
+  }
+
+  function* getSinks() {
+    for (let mediaSink of mediaSinks) {
+      let [mediaId, sinkId] = mediaSink.split(':', 2);
+      yield {mediaId: mediaId, sinkId: sinkId};
+    }
+  }
+
+  async function addSink(mediaId, sinkId) {
+    logMessage(`adding sink ${sinkId} for ${mediaId} media`);
+    if (hasMediaSink(mediaId, sinkId)) {
+      logMessage(`duplicate request to stream ${mediaId} to ${sinkId}`);
+      const peer = peers.get(sinkId);
+      if (peer) {
+        let alreadySending = false;
+        const senders = peer.conn.getSenders();
+        for (let sender of senders) {
+          if (sender.track && peer.outboundMedia.get(sender.track.id) === mediaId) {
+            alreadySending = true;
+            logMessage(`${mediaId} ${sender.track.kind} already streaming to ${sinkId} as track ${sender.track.id}`);
+          }
+        }
+        if (alreadySending) {
+          return;
+        }
+      }
+    }
+    addMediaSink(mediaId, sinkId);
+
+    const stream = await acquireStreamByMediaId(mediaId);
+    if (!stream) {
+      logMessage('waiting to acquire ${mediaId} stream before sending to ${sinkId}');
+      return;
+    }
+
+    if (!isNodeConnected(sinkId)) {
+      logMessage(`waiting for ${sinkId} to go online before sending ${mediaId}`);
+      return;
+    }
+
+    startOutboundStream(mediaId, stream, sinkId);
+  }
+
+  function startSinks(mediaId, stream) {
+    for (let sinkId of getMediaSinks(mediaId)) {
+      if (!isNodeConnected(sinkId)) {
+        logMessage(`waiting for ${sinkId} to go online before sending ${mediaId}`);
+      } else {
+        startOutboundStream(mediaId, stream, sinkId);
+      }
+    }
+  }
+
+  function removeLocalSender(mediaId, sinkId) {
+    if (mediaId === localNodeId && localSenders.has(sinkId)) {
+      localSenders.delete(sinkId);
+      if (localSenders.size === 0 && streaming.onLocalStreamSending) {
+        streaming.onLocalStreamSending(false);
+      }
+    }
+  }
+
+  function removeSink(mediaId, sinkId) {
+    try {
+      logMessage(`removing ${mediaId} sink ${sinkId}`);
+      removeMediaSink(mediaId, sinkId);
+      const peer = peers.get(sinkId);
+      const stream = getStreamByMediaId(mediaId);
+      if (peer && stream) {
+        const senders = peer.conn.getSenders();
+        const numSenders = senders.length;
+        const removedSenders = new Set();
+        let removed = false;
+        for (let sender of senders) {
+          if (sender.track && peer.outboundMedia.get(sender.track.id) === mediaId) {
+            logMessage(`  removing sender of ${sender.track.kind} track ${sender.track.id} in stream ${stream.id} to ${sinkId}`);
+            removedSenders.add(sender);
+          }
+        }
+        if (peer.conn.getReceivers) {
+          const numReceivers = peer.conn.getReceivers().length;
+          const numRemovedSenders = removedSenders.size;
+          logMessage(`removing ${numRemovedSenders} of ${numSenders} senders to ${sinkId}; ${numReceivers} receivers`);
+          if (numRemovedSenders === numSenders && numReceivers === 0) {
+            peer.closing = true;
+          }
+        }
+        peer.preparing = true;
+        for (let sender of removedSenders) {
+          peer.outboundMedia.delete(sender.track.id);
+          peer.conn.removeTrack(sender);
+          removed = true;
+        }
+        peer.preparing = false;
+        if (peer.closing) {
+          closePeer(sinkId);
+        } else {
+          negotiatePeer(sinkId);
+        }
+
+        if (removed) {
+          socketEmit('stopped stream', mediaId, sinkId);
+        }
+
+        if (isLocalNodeCanvasId(mediaId)) {
+          canvasSinks.delete(sinkId);
+          if (canvasSinks.size === 0 && streaming.onMotionVisualization) {
+            streaming.onMotionVisualization(false);
+          }
+        }
+
+        removeLocalSender(mediaId, sinkId);
+      }
+    }
+    catch (err) {
+      logMessage(err, 'error removing sink '+sinkId+' for '+mediaId+' media');
+    }
+  }
+
+  function stopSinks(mediaId) {
+    for (let sinkId of getMediaSinks(mediaId)) {
+      let peer = peers.get(sinkId);
+      if (peer) {
+        let removed = false;
+        for (let sender of peer.conn.getSenders()) {
+          if (sender.track && peer.outboundMedia.get(sender.track.id) === mediaId) {
+            //let stream = getStreamByTrackId(sender.track.id);
+            //logMessage(`  removing sender of ${sender.track.kind} track ${sender.track.id} stream ${stream.id}`);
+            //if (stream) {
+            //  trackClones.delete(sender.track);
+            //  stream.removeTrack(sender.track);
+            //}
+            logMessage(`  removing sender of ${sender.track.kind} track ${sender.track.id} to ${sinkId}`);
+            peer.conn.removeTrack(sender);
+            peer.outboundMedia.delete(sender.track.id);
+            removed = true;
+          }
+        }
+        if (removed) {
+          socketEmit('stopped stream', mediaId, sinkId);
+        }
+        removeLocalSender(mediaId, sinkId);
+      }
+    }
+
+    if (isLocalNodeCanvasId(mediaId)) {
+      canvasSinks.clear();
+      if (streaming.onMotionVisualization) {
+        streaming.onMotionVisualization(false);
+      }
+    }
+  }
+
+  function lostLocalTrack(track, stream) {
+    const mediaType = getMediaType(localStream);
+    logMessage(`unexpectedly lost local ${track.kind} track ${track.id}, now ${mediaType}`);
+
+    if (mediaType === 'none') {
+      // Notify the controller of the lost local media
+      socketEmit('node info', {mediaType: 'none', callType: localCallType});
+
+      // Close the sinks for the local media
+      if (controllerInit) {
+        stopSinks(localNodeId);
+      }
+
+      // Notify the UI of the lost local media
+      streaming.onLocalStreamStop && streaming.onLocalStreamStop(localStream);
+    } else {
+      // Notify the controller of the new degraded media type
+      if (controllerInit) {
+        let nodeInfo = {
+          mediaType: mediaType,
+          streamId: localStream.id,
+          callType: localCallType
+        };
+        if (localCanvasStream) {
+          nodeInfo.canvasStreamId = localCanvasStream.id;
+        }
+        socketEmit('node info', nodeInfo);
+      }
+
+      // Notify the UI of the new degraded media type
+      streaming.onLocalStreamDegraded && streaming.onLocalStreamDegraded(mediaType);
+    }
+  }
+
+  streaming.startLocalStream = async (requestedMediaConstraints) => {
+    mediaConstraints = requestedMediaConstraints;
+    await acquireLocalStream();
+    if (controllerInit && localStream) {
+      startSinks(localNodeId, localStream);
+    }
+  };
+
+  streaming.stopLocalStream = () => {
+    if (localStream) {
+      mediaState = 'turning off';
+
+      if (controllerInit) {
+        // Notify the controller of the stopped local media
+        socketEmit('node info', {mediaType: 'none', callType: localCallType});
+
+        // Stop outbound streams of the local media
+        stopSinks(localNodeId);
+      }
+
+      // Stop the local media
+      const endedLocalStream = localStream;
+      localStream.getTracks().forEach(track => track.stop());
+      localStream = null;
+      mediaState = 'off';
+
+      // Notify the UI of the stopped local media
+      streaming.onLocalStreamStop && streaming.onLocalStreamStop(endedLocalStream);
+    }
+  };
+
+  streaming.motionDetection = function motionDetection(canvas) {
+    if (localCanvasStream && controllerInit) {
+      stopSinks(nodeCanvasId(localNodeId));
+    }
+    localCanvasStream = canvas.captureStream();
+    if (controllerInit) {
+      socketEmit('node info', getLocalNodeInfo());
+      startSinks(nodeCanvasId(localNodeId), localCanvasStream);
+      initLocalCanvas = true;
+    }
+  };
+
+  function getAndSaveMediaSourceState(mediaId) {
+    let sourceInfo = mediaSource.get(mediaId);
+    let requested = sourceInfo && sourceInfo.requested === true;
+    let sourceId = sourceInfo ? sourceInfo.sourceId || mediaId : mediaId;
+    let mediaNode = remoteNodes.get(mediaId);
+    let sourceNode = sourceId == mediaId ? mediaNode : remoteNodes.get(sourceId);
+    let mediaState = mediaNode && mediaNode.mediaType && mediaNode.connected && sourceNode && sourceNode.connected ? mediaNode.mediaType : 'not available';
+    let iceState;
+    let signalingState;
+    if (sourceInfo && sourceInfo.sourceId) {
+      let peer = peers.get(sourceId);
+      if (peer && peer.conn) {
+        iceState = peer.conn.iceConnectionState;
+        signalingState = peer.conn.signalingState;
+      } else {
+        iceState = 'pending';
+        signalingState = 'pending';
+      }
+    } else {
+      iceState = 'inactive';
+      signalingState = 'inactive';
+    }
+    let state;
+    if (requested) {
+      if (mediaNode && mediaNode.connected && mediaNode.mediaType !== 'none'
+        && sourceNode && sourceNode.connected
+        && (iceState === 'connected' || iceState === 'completed')
+        && signalingState === 'stable') {
+        state = 'on';
+      } else {
+        state = 'turning on';
+      }
+    } else {
+      if ((iceState === 'inactive' || iceState === 'closed')
+          && (signalingState === 'inactive' || signalingState === 'closed')) {
+        state = 'off';
+      } else {
+        state = 'turning off';
+      }
+    }
+    let prevState = sourceInfo ? sourceInfo.state || 'off' : 'off';
+    if (sourceInfo) {
+      sourceInfo.state = state;
+    }
+    return {
+      state: state,
+      prevState: prevState,
+      requested: requested,
+      mediaState: mediaState,
+      sourceId: sourceId,
+      iceState: iceState,
+      signalingState: signalingState
+    };
+  }
+
+  function checkMediaSourceState(mediaId) {
+    let s = getAndSaveMediaSourceState(mediaId);
+    if (s.state !== s.prevState) {
+      logMessage('remote stream state change: '+mediaId+': '+JSON.stringify(s));
+      if (streaming.onRemoteStreamChange) {
+        streaming.onRemoteStreamChange(mediaId, s.state);
+      }
+      if (streaming.onRemoteStreamStart) {
+        if (s.state === 'on') {
+          const realMediaId = realNodeId(mediaId);
+          const stream = getStreamByMediaId(mediaId);
+          const calibrateMotion = isNodeCanvasId(mediaId);
+          if (!stream) {
+            logMessage(`should trigger onRemoteStreamStart for ${mediaId} but missing stream`);
+          } else {
+            streaming.onRemoteStreamStart(realMediaId, stream, 'none', calibrateMotion);
+          }
+        }
+      }
+      /*
+      if (s.state === 'off') {
+        // TODO delete peer connection if all tracks are 'off'
+        logMessage(`deleting peer ${mediaId}`);
+        let peer = peers.get(mediaId);
+        if (peer) {
+          peer.deleted = true;
+        }
+      }
+      */
+    } else {
+      logMessage('remote stream state unchanged: '+mediaId+': '+JSON.stringify(s));
+    }
+  }
+
+  function getMediaOfSource(sourceId) {
+    let mediaIds = new Set();
+    for (let [mediaId, sourceInfo] of mediaSource) {
+      if (sourceInfo.sourceId && sourceInfo.sourceId === sourceId) {
+        mediaIds.add(mediaId);
+      }
+    }
+    return mediaIds;
+  }
+
+  function checkMediaOfSource(sourceId) {
+    Array.from(getMediaOfSource(sourceId)).forEach(checkMediaSourceState);
+  }
+
+  async function negotiatePeer(peerId) {
+    try {
+      const peer = peerConnection(peerId);
+      if (peer.negotiating) {
+        peer.renegotiate = true;
+        logMessage(`blocking negotiation in progress, flagging re-negotiation`);
+        return;
+      }
+      peer.negotiating = true;
+      logMessage(`negotiating media with ${peerId}, signaling state is ${peer.conn.signalingState}`);
+      await peer.conn.setLocalDescription(await peer.conn.createOffer());
+      socketEmit('send', peerId, 'offer', peer.conn.localDescription);
+      logMessage(`set local description; sent offer to ${peerId}`);
+    }
+    catch (err) {
+      logMessage(err);
+    }
+  }
+
+  function getPeerConnectionConstraints() {
+    if (typeof(DO_NOT_USE_QOS) === 'undefined') {
+      return { optional: [{ googDscp: true }] };
+    }
+    return {};
+  }
+
+  function peerConnection(peerId) {
+    let peer = peers.get(peerId);
+    if (peer) {
+      if (peer.conn.signalingState === 'closed') {
+        logMessage(`renewing previously closed peer connection to ${peerId}`);
+      } else {
+        //logMessage(`using existing peer connection to ${peerId}: ICE ${peer.conn.iceConnectionState}, signaling ${peer.conn.signalingState}`);
+        return peer;
+      }
+    }
+
+    let pcConstraints = getPeerConnectionConstraints();
+
+    logMessage(`new peer connection with configuration ${JSON.stringify(rtcConfiguration)} ${JSON.stringify(pcConstraints)}`);
+    const conn = new RTCPeerConnection(rtcConfiguration, pcConstraints);
+    const receivingMedia = new Set();
+    const inboundStreams = new Map();
+    const outboundMedia = new Map();
+    peer = {
+      conn: conn,
+      negotiating: false,
+      renegotiate: false,
+      candidates: [],
+      receivingMedia: receivingMedia,
+      inboundStreams: inboundStreams,
+      outboundMedia: outboundMedia,
+      stats: new Map(),
+      //inboundStats: new Map()
+    };
+    peers.set(peerId, peer);
+
+    //socketEmit('peer init', peerId);
+
+    conn.onnegotiationneeded = async () => {
+      if (peer.closing) {
+        logMessage(`onnegotiationneeded flagged by browser for ${peerId} while closing connection; ignoring`);
+      } else if (peer.preparing) {
+        logMessage(`onnegotiationneeded flagged by browser for ${peerId} while preparing local description; ignoring to sequence explicitly instead`);
+      } else if (peer.negotiating) {
+        logMessage(`onnegotiationneeded flagged by browser for ${peerId} during negotiation; ignoring to prevent loops`);
+      } else {
+        logMessage(`onnegotiationneeded flagged by browser for ${peerId}`);
+        negotiatePeer(peerId);
+      }
+    };
+
+    conn.onicecandidate = ({candidate}) => {
+      if (candidate) {
+        socketEmit('send', peerId, 'ice', candidate);
+      }
+    };
+
+    function closeOnTerminalStates(conn) {
+      const iceState = conn.iceConnectionState;
+      const signalingState = conn.signalingState;
+      if (iceState === 'disconnected' || iceState === 'failed') {
+        if (signalingState === 'stable') {
+          logMessage('closing stable peer connection with ' + peerId);
+          closePeer(peerId);
+        } else {
+          logMessage('allowing ICE state "' + iceState + '" while signaling state is "' + signalingState + '"');
+        }
+      }
+    }
+
+    conn.oniceconnectionstatechange = () => {
+      const iceState = conn.iceConnectionState;
+      logMessage(`${peerId} ICE state: ${iceState}`);
+      socketEmit('peer ice state', peerId, iceState, conn.signalingState);
+      //checkMediaOfSource(peerId);
+      if (streaming.onPeerIceState) {
+        streaming.onPeerIceState(peerId, iceState);
+      }
+      closeOnTerminalStates(conn);
+    };
+
+    conn.onsignalingstatechange = () => {
+      let signalingState = conn.signalingState;
+      logMessage(`${peerId} signaling state: ${signalingState}`);
+      socketEmit('peer signaling state', peerId, signalingState);
+      //checkMediaOfSource(peerId);
+      if (streaming.onPeerSignalingState) {
+        streaming.onPeerSignalingState(peerId, signalingState, conn.localDescription, conn.remoteDescription);
+      }
+      if (signalingState === 'closed') {
+        logMessage(`removing closed peer connection with ${peerId}`);
+        for (let mediaId of getMediaOfSource(peerId)) {
+          logMessage(`removing ${peerId} as source of ${mediaId} media`);
+          mediaSource.delete(mediaId);
+        }
+        peers.delete(peerId);
+      } else {
+        closeOnTerminalStates(conn);
+      }
+    };
+
+    conn.ontrack = ({track, streams: [stream]}) => {
+      inboundStreams.set(track.id, stream);
+      let [mediaId, mediaInfo] = getMediaInfoByStreamId(stream.id);
+      if (!mediaId) {
+        logMessage(`received ${track.kind} track ${track.id} of unidentified stream ${stream.id} from ${peerId}`);
+        //mediaId = peerId; mediaInfo = remoteNodes.get(peerId) || {mediaType: 'none', callType: 'none'};
+        mediaId = peerId;
+        mediaInfo = inferStreamByPeerId(stream, peerId);
+      }
+      const realMediaId = realNodeId(mediaId);
+      const calibrateMotion = isNodeCanvasId(mediaId);
+      const newlyReceiving = !receivingMedia.has(realMediaId);
+      receivingMedia.add(realMediaId);
+      let sourceInfo = mediaSource.get(mediaId);
+      //if (sourceInfo) {
+      //  logMessage(`received ${mediaId} ${track.kind} track from ${peerId} already sourced from ${sourceInfo.sourceId}`);
+      //}
+      if (!sourceInfo) {
+        sourceInfo = {sourceId: peerId};
+        mediaSource.set(mediaId, sourceInfo);
+      }
+      // TODO reconcile sourceInfo.closing conflict
+      startSinks(mediaId, stream);
+      socketEmit('receiving media', peerId, mediaId, mediaInfo.mediaType);
+      logMessage(`receiving ${mediaId} ${mediaInfo.mediaType} from ${peerId}`);
+
+      // Alternative: instead of triggering onRemoteStream start when the stream is available, wait for all signaling transitions to complete.
+      if (newlyReceiving && streaming.onRemoteStreamStart) {
+        streaming.onRemoteStreamStart(realMediaId, stream, mediaInfo.callType, calibrateMotion);
+      }
+
+      const numTracks = stream.getTracks().length;
+      if (numTracks > 2) {
+        logMessage(`suspicious stale clones: stream ${stream.id} has ${numTracks} tracks`);
+      }
+
+      track.onended = () => {
+        logMessage(`onended ${track.kind} track ${track.id} of stream ${stream.id} from ${peerId}`);
+
+        const trackIds = new Set();
+        for (let [trackId, checkStream] of inboundStreams) {
+          if (checkStream.id === stream.id)
+            trackIds.add(trackId);
+        }
+        for (let trackId of trackIds) {
+          inboundStreams.delete(trackId);
+        }
+
+        let [mediaId] = getMediaInfoByStreamId(stream.id);
+        if (!mediaId) {
+          logMessage(`lost ${track.kind} track ${track.id} on unidentified stream ${stream.id} from ${peerId}`);
+          mediaId = peerId; // TODO resolve unknown track ID
+        }
+        socketEmit('dropped media', peerId, mediaId);
+        let sourceInfo = mediaSource.get(mediaId);
+        if (sourceInfo && !sourceInfo.closing) {
+          sourceInfo.closing = true;
+          logMessage(`closing remote stream ${stream.id}`);
+          stopSinks(mediaId);
+        } else {
+          logMessage(`already closing remote stream ${stream.id}`);
+        }
+        if (receivingMedia.has(realMediaId)) {
+          receivingMedia.delete(realMediaId);
+          if (streaming.onRemoteStreamStop) {
+            streaming.onRemoteStreamStop(mediaId, stream);
+          }
+        }
+      };
+    };
+
+    if (streaming.onPeerConnected) {
+      streaming.onPeerConnected(peerId);
+    }
+
+    return peer;
+  }
+
+  function restrictBandwidth(sdp) {
+    streaming.maxKbps = 1000;
+    //if (!streaming.maxKbps)
+    //  return sdp;
+    const modifier = 'AS';
+    if (sdp.indexOf('b=' + modifier + ':') === -1) {
+      // insert b= after c= line.
+      sdp = sdp.replace(/c=IN (.*)\r\n/g,
+          'c=IN $1\r\nb=' + modifier + ':' + streaming.maxKbps + '\r\n');
+    } else {
+      sdp = sdp.replace(new RegExp('b=' + modifier + ':.*\r\n', 'g'),
+          'b=' + modifier + ':' + streaming.maxKbps + '\r\n');
+    }
+    return sdp;
+  }
+
+  streaming.login = tryUserName => new Promise((resolve, reject) => {
+    if (!controllerInit) {
+      reject('must be connected to log in');
+    } else {
+      socketEmit('login user', tryUserName, result => {
+        if (result === 'yes') {
+          userName = tryUserName;
+          resolve();
+        } else
+          reject('user login failed');
+      });
+    }
+  });
+
+  streaming.logout = () => new Promise((resolve, reject) => {
+    if (controllerInit) {
+      socketEmit('logout user', result => {
+        if (result === 'yes') {
+          userName = null;
+          resolve();
+        } else
+          reject('user logout failed');
+      });
+    }
+  });
+
+  streaming.newUserSession = function newUserSession(userName) {
+    socketEmit('new user session', userName);
+  }
+
+  streaming.closeUserSession = function closeUserSession() {
+    socketEmit('close user session');
+  };
+
+  streaming.getCurrentUser = function getCurrentUser() {
+    return new Promise(function (resolve, reject) {
+      try {
+        socketEmit('get current user', resolve);
+      }
+      catch (err) {
+        logMessage(err);
+        reject(err);
+      }
+    });
+  };
+
+  async function dequeueCandidates(peerId, peer) {
+    const num = peer.candidates.length;
+    if (num > 0) {
+      logMessage(`applying ${num} queued ICE candidates for ${peerId}`);
+      for (let candidate of peer.candidates) {
+        await peer.conn.addIceCandidate(new RTCIceCandidate(candidate));
+      }
+      peer.candidates = [];
+    }
+  }
+
+  function controllerAuthenticated(nodeId) {
+    controllerInit = true;
+    logMessage(`connected to controller as ${localNodeId} on ${masterSocket.id}`);
+    streaming.onConnect && streaming.onConnect(localNodeId);
+
+    if (!initLocalCanvas && localCanvasStream) {
+      socketEmit('node info', getLocalNodeInfo());
+      startSinks(nodeCanvasId(localNodeId), localCanvasStream);
+      initLocalCanvas = true;
+    }
+  }
+
+  const peerStates = () => Array.from(peers, ([peerId, {conn}]) => ({
+    peerId: peerId,
+    iceState: conn.iceConnectionState,
+    signalingState: conn.signalingState
+  }));
+
+  async function authenticateNode(nodeId) {
+    try {
+      localNodeId = nodeId;
+      socketEmit('login node', nodeId, getLocalNodeInfo(), peerStates(), Array.from(getSinks()));
+      logMessage(`set local node ID; awaiting node login response for ${nodeId}`);
+    }
+    catch (err) {
+      logMessage(err);
+    }
+  }
+
+  async function initWithMaster(socket, connectAsNodeId) {
+    masterSocket = socket;
+    window.socket = socket;
+    if (controllerInit)
+      return;
+    if (connectAsNodeId) {
+      await authenticateNode(connectAsNodeId);
+    } else {
+      socketEmit('get node identity');
+    }
+  }
+
+  streaming.connect = function connect(controllersText, connectAsNodeId) {
+    logMessage(`controller URLs: ${controllersText}`);
+    let controllerUrls = controllersText.split(',').map(s => s.trim().toLowerCase());
+    function initSocket(controllerUrl) {
+      let thisConnection = controllers.get(controllerUrl);
+      if (thisConnection) {
+        logMessage(`reconnecting to ${thisConnection.state || 'uninitialized'} controller ${controllerUrl}`);
+        thisConnection.state = 'connecting';
+        delete thisConnection.socket;
+      } else {
+        logMessage(`connecting to controller ${controllerUrl}`);
+        thisConnection = {
+          state: 'connecting'
+        };
+        controllers.set(controllerUrl, thisConnection);
+      }
+      const socket = io(controllerUrl, {
+        transports: ['websocket'],
+        reconnection: false
+      });
+      thisConnection.socket = socket;
+
+      socket.on('node identity', authenticateNode);
+
+      socket.on('connect', () => {
+        thisConnection.state = 'connected';
+
+        socket.emit('get master', (url) => {
+          masterUrl = url.replace('wss://', 'https://').replace('ws://', 'http://');
+          if (masterUrl === controllerUrl) {
+            logMessage(`connected to master ${masterUrl}`);
+            initWithMaster(socket, connectAsNodeId);
+          } else if (controllerUrls.length === 1) {
+            masterUrl = controllerUrl;
+            logMessage(`connected to single controller ${masterUrl}`);
+            initWithMaster(socket, connectAsNodeId);
+          } else {
+            logMessage(`disconnecting from ${controllerUrl} - master is ${masterUrl}`);
+            socket.close();
+          }
+        });
+      });
+
+      socket.on('disconnect', (reason) => {
+        logMessage(`disconnected from ${controllerUrl}: ${reason}`);
+        thisConnection.state = 'disconnected';
+        delete thisConnection.socket;
+        if (masterSocket === socket) {
+          masterSocket = null;
+        }
+
+        if (!masterUrl || masterUrl === controllerUrl) {
+          if (!connectAsNodeId) {
+            localNodeId = null;
+          }
+          controllerInit = false;
+          streaming.onDisconnect && streaming.onDisconnect();
+          if (controllers.size > 1) {
+            logMessage('reconnect with other controllers');
+            for (let [url, connection] of controllers) {
+              if (url !== controllerUrl) {
+                if (connection.socket) {
+                  logMessage(`other controller ${url} is already ${connection.state}`);
+                } else {
+                  initSocket(url);
+                }
+              }
+            }
+          }
+        }
+      });
+
+      socket.on('connect_error', error => {
+        logMessage(`connect error to ${controllerUrl} - ${error}`);
+        thisConnection.state = 'disconnected';
+      });
+
+      //socket.on('reconnect_attempt', (attemptNumber) => {
+      //  logMessage(`reconnect attempt ${attemptNumber} to ${controllerUrl}`);
+      //});
+
+      //socket.on('connect_timeout', (timeout) => {
+      //  logMessage(`connect timeout ${timeout}ms to ${controllerUrl}`);
+      //  socket.close();
+      //});
+
+      socket.on('master change', (url) => {
+        const newMasterUrl = url.replace('wss://', 'https://').replace('ws://', 'http://');
+        if (controllers.size > 1) {
+          if (newMasterUrl === masterUrl) {
+            logMessage(`ignoring duplicate master change notification to ${masterUrl}`);
+          } else {
+            masterUrl = newMasterUrl;
+            if (newMasterUrl === controllerUrl) {
+              logMessage(`ignoring master change to current controller ${controllerUrl}`);
+            } else {
+              let masterConnection = controllers.get(newMasterUrl);
+              if (!masterConnection) {
+                logMessage(`ignoring master change to unknown controller ${newMasterUrl}`);
+              } else {
+                if (masterConnection.socket) {
+                  logMessage(`disconnecting from ${controllerUrl} - master changed to ${newMasterUrl} and is already ${masterConnection.state}`);
+                  socket.close();
+                } else {
+                  logMessage(`disconnecting from ${controllerUrl} - master changed to ${newMasterUrl} and will start to reconnect`);
+                  socket.close();
+                  controllerInit = false; // required to start authentication with new master
+                  initSocket(masterUrl);
+                }
+              }
+            }
+          }
+        } else {
+          logMessage(`ignoring master change to ${newMasterUrl} - connected to only configured controller ${controllerUrl}`);
+        }
+      });
+
+      socket.on('node login success', async (nodeId) => {
+        logMessage(`node login successful for ${nodeId}`);
+        controllerAuthenticated(nodeId);
+        if (userName) {
+          await streaming.login(userName);
+          logMessage(`node logged back in as user ${userName}`);
+        }
+      });
+
+      socket.on('node login failure', (nodeId, err) => {
+        logMessage(`node login failure for ${nodeId}: ${err}`);
+      });
+
+      socket.on('iceservers', newIceServers => {
+        rtcConfiguration = Object.assign(newIceServers, rtcBaseConfiguration);
+        logMessage('new RTC configuration: ' + JSON.stringify(rtcConfiguration));
+      });
+
+      socket.on('timers', timers => {
+        if (timers) {
+          if (timers.streamHold) {
+            streamHoldTime = timers.streamHold;
+            logMessage(`stream hold time: ${streamHoldTime}ms`);
+          }
+        }
+      });
+
+      socket.on('add sink', async function onAddSink(mediaId, sinkId) {
+        await addSink(mediaId, sinkId);
+      });
+
+      socket.on('remove sink', function onRemoveSink(mediaId, sinkId) {
+        removeSink(mediaId, sinkId);
+      });
+
+      socket.on('restart sink', async function onRestartSink(mediaId, sinkId) {
+        try {
+          logMessage(`restarting sink ${sinkId} for ${mediaId} media`);
+          addMediaSink(mediaId, sinkId);
+          const peer = peerConnection(sinkId);
+          const senders = peer.conn.getSenders();
+          for (let sender of senders) {
+            if (sender.track && peer.outboundMedia.get(sender.track.id) === mediaId) {
+              logMessage(`removing old transceiver of ${mediaId} media to ${sinkId}`);
+              peer.conn.removeTrack(sender);
+            }
+          }
+          const stream = acquireStreamByMediaId(mediaId);
+          if (!stream) {
+            logMessage('waiting to acquire ${mediaId} stream before sending to ${sinkId}');
+          } else {
+            startOutboundStream(mediaId, stream, sinkId);
+          }
+        }
+        catch (err) {
+          logMessage(`error restarting sink ${sinkId} for ${mediaId} media: ${err}`);
+        }
+      });
+
+      socket.on('add source', function onAddSource(sourceId, mediaId) {
+        let sourceInfo = mediaSource.get(mediaId);
+        if (sourceInfo) {
+          // TODO resolve source conflict
+          logMessage(`expect ${mediaId} sourced from ${sourceId}, previously sourced from ${sourceInfo.sourceId}`);
+          sourceInfo.sourceId = sourceId;
+          sourceInfo.requested = true;
+        } else {
+          sourceInfo = {sourceId: mediaId, requested: true};
+          mediaSource.set(mediaId, sourceInfo);
+          logMessage(`expect ${mediaId} sourced from ${sourceId}`);
+        }
+      });
+
+      socket.on('remove source', function onRemoveSource(sourceId, mediaId) {
+        // TODO handle "turning off" race with track.onended handler
+        logMessage(`no longer expect ${mediaId} from ${sourceId}`);
+        let sourceInfo = mediaSource.get(mediaId);
+        if (sourceInfo) {
+          sourceInfo.requested = false;
+        }
+      });
+
+      socket.on('offer', async (sourceId, {type, sdp}) => {
+        try {
+          logMessage('received offer from ' + sourceId);
+          const peer = peerConnection(sourceId);
+          await peer.conn.setRemoteDescription({type: type, sdp: sdp});
+          dequeueCandidates(sourceId, peer);
+          await peer.conn.setLocalDescription(await peer.conn.createAnswer());
+          socketEmit('send', sourceId, 'answer', peer.conn.localDescription);
+          logMessage('set remote and local description; sent answer to ' + sourceId);
+        }
+        catch (err) {
+          logMessage(err);
+        }
+      });
+
+      socket.on('answer', async (sinkId, {type, sdp}) => {
+        try {
+          logMessage('received answer from ' + sinkId);
+          const peer = peers.get(sinkId);
+          if (!peer) {
+            logMessage(`unexpected answer from ${sinkId}`);
+            return;
+          }
+          await peer.conn.setRemoteDescription({type: type, sdp: restrictBandwidth(sdp)});
+          logMessage(`set remote description for ${sinkId}`);
+          dequeueCandidates(sinkId, peer);
+          peer.negotiating = false;
+          if (peer.closing) {
+            logMessage('completing close of peer connection with ' + sinkId);
+            closePeer(sinkId);
+          } else if (peer.renegotiate) {
+            peer.renegotiate = false;
+            logMessage(`triggering re-negotiation with ${sinkId}`);
+            peer.conn.onnegotiationneeded();
+          }
+        }
+        catch (err) {
+          logMessage(err);
+        }
+      });
+
+      socket.on('ice', async function onIce(peerId, candidate) {
+        try {
+          const peer = peerConnection(peerId);
+          if (!peer.conn.remoteDescription || !peer.conn.remoteDescription.type) {
+            logMessage(`queuing early ICE candidate from ${peerId}`);
+            peer.candidates.push(candidate);
+          } else {
+            logMessage('received and applying ICE candidate from ' + peerId);
+            await peer.conn.addIceCandidate(new RTCIceCandidate(candidate));
+          }
+        }
+        catch (err) {
+          logMessage(err);
+        }
+      });
+
+      socket.on('online nodes', nodes => {
+        let nowConnected = new Set(nodes.map(n => n.nodeId));
+        for (let nodeId of connectedNodes()) {
+          if (!nowConnected.has(nodeId))
+            nodeIsDisconnected(nodeId);
+        }
+        for (let nodeInfo of nodes) {
+          nodeIsConnected(nodeInfo.nodeId, nodeInfo);
+        }
+      });
+
+      socket.on('node online', (nodeId, nodeInfo) => {
+        nodeIsConnected(nodeId, nodeInfo);
+      });
+
+      socket.on('node offline', nodeId => {
+        nodeIsDisconnected(nodeId);
+      });
+
+      socket.on('close peer', peerId => {
+        closePeer(peerId);
+      });
+
+      socket.on('online users', newOnlineUsers => {
+        const onlineUsers = [];
+        newOnlineUsers.forEach(userMedia => {
+          const [user, media] = userMedia.split(':', 2);
+          if (!userName || userName !== user)
+            onlineUsers.push({name: user, mediaType: media});
+        });
+        logMessage(`online users: ${JSON.stringify(onlineUsers)}`);
+        streaming.onOnlineUsers && streaming.onOnlineUsers(onlineUsers);
+      });
+
+      socket.on('user online', (onlineUser, mediaType) => {
+        if (!userName || userName !== onlineUser) {
+          logMessage(`user online: ${onlineUser}, media type ${mediaType}`);
+          streaming.onUserOnline && streaming.onUserOnline(onlineUser, mediaType);
+        }
+      });
+
+      socket.on('user offline', offlineUser => {
+        if (!userName || userName !== offlineUser) {
+          logMessage(`user offline: ${offlineUser}`);
+          streaming.onUserOffline && streaming.onUserOffline(offlineUser);
+        }
+      });
+
+      socket.on('motion detected', (mediaId, moving, movingRatio) => {
+        if (streaming.onMotionDetected) {
+          streaming.onMotionDetected(mediaId, moving, movingRatio);
+        }
+      });
+
+      socket.on('debug', function onDebug(command) {
+        try {
+          let rv = eval(command);
+          logMessage(`debug: ${command} => ${JSON.stringify(rv)}`);
+        }
+        catch (err) {
+          logMessage(`debug: ${command} => error: ${err.message}`);
+        }
+      });
+
+      return socket;
+    }
+    for (let controllerUrl of controllerUrls) {
+      let url = controllerUrl;
+      if (!url.startsWith('https://') && !url.startsWith('http://')
+        && !url.startsWith('wss://') && !url.startsWith('ws://')) {
+        url = 'https://' + controllerUrl;
+      }
+      initSocket(url);
+    }
+
+    if (streaming.pollControllerInterval) {
+      clearInterval(streaming.pollControllerInterval);
+    }
+
+    if (controllers.size > 1) {
+      streaming.pollControllerInterval = setInterval(function pollControllerConnections() {
+        //for (let [url, connection] of controllers) {
+        //  logMessage(`controller connection state: ${connection.state} ${url}`);
+        //}
+        let notDisconnected = false;
+        for (let [url, connection] of controllers) {
+          if (connection.state !== 'disconnected') {
+            notDisconnected = true;
+            break;
+          }
+        }
+        if (!notDisconnected) {
+          logMessage('disconnected from all controllers - reconnecting');
+          for (let [url, connection] of controllers) {
+            initSocket(url);
+          }
+        }
+      }, 5000);
+    } else {
+      streaming.pollControllerInterval = setInterval(function pollControllerConnection() {
+        let controllerUrl = controllerUrls[0];
+        let connection = controllers.get(controllerUrl);
+        //logMessage(`single socket to ${controllerUrl}: ${connection.state}`);
+        if (connection.state === 'disconnected') {
+          logMessage('disconnected from single controller - reconnecting');
+          initSocket(controllerUrl);
+        }
+      }, 5000);
+    }
+  };
+
+  streaming.disconnect = () => masterSocket.close();
+
+  streaming.isConnected = function() {
+    return controllerInit;
+  }
+
+  streaming.debug = function debug(nodeId, command) {
+    socketEmit('debug', nodeId, command);
+  };
+
+  streaming.directLink = function directLink(nodeId, userName, {calibrateMotion = false} = {}) {
+    const mediaId = calibrateMotion ? nodeCanvasId(nodeId) : nodeId;
+    socketEmit('link user endpoint', nodeId, mediaId, userName);
+  };
+
+  streaming.directUnlink = function unlink(nodeId, userName, {calibrateMotion = false} = {}) {
+    const mediaId = calibrateMotion ? nodeCanvasId(nodeId) : nodeId;
+    socketEmit('unlink user endpoint', nodeId, mediaId, userName);
+  };
+
+  streaming.indirectLink = function indirectLink(sourceId, mediaId, userName) {
+    socketEmit('link user endpoint', realNodeId(sourceId), mediaId, userName);
+  };
+
+  streaming.indirectUnlink = function indirectUnlink(sourceId, mediaId, userName) {
+    socketEmit('unlink user endpoint', realNodeId(sourceId), mediaId, userName);
+  };
+
+  streaming.unlinkUser = function unlinkUser(userName) {
+    socketEmit('unlink user', userName);
+  };
+
+  streaming.relay = function relay(sourceId, mediaId, sinkId) {
+    // If only two parameters are given, interpret them as (sourceId, sinkId)
+    if (!sinkId) {
+      sinkId = mediaId;
+      mediaId = sourceId;
+    }
+    socketEmit('stream on', sourceId, mediaId, sinkId, 'relay');
+  };
+
+  streaming.stopRelay = function stopRelay(sourceId, mediaId, sinkId) {
+    // If only two parameters are given, interpret them as (sourceId, sinkId)
+    if (!sinkId) {
+      sinkId = mediaId;
+      mediaId = sourceId;
+    }
+    socketEmit('stream off', sourceId, mediaId, sinkId);
+  }
+
+  streaming.stream = function stream(sourceId, mediaId, sinkId) {
+    socketEmit('stream on', sourceId, mediaId, sinkId, 'monitor');
+  };
+
+  streaming.startStream = function startStream(sourceMediaId, sinkId, type = 'monitor') {
+    socketEmit('stream on', sourceMediaId, sourceMediaId, sinkId, type);
+  };
+
+  streaming.stopStream = function stopMonitor(sourceMediaId, sinkId) {
+    socketEmit('stream off', sourceMediaId, sourceMediaId, sinkId);
+  };
+
+  streaming.startCall = function startCall(sinkId, callType) {
+    if (!localStream) {
+      logMessage(`not starting call with ${sinkId}: no local media stream`);
+      return;
+    }
+    if (!controllerInit) {
+      logMessage(`not starting call with ${sinkId}: not connected to controller`);
+      return;
+    }
+    if (!mediaSource.has(sinkId)) {
+      logMessage(`not starting call with ${sinkId}: no existing stream`);
+      return;
+    }
+    localCallType = callType;
+    socketEmit('start call', localNodeId, sinkId, getLocalNodeInfo());
+  };
+
+  streaming.endCall = function endCall(sinkId) {
+    localCallType = 'none';
+    if (controllerInit) {
+      socketEmit('end call', localNodeId, sinkId, getLocalNodeInfo());
+    }
+  };
+
+  streaming.monitorMotion = function monitorMotion(mediaId, userName) {
+    socketEmit('monitor motion', mediaId, userName);
+  };
+
+  streaming.unmonitorMotion = function unmonitorMotion(mediaId, userName) {
+    socketEmit('unmonitor motion', mediaId, userName);
+  };
+
+  streaming.motionDetected = function signalMotion(moving, movingRatio = 0) {
+    socketEmit('motion detected', moving, movingRatio);
+  };
+
+  streaming.startLocalDummy = canvas => {
+    // Explictly end any existing local stream
+    if (localStream) {
+      mediaState = 'turning off';
+      localStream.getTracks().forEach(track => track.stop());
+    }
+
+    // Call captureStream of dummy canvas element
+    mediaState = 'turning on';
+    const stream = canvas.captureStream();
+
+    for (let track of stream.getTracks()) {
+      if (track.getSettings) {
+        logMessage(`${track.kind} track ${track.id} settings: ${JSON.stringify(track.getSettings())}`);
+      }
+    }
+
+    // Assign the new local stream and register 'onended' handlers
+    mediaState = 'on';
+    localStream = stream;
+    logMessage(`local stream assigned to stream ${stream ? stream.id : 'null'}`);
+    stream.getTracks().forEach(track => {
+      track.onended = () => {
+        if (mediaState !== 'turning off') {
+          lostLocalTrack(track, stream);
+        }
+      };
+    });
+
+    if (controllerInit) {
+      socketEmit('node info', getLocalNodeInfo());
+      startSinks(localNodeId, stream);
+    }
+    streaming.onLocalStreamStart && streaming.onLocalStreamStart(localStream);
+  };
+
+  streaming.getMediaRelays = function getMediaRelays(mediaRelayGroup = 'default') {
+    return new Promise(function (resolve, reject) {
+      try {
+        socketEmit('get media relays', mediaRelayGroup, resolve);
+      }
+      catch (err) {
+        logMessage(err);
+        reject(err);
+      }
+    });
+  };
+
+  streaming.setMediaRelays = function setMediaRelays(mediaRelays, mediaRelayGroup = 'default') {
+    socketEmit('set media relays', mediaRelays, mediaRelayGroup);
+  };
+
+  streaming.getMediaRelayGroups = function getMediaRelayGroups() {
+    return new Promise(function (resolve, reject) {
+      try {
+        socketEmit('get media relay groups', resolve);
+      }
+      catch (err) {
+        logMessage(err);
+        reject(err);
+      }
+    });
+  };
+
+  streaming.useMediaRelayGroup = function useMediaRelayGroup(mediaRelayGroup) {
+    if (mediaRelayGroup === currentMediaRelayGroup) {
+      return;
+    }
+    currentMediaRelayGroup = mediaRelayGroup;
+    logMessage(`using media relay group '${mediaRelayGroup}'`);
+  };
+
+  streaming.deleteMediaRelayGroup = function deleteMediaRelayGroup(mediaRelayGroup) {
+    socketEmit('delete media relay group', mediaRelayGroup);
+  };
+
+  setInterval(async function pollStats() {
+    ++pollStatsCounter;
+    for (let [peerId, peer] of peers) {
+      let statsReport = await peer.conn.getStats(null);
+      let mediaStats = new Map(); // media ID -> Set of stats
+      //let types = new Set();
+      for (let [id, stats] of statsReport) {
+        //types.add(stats.type);
+        if (stats.type === 'inbound-rtp') {
+          let s = {
+            id: stats.id,
+            ssrc: stats.ssrc,
+            statsTimestamp: stats.timestamp,
+            mediaType: stats.mediaType,
+            packetsReceived: stats.packetsReceived,
+            bytesReceived: stats.bytesReceived,
+            packetsLost: stats.packetsLost,
+            fractionLost: stats.fractionLost,
+          };
+
+          let track = statsReport.get(stats.trackId);
+          if (!track || !track.trackIdentifier) {
+            continue;
+          }
+
+          s.kind = track.kind;
+          s.trackTimestamp = track.timestamp;
+          s.trackId = track.trackIdentifier;
+          s.trackEnded = track.ended;
+
+          let transport = statsReport.get(stats.transportId);
+          if (transport) {
+            transportTimestamp: transport.timestamp;
+            dtlsState: transport.dtlsState;
+            bytesSent: transport.bytesSent;
+            transportBytesReceived: transport.bytesReceived;
+          }
+
+          if (stats.mediaType === 'video') {
+            s.firCount = stats.firCount;
+            s.pliCount = stats.pliCount;
+            s.nackCount = stats.nackCount;
+            s.qpSum = stats.qpSum;
+            s.framesDecoded = stats.framesDecoded;
+            s.framesPerSecond = stats.framesPerSecond;
+            if (track) {
+              s.frameWidth = track.frameWidth;
+              s.frameHeight = track.frameHeight;
+              s.framesReceived = track.framesReceived;
+              s.trackFramesDecoded = track.framesDecoded;
+              s.framesDropped = track.framesDropped;
+            }
+          } else {
+            s.jitter = stats.jitter;
+            if (track) {
+              s.jitterBufferDelay = track.jitterBufferDelay;
+              s.audioLevel = track.audioLevel;
+              s.totalAudioEnergy = track.totalAudioEnergy;
+              s.totalSamplesReceived = track.totalSamplesReceived;
+              s.totalSamplesDuration = track.totalSamplesDuration;
+              s.concealedSamples = track.concealedSamples;
+              s.concealmentEvents = track.concealmentEvents;
+            }
+          }
+
+          if (stats.codecId) {
+            let codec = statsReport.get(stats.codecId);
+            s.codecTimestamp = codec.timestamp;
+            s.codec = codec.mimeType;
+            s.payloadType = codec.payloadType;
+            s.clockRate = codec.clockRate;
+          }
+
+          let prev = peer.stats.get(s.id);
+          if (prev) {
+            let statsIntervalMs = s.statsTimestamp - prev.statsTimestamp;
+            s.statsIntervalMs = statsIntervalMs;
+            let bitsReceived = (s.bytesReceived - prev.bytesReceived) * 8;
+            s.kbps = Math.floor(bitsReceived / statsIntervalMs); // bits/ms = kbits/s
+          }
+          peer.stats.set(s.id, s);
+          //peer.inboundStats.set(s.trackId, s.id);
+
+          let [mediaId] = getMediaInfoByTrackId(s.trackId);
+          if (mediaId) {
+            if (mediaStats.has(mediaId)) {
+              mediaStats.get(mediaId).add(s);
+            } else {
+              let newSet = new Set();
+              newSet.add(s);
+              mediaStats.set(mediaId, newSet);
+            }
+          } else {
+            logMessage(`*** receiving inbound stats for unused track ${s.trackId} from ${peerId}`);
+          }
+        }
+      }
+      //logMessage(`... types: ${JSON.stringify(Array.from(types))}`);
+      let reportTime = (pollStatsCounter >= 5);
+      if (reportTime) {
+        pollStatsCounter = 0;
+      }
+      let report = (controllerInit && localNodeId && reportTime);
+      if (report || streaming.onStats) {
+        for (let [mediaId, statsSet] of mediaStats) {
+          //logMessage(`${mediaId} stats: ${JSON.stringify(Array.from(statsSet).map(s => s.id))}`);
+          const statsList = Array.from(statsSet);
+          const audioStats = statsList.find(s => s.mediaType === 'audio');
+          const videoStats = statsList.find(s => s.mediaType === 'video');
+          if (report) {
+            socketEmit('stats', peerId, mediaId, audioStats, videoStats);
+          }
+          if (streaming.onStats) {
+            streaming.onStats(mediaId, audioStats, videoStats);
+          }
+        }
+      }
+    }
+  }, 2000);
+
+  //logMessage(`supported constraints: ${JSON.stringify(Object.entries(navigator.mediaDevices.getSupportedConstraints()).filter(([k,v]) => v).map(([k,v]) => k))}`);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Diagnostic functions
+
+  streaming.localStreamId = () => localStream ? localStream.id : 'no stream';
+  streaming.localStream = () => localStream;
+  streaming.localCanvasStream = () => localCanvasStream;
+
+  streaming.addSink = addSink;
+  streaming.removeSink = removeSink;
+  streaming.closePeer = closePeer;
+  streaming.closeAllPeers = closeAllPeers;
+
+  streaming.abortAudio = () => localStream.getAudioTracks()[0].stop();
+  streaming.abortVideo = () => localStream.getVideoTracks()[0].stop();
+
+  streaming.remoteNodes = remoteNodes;
+
+  streaming.getAndSaveMediaSourceState = mediaId => getAndSaveMediaSourceState(mediaId);
+  streaming.checkMediaSourceState = mediaId => checkMediaSourceState(mediaId);
+
+  streaming.sources = () => {
+    for (let [mediaId] of mediaSource) {
+      console.log(mediaId+': '+JSON.stringify(getAndSaveMediaSourceState(mediaId)));
+    }
+  };
+
+  streaming.getSinks = getSinks;
+  streaming.sinks = () => {
+    for (let [mediaId, sinkIds] of mediaSinks) {
+      //console.log(`${mediaId} sinks: ${JSON.stringify(Array.from(sinkIds))}`);
+      for (let sinkId of sinkIds) {
+        let mediaState = getStreamByMediaId(mediaId) ? 'available' : 'not available';
+        let sinkOnline = isNodeConnected(sinkId) ? 'online' : 'offline';
+        let sinkIceState = 'pending';
+        let sinkSignalingState = 'pending';
+        let peer = peers.get(sinkId);
+        if (peer && peer.conn) {
+          sinkIceState = peer.conn.iceConnectionState;
+          sinkSignalingState = peer.conn.signalingState;
+        }
+        console.log(mediaId+':'+sinkId+' media '+mediaState+', sink '+sinkOnline+', sink ICE '+sinkIceState+', sink signaling '+sinkSignalingState);
+      }
+    }
+  };
+
+  streaming.inspectPeers = function inspectPeers() {
+    return Array.from(peers).map(kv => `${kv[0]}: {signaling ${kv[1].conn.signalingState}, ICE ${kv[1].conn.iceConnectionState}}`);
+  }
+
+  /*
+  streaming.inspectPeers = () => {
+    for (let [peerId, {conn, inboundStreams, outboundMedia}] of peers) {
+      console.log(`peer ${peerId} - ${conn.iceConnectionState}`);
+      for (let receiver of conn.getReceivers()) {
+        console.log(`  receiver for ${receiver.track.kind} track ${receiver.track.id}, enabled ${receiver.track.enabled}, ready state ${receiver.track.readyState}`);
+      }
+      for (let [trackId, stream] of inboundStreams) {
+        console.log(`  inbound track ${trackId} -> stream ${stream.id}`);
+      }
+      for (let sender of conn.getSenders()) {
+        console.log(`  sender for ${sender.track.kind} track ${sender.track.id}, enabled ${sender.track.enabled}, ready state ${sender.track.readyState}`);
+      }
+      for (let [trackId, mediaId] of outboundMedia) {
+        console.log(`  outbound track ${trackId} -> ${mediaId} media`);
+      }
+      for (let stream of conn.getRemoteStreams()) {
+        console.log(`  remote stream ${stream.id}`);
+      }
+    }
+  };
+  */
+
+  streaming.peers = () => peers;
+
+  //streaming.trackClones = () => trackClones;
+
+  streaming.canvasSinks = canvasSinks;
+
+  streaming.mediaRelayGroup = () => currentMediaRelayGroup;
+
+  streaming.rtcBaseConfiguration = () => rtcBaseConfiguration;
+  streaming.rtcConfiguration = () => rtcConfiguration;
+  streaming.iceServers = () => rtcConfiguration;
+
+  //module.exports = streaming;

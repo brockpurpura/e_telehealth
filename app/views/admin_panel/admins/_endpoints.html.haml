@@ -1,0 +1,295 @@
+- if request.env['PATH_INFO'] == "/admin_panel/admin/health" or request.env['PATH_INFO'] == "/fetch_data_for_system_monitor_admin" 
+  - p_action = 'health'
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        .leftside
+          Caregility Health Summary 
+        .rightside
+        .clearfix
+      <!-- Widget content -->
+      .widget-content
+        %div
+          %div.leftside
+            %table.endpoint_settings_table_dimensions.onex
+              %tr
+                %th.endpoint_setting_widget
+                  Activated Devices 
+                %td.vertical_center
+                  .center
+                    - if @endpoint_statuses_count.present?
+                      %p #{@endpoint_statuses_count} 
+                    - else
+                      %p No status info available.
+                  
+              %tr.edit_background.even
+                %th.endpoint_setting_widget
+                  Devices Online
+                %td.none.vertical_center
+                  .center
+                    - if @endpoint_statuses_count.present?
+                      %p #{@online_count} 
+                    - else
+                      %p No status info available.
+
+          %div.leftside
+            %table.endpoint_settings_table_dimensions.onex
+              %tr
+                %th.endpoint_setting_widget
+                  Calls In Progess
+                %td.vertical_center
+                  .center
+                    - if @endpoint_statuses_count.present?
+                      %p #{@in_a_call}  
+                    - else
+                      %p No status info available.
+
+
+              %tr.edit_background.even
+                %th.endpoint_setting_widget
+                  Devices In Alarm 
+                %td.none.vertical_center
+                  .center
+                    - if @endpoint_statuses_count.present?
+                      %p #{@devices_in_alarm} 
+                    - else
+                      %p No status info available.
+- else 
+  - p_action = 'endpoints'
+.col-md-12.min_height
+  <!-- Widget -->
+  .widget
+    <!-- Widget head -->
+    .widget-head
+      Caregility
+      .rightside
+        - if p_action == 'health'
+          Matching Rooms:        #{@endpoints.univago_endpoints.count}
+        - else
+          = link_to "Download", endpoints_admin_panel_admin_path(:download_rooms=>'true', :channel => @channel_value, :customer => @customer_value, :search =>  @search_value) 
+          &nbsp;/&nbsp;
+          = link_to "Saved Reports", saved_room_reports_admin_panel_admin_path
+        
+          
+      <div class="clearfix"></div>
+    <!-- Widget content -->
+    .widget-content
+      -if @endpoints.univago_endpoints.present?
+
+        - @order_dir = params[:order_dir] == '1' ? '0' : '1'
+
+        %table{:class=>'table table-bordered', :id=>'endpoint_table'}
+          %thead
+            %tr
+              - if current_controller == 'admins'
+                %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("chan", @order_dir, @search_value)}
+                  Channel
+              - if current_controller == 'cgas' or current_controller == 'admins'
+                %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("cust", @order_dir, @search_value)}
+                  Customer
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("loc", @order_dir, @search_value)}
+                Location 
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("unit", @order_dir, @search_value)}
+                Unit 
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("room", @order_dir, @search_value)}
+                Room 
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("id", @order_dir, @search_value)}
+                .center
+                  Device ID                
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("type", @order_dir, @search_value)}
+                .center
+                  Type 
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("version", @order_dir, @search_value)}
+                .center
+                  Version
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("incall", @order_dir, @search_value)}
+                .center
+                  In Use 
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("mode", @order_dir, @search_value)}
+                .center
+                  Mode 
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("last_heard", @order_dir, @search_value)}
+                .center
+                  Last Heard From
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("ack", @order_dir, @search_value)}
+                .center 
+                  Acknowledged
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("notes", @order_dir, @search_value)}
+                .center 
+                  Notes
+              %th{:class => 'clickable-header', 'data-href' => determine_endpoints_path("status", @order_dir, @search_value)}
+                .center
+                  Status 
+          %tbody
+            -@endpoints.each_with_index do |point, idx|
+              - if !point.client.nil?
+                - @form_name = '#endpoint_table_' + idx.to_s
+                %tr{:class => idx%2==0 ? 'even' : 'odd', :id=>point.id, :onclick=>"$('#{@form_name}').submit()"}             
+                  - if current_controller == 'admins'
+                    %td.vertical_center
+                      #{point.client.client_admin.name}
+                  - if current_controller == 'cgas' or current_controller == 'admins'
+                    %td.vertical_center
+                      #{point.client.client_name}
+                  %td.vertical_center
+                    #{point.room.building.name}
+                  %td.vertical_center
+                    #{point.room.name}
+                  %td.vertical_center
+                    #{point.name}
+                  %td.vertical_center
+                    .center
+                      - if !point.endpoint_status.nil?
+                        %p #{point.id}                      
+                  
+                  %td.vertical_center
+                    #{point.device_type_common_name}
+                  %td.vertical_center
+                    .center
+                      - if point.endpoint_status.nil?
+                        Not Configured
+                      - else 
+                        - if point.endpoint_status.version.blank?
+                          Unknown
+                        - elsif (point.endpoint_status.version.to_s == Configurable.production_version.to_s)
+                          <i class="fa fa-check" aria-hidden="true"></i> ( #{point.endpoint_status.version.to_s} )
+                        - elsif !point.endpoint_status.nil? and point.endpoint_status.version.to_d < Configurable.production_version.to_d
+                          .center
+                            %div
+                              %i.fas.fa-exclamation-triangle{:style => "color: red;"}
+                              %span{:style => "color: red;"} Update
+                        - elsif !point.endpoint_status.nil? and point.endpoint_status.version.to_d > Configurable.production_version.to_d
+                          Version Ahead
+                        - else
+                          N/A 
+                    .hidden
+                      = form_tag endpoint_settings_admin_panel_admin_path, :method=>'post', :id=>'endpoint_table_' + idx.to_s do 
+                        =hidden_field_tag :endpoint_id, point.id
+                  %td.vertical_center
+                    .center
+                      // name of clinician
+                      - if point.endpoint_status.nil?
+                        n/a
+                      - else 
+                        - if point.endpoint_status.in_a_call.to_s == '1'
+                          - if point.named_clinician_in_call.to_s.strip != ""
+                            #{point.named_clinician_in_call.to_s}
+                          - else 
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                        - if point.endpoint_status.esitter_list.present?
+                          #{ point.endpoint_status.named_observers_in_session }
+                  %td.vertical_center
+                    .center
+                      - if point.is_live?
+                        #{point.endpoint_status.nil? ? 'n/a' : point.under_maintenance.to_s == '1' ? 'Maint' : ''}
+                      - else 
+                        Not Live
+
+                  %td.vertical_center
+                    .center
+                      - if point.endpoint_status.nil?
+                        n/a
+                      - else
+                        #{time_ago_in_words(point.endpoint_status.updated_at) + ' ago'}
+                  %td 
+                    .center 
+                      - if point.acknowledged.nil?
+                        n/a 
+                      - else 
+                        #{point.acknowledged.email}
+                  %td 
+                    .center  
+                      - if point.notes.present? 
+                        #{point.notes[0,10].concat("...")}
+                  
+                  %td.vertical_center
+                    .center
+                      - if point.endpoint_status.nil?
+                        .flash_button.not_configured
+                      - else
+                        - if point.is_healthy_without_version?
+                          .flash_button.healthy
+                        - else
+                          -if point.is_unhealthy? 
+                            .flash_button.warning               
+                          - else
+                            .flash_button.warning
+      -else
+        %p.no_matching_info No matching information
+
+.pagination_tr.monitoring_page
+  .center
+    = will_paginate(@endpoints, renderer: CustomLinkRenderer, :params => { :controller => "admin_panel/admins", :action => p_action, :channel_value => @channel_value, :search_value => @search_value, :customer_value => @customer_value})
+
+.col-md-12.min_height
+  <!-- Widget -->
+  .widget
+    <!-- Widget head -->
+    .widget-head
+      Standards Based 
+      .rightside
+        Matching Rooms:        #{@std_endpoints.count}
+      <div class="clearfix"></div>
+    <!-- Widget content -->
+    .widget-content 
+      -if @std_endpoints.present?
+        %table{:class=>'table table-bordered', :id=>'std_table'}
+          %thead
+            %tr
+              - if current_controller == 'admins'
+                %th.std_channel
+                  Channel
+              - if current_controller == 'cgas' or current_controller == 'admins'
+                %th.std_channel
+                  Customer
+              %th
+                Location 
+              %th
+                Unit 
+              %th 
+                Room 
+              %th 
+                Protocol 
+              %th 
+                Address 
+          %tbody
+            -@std_endpoints.each_with_index do |point, idx|
+              - @form_name = '#std_table_' + idx.to_s
+              - if !point.client.nil?
+                %tr{:class => idx%2==0 ? 'even' : 'odd', :id=>point.id, :onclick=>"$('#{@form_name}').submit()"}    
+                  - if current_controller == 'admins'
+                    %td.vertical_center
+                      #{point.client.client_admin.name}
+                  - if current_controller == 'cgas' or current_controller == 'admins'
+                    %td.vertical_center
+                      #{point.client.client_name}
+                  %td.vertical_center
+                    #{point.room.building.name}
+                  %td.vertical_center
+                    #{point.room.name}
+                  %td.vertical_center
+                    #{point.name}
+                  %td.vertical_center
+                    #{point.dial_out_type}
+                  %td.vertical_center
+                    #{point.alias}
+                    .hidden
+                      = form_tag endpoint_settings_admin_panel_admin_path, :method=>'post', :id=>'std_table_' + idx.to_s do 
+                        =hidden_field_tag :endpoint_id, point.id
+      -else
+        %p.no_matching_info No matching information
+
+
+<script>$(document).ready(function() { $("#std_table").tablesorter(); } );</script> 
+
+:javascript
+  jQuery(document).ready(function($) {
+      $(".clickable-header").mouseover(function() {
+        $(this).css('cursor', 'pointer');
+      });
+      $(".clickable-header").click(function() {
+        window.location = $(this).data("href");
+      });
+  });

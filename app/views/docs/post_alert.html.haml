@@ -1,0 +1,52 @@
+%div.docs_text.col-md-6
+  %h1 Trigger a Room Alert 
+  %hr
+  %p You can initiate an alert for a specific room with a POST call to the API.  You must include your API username and API password in the Header.  
+  %hr
+
+  %h5 HTTP POST to Trigger Alert 
+  %p To trigger an alert, make an HTTP POST request to the call resource URI:
+  %pre.notranslate.http-request https://healthcare.univago.com/api/post_alert
+  %h5 POST Parameters
+  %table.docs_table
+    %thead
+      %th Parameter
+      %th Status 
+      %th Description
+    %tbody
+      %tr
+        %td patient_unit_id 
+        %td * Required 
+        %td The unique device ID of the patient unit 
+      %tr
+        %td instance 
+        %td * Required 
+        %td The unique instance of the alert posted 
+  %h5 Request Response 
+  %h4 Successful Result -- JSON response - 200 Header status OK
+  %p Example: {"message":"Alert was successfully posted"}
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Room not configured or offline, alert was not launched"}
+  %p Example: {"message":"Missing instance parameter"}
+  %h4 Unsuccessful Result -- JSON response - 404 Header status Bad Request 
+  %p Example: {"message":"Invalid Credentials"}
+  %p Example: {"message":"No room could be identified using the supplied room identifiers"}
+  %p Example: {"message":"Alert instance already used"}
+
+
+
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example:
+    %span curl  -u Mm4cbQ:Tf0sTHtH_70  -H "Content-Type: application/json, Accept: application/json" -X POST -d '{"patient_unit_id":"6","instance":"20201011121234"}' https://healthcare.univago.com/api/post_alert
+    %span Where:
+    %span "Mm4cbQ" = your api username 
+    %span "Tf0sTHtH_70" = your api password
+    %span "6" = your corresponding Endpoint (Room) ID
+    %span "20201011121234" = unique instance of alert 
+    %span Example Result: 
+    %span {"message":"Alert was successfully posted"}
+
+
+

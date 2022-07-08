@@ -1,0 +1,33 @@
+#bookmarks{:role=>"dialog", :'aria-label'=>"bookmarks"}
+  .bookmark_mover.fa.fa-arrows.hud_visuals.fade#move_bookmark{:tabindex=>"0", :'aria-label'=>"move bookmarks", :role=>"application"}
+  .bookmark_add_detail
+    .bookmark_add_detail_middle
+      =text_field_tag :'search-box', '', :class=>'bookmark-search-box bookmark_search_box_open', :spellcheck=>'false', :name=>'q', :autocomplete=>'off', :placeholder=> "Add Bookmark", :onfocus=>"this.placeholder = ''", :id=>'add_bookmark_field', :'aria-label'=>"add bookmark", :maxlength=>"254" 
+      =label_tag :'search-box' , :onclick=>"save_bookmark()" do
+        %button.fa.fa-thumbtack.add_bookmark.fa-2{:'aria-label'=>"add", :title=>"Add Bookmark"}
+  
+  .bookmark_inner
+    - if !@endpoint.nil? or !endpoint.nil?
+      - @this_endpoint = endpoint || @endpoint
+      %ul
+        %li
+          =link_to 'javascript:;',  :onclick => "go_to_bookmark('Home')" do 
+            Home
+          .rightside
+            =label_tag :'search-box' , :onclick=>"save_home_bookmark()" do
+              %button.fa.fa-thumbtack.add_bookmark.re_pin.fa-2x{:'aria-label'=>"save", :id => "repin_home", :title => "Repin Home"}
+        - Bookmark.where('endpoint_id = ?', @this_endpoint.id).order(name: "ASC").each_with_index do |book,idx|
+          %li
+            -@bm = 'bm_'+idx.to_s
+            -@bm_save = 'save_bm_'+idx.to_s
+            -@bm_delete = 'delete_bm_'+idx.to_s
+            =link_to 'javascript:;',  :onclick => "go_to_bookmark('" + book.internal_name + "')" do 
+              #{book.name}
+            %button{:class=>'bookmark_list_delete fa fa-times', :onclick=>"yes_delete_bookmark('"+book.id.to_s+"')", :id=>@bm_save, :'aria-label'=>"delete", :title => "Delete #{book.name} Bookmark"}
+            %p.hidden{:id=>'id_'+@bm} #{book.id}
+
+  %button{:id=>'close_bookmark', :class => 'fa fa-times-circle close_widget hud_visuals fade', :onclick=> "toggle_widget('bookmark_partial', 'see_more')", :'aria-label'=>"close bookmarks"}      
+
+:javascript
+    var windows = document.querySelectorAll('.bookmark_partial');[].forEach.call(windows,function(win){var title = win.querySelector('.bookmark_mover'); title.addEventListener('mousedown',function(evt){ var real = window.getComputedStyle(win), winX = parseFloat(real.left), winY = parseFloat(real.top); var mX = evt.clientX, mY = evt.clientY; document.body.addEventListener('mousemove',drag,false); document.body.addEventListener('mouseup',function(){ document.body.removeEventListener('mousemove',drag,false); },false); function drag(evt){ win.style.left = winX + evt.clientX-mX + 'px'; win.style.top  = winY + evt.clientY-mY + 'px'; }; },false); });
+

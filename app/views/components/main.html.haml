@@ -1,0 +1,74 @@
+.component_style
+  = form_tag room_tech_path  do 
+    = submit_tag "Return to Technician", :class => "top_left_nav"
+
+  = form_tag destroy_admin_session_path, :method=>:delete  do 
+    = submit_tag "Logout", :class => "top_right_nav"    
+
+  - if @notice.present?
+    %p#notice= @notice
+  - if @error_notice.present? 
+    %p#error_notice= @error_notice
+  - if @component.present?
+    - if @component.errors.any?
+      .error_outline
+        %h2
+          = pluralize(@component.errors.count, "error")
+          prohibited this component from being saved:
+        %ul
+          - @component.errors.full_messages.each do |message|
+            %li= message
+    
+  .component_wrapper 
+    %h2 #{@endpoint.room_info}
+    - if !@active_components.present?
+      .center
+        %h3.no_components No Active Components
+    - else
+      %h3 Active Components    
+      %ul 
+        - @active_components.each do |component|
+          %li 
+            .component_details
+              = form_tag details_components_path  do 
+                = hidden_field_tag :endpoint_id, @endpoint.id
+                = hidden_field_tag :component_id, component.id                  
+                = submit_tag component.part_type, :class => ""
+
+            .component_details.action{:style => "width: unset;"}
+              = form_tag  main_components_path  do 
+                = hidden_field_tag :endpoint_id, @endpoint.id
+                = hidden_field_tag :archive, "true"
+                = hidden_field_tag :component_id, component.id
+                %button{:type => "submit", :confirm => "Are you sure?"}
+                  Archive
+                  .fas.fa-archive
+
+    - if @retired_components.any?
+      %h3 Archived Components    
+      %ul 
+        - @retired_components.each do |component|
+          %li 
+            .component_details
+              = form_tag details_components_path  do 
+                = hidden_field_tag :endpoint_id, @endpoint.id
+                = hidden_field_tag :component_id, component.id                  
+                = submit_tag component.part_type, :class => ""
+            .component_details.action
+              = component.retired_at.strftime("%b %d, %Y")
+    %br 
+    %br  
+    %br
+    %br
+
+  .component_footer
+    - if current_admin.is_super_admin? 
+      .leftside
+        = form_tag add_component_type_components_path  do 
+          = hidden_field_tag :endpoint_id, @endpoint.id
+          = submit_tag "Add Component Type"
+    .rightside
+      = form_tag add_component_components_path  do 
+        = hidden_field_tag :endpoint_id, @endpoint.id
+        = submit_tag "Add Component" 
+

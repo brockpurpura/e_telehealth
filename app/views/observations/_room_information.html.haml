@@ -1,0 +1,60 @@
+- @endpoints.each_with_index do |ep, idx|
+  %div{:id=>'endpoint_info_'+ep.machine_name, :class=> idx == 0 ? 'endpoint_info_class' : 'endpoint_info_class hidden '}
+    %p{:id=>'ep_room_name_' + ep.machine_name, :class=>'hidden'} #{ep.name}
+    .tab_data_row
+      .tab_data_left_right.leftside
+        = check_box_tag :bed_name_check, "", true, :id=>'ep_bed_name_check_'+ep.machine_name
+      .tab_data_center.leftside
+        %p.title.inner Bed name
+    .tab_data_row
+      .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+        = check_box_tag :bed_name_gap, "", :style => "", :checked => "checked"
+      .tab_data_center.leftside
+        = text_field_tag :name, "", :placeholder => "Bed Name", :value => "", :id=>'ep_bed_name_'+ep.machine_name, :autocomplete=>'off', :maxlength=>"50", :onkeyup=>"update_name_counter(this, #{ep.id}, true)"
+        .leftside
+          .counter_style{:id=>'bed_name_counter_' + ep.id.to_s} 0/50
+
+    .tab_data_row.height_20
+      .tab_data_left_right.leftside
+        = check_box_tag :name_check, "", true, :id=>'ep_name_check_'+ep.machine_name             
+      .tab_data_center.leftside
+        %p.title.inner Name   
+    .tab_data_row
+      .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+        = check_box_tag :name_gap, "", :style => "", :checked => "checked" 
+      .tab_data_center.leftside  
+        = text_field_tag :name, "", :placeholder => "Patient's Name", :value => "", :style => "float: left;", :id=>'ep_name_'+ep.machine_name, :autocomplete=>'off', :maxlength=>"50", :onkeyup=>"update_name_counter(this, #{ep.id})"
+        .leftside
+          .counter_style{:id=>'name_counter_' + ep.id.to_s} 0/50
+  
+    .tab_data_row.height_20
+      .tab_data_left_right.leftside
+        = check_box_tag :notes_check, "", false, :id=>'ep_notes_check_'+ep.machine_name, :checked => "checked"             
+      .tab_data_center.leftside
+        %p.title.inner Notes (Contact, Languages, etc)    
+    .tab_data_row
+      .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+        = check_box_tag :notes_gap, "", :style => ""             
+      .tab_data_center.leftside  
+        = text_field_tag :notes, "", :placeholder => "Patient Notes", :value => "",  :id=>'ep_notes_'+ep.machine_name, :autocomplete=>'off' #, :onkeyup=>"update_note_counter(this, #{ep.id})"
+      .tab_data_left_right.leftside{ :style => "display: block;"}
+        .counter_style{:id=> 'notes_counter_' + ep.id.to_s}   
+    .tab_data_row.height_20
+      .tab_data_left_right.leftside
+        = check_box_tag :profile_check, "", false , :id=>'ep_profile_check_'+ep.machine_name, :checked => "checked"           
+      .tab_data_center.leftside
+        %p.title.inner Patient Profile   
+    .tab_data_row
+      .tab_data_left_right.leftside{ :style => "display: block; visibility: hidden;"}
+        = check_box_tag :profile_gap, "", :style => ""         
+      .tab_data_center.leftside 
+        %div   
+          .leftside
+            .dropdowns
+              %label
+                = select_tag :risk_selection, options_for_select([['Fall/Elopement', 'Fall/Elopement'], ['Isolation/COVID-19', 'Isolation/COVID-19'], ['Patient Behavior', 'Patient Behavior'], ['Physiological Status', 'Physiological Status'], ['Pulling at lines/tubes', 'Pulling at lines/tubes'], ['Self-harm','Self-harm'], ['Stroke management','Stroke management'], ['Visitor behavior','Visitor behavior'], ['Other','Other']], 1), :style => "width: 180px;" , :id=> 'ep_profile_' + ep.machine_name
+          .leftside
+            .dropdowns
+              %label
+                = select_tag :priority_selection, options_for_select([['LOW Risk – Green', 1], ['MEDIUM Risk – Yellow', 2], ['HIGH Risk - Red', 3]], 1), :style => "width: 180px; margin-left: 15px;", :id=>'ep_priority_' +ep.machine_name         
+  

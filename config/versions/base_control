@@ -1,0 +1,5 @@
+Package: e-telehealth
+Version: {{VERSION}}  
+Architecture: amd64
+Maintainer: Caregility 
+Description: e-telehealth

@@ -1,0 +1,21 @@
+:javascript
+  invited = true;
+  api_call = false;
+  e_api_call = false;
+  isMeeting = true;
+.hidden
+  -if !@api_call_expired
+    %p#call_alias #{@call_alias}
+    %p#call_token #{@call_token}
+    %p#cid #{@vmr.used_by_cid}
+    %p#appt_time #{@vmr.appt_time}
+    %p#org_id #{@org_id}
+    %p#server_name #{Configurable.server_name}
+    %p#from_invite true
+    %p#main_participant init
+    - if user_signed_in?
+      %p#current_user_id #{current_user.id}
+=render :partial=>'meetings/conference_view' , :locals=> {:endpoint => @endpoint, :current_user => @current_user, :tunnel=>@tunnel, :call_alias => @call_alias} 
+ 
+
+ 

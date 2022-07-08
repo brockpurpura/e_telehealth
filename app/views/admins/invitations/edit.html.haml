@@ -1,0 +1,29 @@
+= render "application/caregility_greeting"
+
+.admin_provisioning
+  .univago_login_form   
+    = form_for resource, :as => resource_name, :url => invitation_path(resource_name), :html => { :method => :put } do |f|
+      .center
+        = devise_error_messages! 
+        = f.hidden_field :invitation_token 
+   
+      - if f.object.class.require_password_on_accepting 
+        %br
+        Password
+        = f.password_field :password, :class=>'form-control login_form login_edittext'
+        %br
+        %br
+        Password Confirmation 
+        = f.password_field :password_confirmation, :class=>'form-control login_form login_edittext'
+        %br
+        %br
+        .center
+          = f.submit "Submit" , :class=>'btn btn-info btn_admin admin_signin_submit'
+      %br
+      %br
+      .center.admin_caption 
+        =render :partial => "/homes/contact"  
+
+      %br
+      .admin_privacy
+        = render :partial => '/homes/privacy'

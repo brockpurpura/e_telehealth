@@ -1,0 +1,30 @@
+#alerts{:role=>"dialog", :'aria-label'=>"Notifications",:class=> (@popup || (@open == 'open' and @alerts.count > 0)) ? '' : 'hidden ', :style=> (@popup || (@open=='open' and @alerts.count > 0)) ? 'opacity:1;' : 'opacity:0;'}
+  - if (@popup || (@open == 'open' and @alerts.count > 0))
+    :javascript
+      $('#notifs').attr("aria-expanded","true");
+      
+  - if @alerts
+    .leftside
+      .alert_mover.fa.fa-arrows.hud_visuals.fade#move_alert{:tabindex=>"0", :'aria-label'=>"move notifications", :role=>"application", :class => (@endpoint.present? ? '' : "")}
+    .alert_inner
+      - if @alerts.count < 1
+        %p{:tabindex=>"0"} No notifications at this time. 
+      - else
+        %ul
+          -@alerts.each do |alert|
+            %li
+              .alert_functions
+                %button{:class => 'fa fa-phone call_room', :onclick=> "dial_from_alert(" + alert.endpoint.id.to_s + ")", :'aria-label'=>"call room", :title => "Call Room" }
+              .alert_text_display
+                %h2 #{alert.created_at.strftime("%B %d, %Y %H:%M:%S %Z")}
+                %p #{alert.room_info}
+              .alert_functions
+                %button{:class => 'fa fa-minus-circle remove_notification', :onclick=>"remove_alert(" + alert.endpoint.id.to_s + ", " + current_user.id.to_s + ")", :'aria-label'=>"remove alert", :title=>"Remove Alert"}
+    %p#alert_count.hidden #{@alerts.count}
+    .rightside 
+      %button{:id=>'close_alerts', :class => (@endpoint.present? ? 'fa fa-times-circle close_widget' : 'fa fa-times-circle close_widget '), :onclick=> "toggle_widget('alerts', 'notifs')", :'aria-label'=>"close notifications"}
+
+
+:javascript
+    var windows = document.querySelectorAll('#alerts');[].forEach.call(windows,function(win){var title = win.querySelector('.alert_mover'); title.addEventListener('mousedown',function(evt){ var real = window.getComputedStyle(win), winX = parseFloat(real.left), winY = parseFloat(real.top); var mX = evt.clientX, mY = evt.clientY; document.body.addEventListener('mousemove',drag,false); document.body.addEventListener('mouseup',function(){ document.body.removeEventListener('mousemove',drag,false); },false); function drag(evt){ win.style.left = winX + evt.clientX-mX + 'px'; win.style.top  = winY + evt.clientY-mY + 'px'; }; },false); });
+

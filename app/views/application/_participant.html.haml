@@ -1,0 +1,65 @@
+#p_list.hidden
+  - @phone_numbers = PhoneNumber.all
+  #invite_participant_section
+    %h2.slide_bar_title.collapsible{:onclick => "collapse_participant_sidebar('participant')"} Invite Participant
+    .collapse_button_wrapper 
+      %button.collapse_button.i.far.fa-minus{:id => "participant_fa", :'aria-label'=>"minimize participant invite", :title => "Minimize", :onclick => "collapse_participant_sidebar('participant')"}
+    #add_participant{:style => "height: 269px;"}
+      .invite_area#participant_invite
+        =label_tag :invite_type, "Participant Invite Type", :class=>'height_10 participant_sidebar', :for=> "invite_type_select"
+        .dropdowns
+          %span{:title=>"Participant Invite Type"}
+            - invite_options = "<option class='invite_option'>SIP</option><option class='invite_option'>H.323</option><option class='invite_option'>LYNC/SKYPE </option><option class='invite_option'>EMAIL</option>"
+            - if @phone_numbers.present?
+              -invite_options +="<option class='invite_option'>TEXT</option>"
+            -invite_options += "<option class='invite_option'>TELEPHONE</option>"
+  
+            - if Configurable.pstn_invite_enabled == 1
+              =select_tag :invite_type, invite_options.html_safe, :id=>'invite_type_select', :onchange=>'changeAddressPlaceholder()'
+            - else 
+              =select_tag :invite_type, invite_options.html_safe, :id=>'invite_type_select', :onchange=>'changeAddressPlaceholder()'
+        =label_tag :'search-box', "Participant Address", :class=>'participant_sidebar'
+        .participant_invite_input
+          #flag_selector.hidden
+            - if @phone_numbers and @phone_numbers.count > 0
+              - if @phone_numbers.all.count == 1
+                .static_flag
+                  %i.flag-icon{:class => "flag-icon-#{@phone_numbers.first.flag_code}", :id => "selected_flag_code"}
+                  %p{:id => "selected_dial_code"} #{@phone_numbers.first.dial_code}
+                  %p.hidden{:id => "selected_dial_format"} #{@phone_numbers.first.format}
+    
+              - else
+                .input_with_flag 
+                  %button{"aria-expanded" => "false", "data-toggle" => "dropdown", :role => "button", :type => "button"}
+                    %i.flag-icon{:class => "flag-icon-#{@phone_numbers.first.flag_code}", :id => "selected_flag_code"}
+                    %p{:id => "selected_dial_code"} #{@phone_numbers.first.dial_code}
+                    %span.caret
+                    %p.hidden{:id => "selected_dial_format"} #{@phone_numbers.first.format}
+
+                  .dropdown-menu{:role => "combobox"}
+                    %ul{"aria-expanded" => "false", :role => "listbox"}
+                      - @phone_numbers.each do |pn|
+                        %li{"data-original-index" => "0"}
+                          %button.option-with-flag{"aria-disabled" => "false", "aria-selected" => "false", :role => "option", :tabindex => "0", :onclick => "update_sms_dial_code('#{pn.dial_code}','#{pn.flag_code}', '#{pn.format}')"}
+                            %i.flag-icon{:class=>"flag-icon-#{pn.flag_code}"} 
+                            %p #{pn.dial_code} 
+    
+          = text_field_tag :'search-box', '', :class=>'search-box ', :spellcheck=>'false', :placeholder=>"name@domain", :onfocus=>"this.placeholder = ''", :name=>'q', :autocomplete=>'off', :id=>'search-box', :onclick=>"open_add_person('#search-box')"
+        .invite_button_wrapper
+          %button.form_button{:onclick=>"addPerson()", :id => "addParticipantBtn"}  
+            Invite
+    
+  #translator_section
+    = render :partial => 'application/translator'
+            
+  #side_part_list 
+    %h2.slide_bar_title Participant List 
+    %hr 
+    %ul#side_part_list_scroll
+      %p.hidden{:id=>'p3'}
+  %p#initial_participant_sidebar_toggle.hidden false 
+ 
+:javascript 
+  if (is_safari) {
+    $('#search-box').addClass('is_safari_search_box');
+  }

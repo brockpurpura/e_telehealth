@@ -1,0 +1,11 @@
+
+#c_list.hidden
+  %div#side_part_list
+    %h2#chatRoomCount.slide_bar_title Chat Room 
+    %ul#chat{:class=> is_mobile_device? ? 'mobile' : ''}
+  #chat_room_text_div
+    #_text.center
+      = text_field_tag :chat_text, '', :title=>"Chat Text Field", :autocomplete => 'off', :onkeydown=> "chatActivity(event)", :class=>'user_select_enabled'
+    .invite_button_div
+      %button.btn_login.setting_login.chat_view{:onclick=>"enterChatText()"}
+        Send Text 

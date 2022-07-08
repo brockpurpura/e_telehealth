@@ -1,0 +1,590 @@
+$outline-color: #317ab9;
+
+
+@font-face {
+  font-family: "Roboto";
+  src: font-url( asset-path("Roboto-Light.ttf"));
+}
+
+.center { text-align: center; }
+.leftside { float: left; }
+
+body {
+  margin: 0;
+  font-family: "Roboto";
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 18px;
+  color: #404040;
+  height: 100%;
+  background-color: white;
+}
+
+body.using-mouse :focus {
+  outline: none !important;
+}
+
+p, h1, h2, h3, h4, h5, select, input, a, a:link, a:hover, a:focus {
+  font-family: 'Roboto';
+  &:focus {
+    outline: 2px solid $outline-color !important; 
+    outline-offset: 4px;
+  }
+}
+
+p {
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 18px;
+  color: #404040;
+  height: 100%;
+  &.minimum_pass_length {
+    color: #757575;
+    font-size: 11px;
+  }
+  &.reset_description {
+    color: #404040;
+    line-height: 18px;
+    font-weight: normal;
+    margin: 0;
+    font-family: "Roboto";
+  }
+}
+
+a {
+  color: #336699;
+  font-size: 13px;
+  font-weight: 400;
+  &:focus {  color: #336699;  outline-offset: 4px;  }
+  &:hover {  color: #336699;  text-decoration: underline }
+  img {
+    max-width: 78%;
+    border: none; 
+  }
+}
+
+h1 {
+  font-size: 20px;
+  line-height: 23px;
+  color: #767676;
+  padding: 2px 0px;
+  margin: 2px 0px;
+  font-weight: 600;
+}
+
+label {
+  font-weight: 400;
+  &.error {
+    color: red; 
+    font-size: 12px; 
+    margin: 10px 0px 0px 0px;
+  }
+}
+
+input[type=text], input[type=password], input[type=email] {
+  height: 37px;
+  margin-top: 10px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 22.5px;
+  color: #333333;
+  padding-left: 10px;
+  box-shadow: none;
+  border-radius: 5px;
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  transition: none;    
+  &:focus {
+    outline-offset: 4px;
+  }
+  &.invalid {
+    border-bottom: 2px solid red;
+  }
+  &.invalid::-webkit-input-placeholder {
+    color: red;
+  }
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-indent: 1px;
+  text-overflow: '';
+  
+  height: 37px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 22.5px;
+  color: #333333;
+  padding-left: 10px;
+  box-shadow: none;
+  border-radius: 5px;
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  transition: none;    
+  &:focus {
+    outline-offset: 4px;
+  }
+  &.invalid {
+    border-bottom: 2px solid red;
+  }
+}
+
+button, input[type=submit], #link_as_button {
+  width: 185px;
+  padding: 6px;
+  color: white;
+  background-color: #007cc2;
+  font-size: 16px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-bottom: 0;
+  font-weight: normal;
+  text-align: center;
+  vertical-align: middle;
+  background-image: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  line-height: 1.428571429;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  &:focus  {
+    background-color: #0082c8;
+    outline-offset: 4px;
+    border: none;
+  }
+  &:hover {
+    background-color: #0082c8;
+  }
+}
+ 
+img {
+  .uhe { max-height: 250px; }
+}
+
+p {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 22.5px;
+  color: #333333;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  margin-top: 10px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 400;
+  padding-left: 10px;
+  display: block;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #555555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  &:focus {
+    outline-offset: 4px;
+  }
+}
+
+
+.error_explanation {
+
+  border: 2px solid #ef0000;
+  border-radius: 5px;
+  padding: 15px;
+  margin-top: 40px;
+  &.success {
+    border: none;
+    h2 {
+      color: green;
+    }
+  }
+  
+  h2 {
+    font-size: 16px;
+    color: #ef0000;
+    margin: 0px;
+    font-size: 15px;
+    margin: auto;
+    text-align: center;
+    outline: 0;
+    font-size: 15px;
+    &.success {
+      color: green;
+    }
+    &:focus {
+      outline: 0;
+    }
+  }
+}
+
+.univago_login_logo {
+  width: 30%; 
+  margin: 55px auto 50px;
+  height: 300px;
+  text-align: center;
+  
+  img {
+    height: 300px;
+  }
+}
+
+
+.univago_login_form {
+  width: 35%; 
+  margin: auto;
+}
+
+.privacy {
+  width: 100%;
+  margin-top: 28px;
+  float: left;
+  margin: auto;
+  text-align: center;
+  .privacy_wrapper {
+    width: 264px;
+    margin: auto;
+  }  
+  button {
+    height: 47px;
+    width: 145px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    margin-right: 15px;
+    &:focus {
+      outline: 2px solid $outline-color !important; 
+      outline-offset: 4px;
+    }
+  }
+  p.midline {
+    font-size: 15px;
+    margin-top: 10px;
+  }
+  a.privacy_link {   
+    margin-top: 12px;
+    margin-left: 15px;
+    display: inline-block;
+  }
+}
+
+.copyright {
+  margin-top: 20px;
+  display: inline-block;
+  color: black;
+  font-size: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.menu_select {
+  margin-top: 10px;
+}
+
+.dropdowns {
+  label {
+    position: relative;
+    width: 100%;
+    margin-bottom: 0px;
+  }
+
+  label:before {
+    content: '';
+    right: 4px;
+    top: 0px;
+    width: 23px;
+    height: 37px;
+    position: absolute;
+    pointer-events: none;
+    display: block;
+  }
+  
+  label:after {
+    content: "";
+    color: #777;
+    right: 13px;
+    top: 16px;
+    position: absolute;
+    border-top: solid 4px #777777;
+    border-left: solid 4px transparent;
+    border-right: solid 4px transparent;
+    pointer-events: none;
+  }
+}
+
+
+// Rating System 
+
+.ratings {
+  width: 100%;
+  display: block;
+  float: left;
+  
+  i.fal.fa-times, i.fas.fa-phone {
+    color: #767676;
+    font-size: 80px;
+    transform: rotate(225deg);
+
+  }
+
+  h1 {
+    font-size: 30px;
+    margin: 120px 0px 40px;
+    line-height: 40px;
+  }
+
+  h2 {
+    font-size: 15px;
+    margin: 55px 0px 10px;
+    text-align: center;
+    color: #767676;
+    font-weight: 600;
+  }
+  
+  a {
+    font-size: 15px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  #ratingSubmitted {
+    width: 247px;
+    margin: 20px auto 10px; 
+    text-align: center;
+
+    .response_wrapper {
+      height: 35px;
+      width: 160px;
+      margin: 20px auto;
+ 
+      i.fas.fa-star {
+        color: gold;
+        float: left;
+        font-size: 35px;
+      }
+
+      p {
+        font-family: 'Roboto';
+        font-size: 15px;
+        color: #767676;
+        float: left;
+        text-align: center;
+        margin: 8px 0px 0px 12px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  #ratingSystem {
+    width: 247px;
+    margin: 20px auto 10px; 
+    text-align: center;
+
+    label.error {
+      color: red;
+      font-size: 12px;
+      margin: 0px 0px 10px 0px;
+      width: 247px;
+      display: inline-flex;
+      margin-left: 6px;
+      float: left;
+    }
+    
+    button {
+      margin-top: 20px;
+    }
+
+    ul {
+      list-style: none;
+      height: 45px;
+      border-radius: 5px;
+      margin: 20px auto 10px;
+      &.error {
+        border-bottom: 2px solid red;
+        border-radius: 5px;
+      }
+
+      li {
+        float: left;
+        .error {
+          border-bottom: 2px solid red;
+        }
+      }
+
+      label { 
+        color: #767676;
+        font-size: 35px;
+        background: white;
+        padding: 0px 4px;
+        border-radius: 15px;
+        transition: 0.1s ease-in-out;
+        margin: 0;
+
+        &:hover {
+          background-color: transparent;
+          color: gold;   
+          transform: translate(0, -3px);
+        }
+        &.hoveredStars, &.clickedStars {
+          color: gold;
+        }
+        &:active {
+          transform: translate(0, 1px);
+        }
+      }
+      input[type=radio] {
+        visibility: hidden;
+        position: absolute;
+      }
+    }
+  }
+}
+
+// Dynamic Viewport
+
+@media (max-width: 1700px) {
+  .univago_login_logo {
+    width: 35%; 
+    margin: 55px auto 20px;
+    height: 300px;
+  }
+  .univago_login_form {
+    width: 30%;
+    margin: auto; 
+  }
+}
+
+@media (max-width: 1500px) {
+  .univago_login_logo {
+    width: 40%; 
+    margin: 55px auto 20px;
+    height: 300px;
+
+    }
+    .univago_login_form {
+      width: 35%;
+      margin: auto; 
+    }
+  }
+ 
+@media (max-width: 1200px) {
+  .univago_login_logo {
+    width: 45%;	
+    height: 300px;    
+    margin: 55px auto 20px;
+  }
+  .univago_login_form {
+    width: 35%;
+    margin: auto; 
+  }
+}
+
+
+@media (max-width: 1000px) {
+  .univago_login_logo {
+    width: 50%;	
+    height: 300px;    
+    margin: 55px auto 20px;
+  }
+  .univago_login_form {
+    width: 40%;
+    margin: auto; 
+  }
+}
+
+@media (max-width: 850px) {
+  .univago_login_logo {
+    width: 50%;
+    margin: 55px auto 20px; 
+  }
+  .univago_login_form {
+    width: 40%;
+    margin: auto; 
+  }
+}
+
+@media (max-width: 768px) {
+  h1.support_title.sub_support_title {
+    margin-top: 200px;
+  }
+  .univago_login_logo {
+    width: 65%;	
+    height: 300px;    
+    margin: 55px auto 20px;
+  }
+  .univago_login_form {
+    width: 55%; 
+    margin: auto;
+  }
+}
+
+@media (max-width: 650px) {
+  .univago_login_form {
+    width: 50%; 
+    margin: auto;
+  }
+  .univago_login_logo {
+    width: 60%;	
+    height: 300px;    
+    margin: 55px auto 20px;
+  }
+}
+
+@media (max-width: 575px) {
+  .univago_login_logo {
+    width: 80%;	
+    height: 250px;    
+    margin: 30px auto 20px;
+    img {
+      height: 250px;
+    }
+  }
+  .univago_login_form {
+    width: 70%; 
+    margin: auto;
+  } 
+}
+
+@media (max-width: 300px) {
+  .univago_login_logo {
+     width: 80%;	
+     height: 200px;    
+     margin: 55px auto 20px;
+    img {
+      height: 200px;
+    }
+  }
+  .univago_login_form {
+    width: 70%; 
+    margin: auto;
+  }
+}
+
+.migrated {
+  line-height: 34px;
+
+  a {
+    font-size:20px;
+  }
+}

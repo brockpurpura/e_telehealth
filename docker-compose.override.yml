@@ -1,0 +1,38 @@
+version: '3'
+services:
+  logserver:
+    build: test/logserver/
+    ports:
+      - "8514:514"
+    restart: unless-stopped
+    volumes:
+      - "logserver:/var/log"
+  web:
+    environment:
+      - LOG_SERVER_HOSTNAME=logserver
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - "/dev/log:/dev/log"
+  sidekiq:
+    build: .
+    environment:
+      - APP_DATABASE=telehealth_production
+      - MYSQL_HOSTNAME=mysql
+      - REDIS_HOSTNAME=redis
+      - DEV_DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TELEHEALTH_DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    entrypoint:
+      - bundle
+      - exec
+      - sidekiq
+    restart: unless-stopped
+    volumes:
+      - .:/telehealth
+      - "/dev/log:/dev/log"
+    depends_on:
+      - web
+volumes:
+  logserver:

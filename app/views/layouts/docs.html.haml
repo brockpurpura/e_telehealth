@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+%html
+  %head
+    %title API Documentation | Caregility 
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => false
+    = javascript_include_tag 'application', 'data-turbolinks-track' => false 
+    = stylesheet_link_tag    'style', media: 'all', 'data-turbolinks-track' => false
+    = csrf_meta_tags
+    %meta{:charset=>"UTF-8", :lang=>"en"} 
+    %meta{:content => "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1", :name => "viewport"}/
+  %body.docs
+    -if flash[:alert] or @message 
+      .alert.alert-warning.alert-dismissable
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        = flash[:alert] || @message 
+    %div.container
+      %div.docs_header
+        %br
+        %h2 Caregility Healthcare API
+        %br
+
+
+      %div.docs_container.col-lg-12
+        %h4.breadcrumbs API \ #{@bc} 
+      .col_sm_12
+        .d_body
+          %div.docs_nav.col-md-2
+            %p.bheader Quick Start
+            =link_to 'Basic Authentication', info_doc_path
+            =link_to 'Initializing A Call', call_init_doc_path
+            =link_to 'Connecting A Call', making_a_call_doc_path
+            =link_to 'Ending A Call', end_call_doc_path
+            %p.bheader Alerts
+            =link_to 'Trigger A Room Alert', post_alert_doc_path
+            %p.bheader Data Retrieval
+            =link_to 'Call Participant Information', call_participants_doc_path
+            =link_to 'List all Patient Units', get_units_doc_path
+            %p.bheader Data Creation
+            =link_to 'Create a New Patient Unit', create_unit_doc_path
+
+
+          = yield 

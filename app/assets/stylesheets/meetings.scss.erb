@@ -1,0 +1,277 @@
+$widget_background: rgba(0,0,0,0.5);
+$selected: '#c6c647';
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}
+
+@mixin widget {
+  background-color: $widget_background;
+  @include border-radius(15px);
+  position:absolute;
+  z-index: 210000;
+  color: white;
+  h2 { 
+    font-size: 18px;
+    color: white; 
+  }
+  ul li {
+    list-style: none;
+    color: white;
+    font-size: 18px;
+  }
+}
+
+.header_bar {
+  position: relative;
+  height: 54px;
+  background-color: #4b4b4b; 
+  opacity: 1;
+  right: 0;
+  left: 0;
+  z-index: 200000;
+  .header_notes {
+    position: relative;
+    float: left;
+    width: 100%;
+    padding: 0px 15px; 
+    height: 10px;
+    a:hover {
+      p {
+        color: white;
+	opacity: 1.0;
+      }
+    }
+
+    button.parts {
+      height: 42px;
+      background: none;
+      font-family: 'Roboto';
+      font-size: 13px;
+      color: #C9C9C9;
+      padding: 12px 5px 10px 0px;
+      margin: 6px 0px 0px 6px;
+      &.no_notifications {
+        margin: 6px 0px 0px 56px;
+      }
+      .fa.fa-comment {
+        margin-left: 10px;
+        font-size: 25px;
+        color: #317ab9;
+        opacity: 1.0;
+        margin-top: -2px;
+        -webkit-font-smoothing: unset;
+        &:hover {
+          color: #317ab9;
+          text-decoration: none;
+        }
+      }
+      p {
+        font-size: 13px;
+        margin-bottom: 0px;
+        color: #C9C9C9;
+        float: right;
+        margin-left: 10px;
+          &.parts {
+            float: left;
+            margin-top:1px;
+          }
+        }
+     
+        #chat_js_count {
+            width: 25px;
+            border-radius: 20px;
+            opacity: 1;
+            color: white;
+            text-decoration: none;
+            position: absolute;
+            float: left;
+            margin: 0;
+            top: 13px;
+            z-index: 100000000;
+            display: block;
+          &hover {
+            text-decoration: none;
+          }
+        }
+      
+      
+        &:hover{
+          p {
+            text-decoration: underline;
+            color: white;
+          }
+        }
+      }
+  }
+  p {
+    color: white;
+    float:left;
+    display:inline-block;
+    opacity:.7;
+  }
+}
+
+.time_display {
+  text-align:center;
+  color: white;
+}
+
+#r_name {
+  width: 100%;
+  margin: 0px;
+  span {
+    display: contents;
+  }
+}
+
+.header_bar_selector{
+  width: 40px;
+  position: none;
+  padding:10px; 
+  margin-left: 20px;
+  background-color: #222208;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  cursor: pointer;
+  opacity: 0.75;
+  position: absolute;
+  z-index: 2000;
+}
+
+#participants {
+  @include widget;
+  right: 0;
+  top: 10px;
+  width: 165px;
+  h3 {
+    font-size: 14px;
+    margin-left: 0px;
+    padding-left: 0px;
+    color: white;
+  }
+}
+
+#invite_type_select, #translator_select {
+  width: 240px;
+  height: 37px;
+  padding-left: 10px;
+  margin-bottom: 18px;
+  font-size: 11px;
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #bec9cf;
+  background-color: white;
+  color: #757575
+}
+
+p.settings {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.header_bar p {
+    color: white;
+    float: left;
+    display: inline-block;
+    opacity: .7;
+}
+.header_left p {
+    font-size: 13px;
+}
+
+.header_bar p {
+    color: white;
+    float: left;
+    display: inline-block;
+    opacity: .7;
+}
+
+/* override from clinician - 508*/
+#menu_button {
+  background: transparent;
+}
+.dropdown-menu {
+  position: fixed;
+  top: 52px;
+  right: -1px;
+  border-radius: 0px;
+  left: auto;
+  padding-left: 17px;
+}
+
+#settings_sidebar {
+  top: 55px;
+  right: -15px;
+}
+#settings_sidebar.mobile {
+  top: 130px;
+  right: 0px;
+}
+
+#self_view_widget.not_mobile {
+  top: 70%;
+  left: 5%;
+}
+
+.toggle_cam_widget {
+  position:  absolute;
+  text-decoration: none;
+  color:  white;
+  top: 15px;
+  left: 50px;
+  font-size: 20px;
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+#side_part_list_scroll{
+  li {
+    list-style: none;
+  }
+}
+
+.tool-tip-icon {
+  &#poh_tool_tip {
+    &.deactivated {
+      border-radius: 13px 13px 13px 13px; 
+      border-bottom: 1px solid rgba(0,0,0,0.5);
+      background-color: #9F000F;
+    }
+  }
+}
+
+#pohcontainer {
+  background-color: black;
+}
+h1.pohcontainer {
+  color: white;
+  margin-top: calc(50vh - 18px); 
+  font-size: 2em;
+}
+
+/* Making room for pin participants in MyChart only */
+#sidebar_ #p_list .fa {  
+  &.pin_part{
+    padding-top: 20px;
+    width: 20px;
+    &.selected {
+      color: #428bca; 
+    }
+  }
+}
+#sidebar_ p{
+  padding-left: 0px;
+  width: 57%;
+}
+#side_part_list .part_mic_div {
+  width: 23%;
+}
+
+.left_buf {
+  padding-left: 10px;
+}
+/*  END - Making room for pin participants in MyChart only */

@@ -1,0 +1,11 @@
+MeetingParticipant_1:
+  id: 1
+  vmr_meeting_id: 1
+  user_id: 220
+  cid: '22856'
+  p_uuid: b74e0a5d-697e-4929-a2ea-c067613f2aa6
+  display_name: jen
+  invited: 0
+  role: chair
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

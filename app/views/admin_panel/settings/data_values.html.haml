@@ -1,0 +1,548 @@
+#sub_title
+  .leftside
+    %i.far.fa-cog.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Settings 
+
+.col-md-12  
+  .col-md-12
+    .widget
+      .widget-head
+        Licensing 
+      .widget-content
+        = form_tag do
+          = hidden_field_tag :license, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  License issued to 
+                %th.endpoint_setting_widget.license
+                  #{LicenseCrypt.company_name(License.license_key)}
+              %tr
+                %th.endpoint_setting_widget
+                  License expires 
+                %th.endpoint_setting_widget.license
+                  #{LicenseCrypt.expire_date(License.license_key)}
+              %tr
+                %th.endpoint_setting_widget
+                  Time Remaining 
+                %th.endpoint_setting_widget.license
+                  #{distance_of_time_in_words(Time.now, LicenseCrypt.expire_date(License.license_key) || Time.now)}
+              %tr
+                %th.endpoint_setting_widget
+                  Rooms 
+                %th.endpoint_setting_widget.license
+                  #{Endpoint.active.count} used of #{LicenseCrypt.no_of_units(License.license_key)}
+              %tr
+                %th.endpoint_setting_widget
+                  Admins 
+                %th.endpoint_setting_widget.license
+                  #{Admin.any_admin.count} used of #{LicenseCrypt.no_of_admins(License.license_key)}
+              %tr
+                %th.endpoint_setting_widget
+                  Clinicians 
+                %th.endpoint_setting_widget.license
+                  #{Admin.uhe.count} used of #{LicenseCrypt.no_of_clinicians(License.license_key)}
+              %tr
+                %th.endpoint_setting_widget
+                  iObservers 
+                %th.endpoint_setting_widget.license
+                  #{Admin.esitter.count} used of #{LicenseCrypt.no_of_observers(License.license_key)}
+              %tr
+                %th.endpoint_setting_widget
+                  Technicians 
+                %th.endpoint_setting_widget.license
+                  #{Admin.techs.count} used of #{LicenseCrypt.no_of_technicians(License.license_key)}
+              %tr
+                %th.endpoint_setting_widget
+                  Update Key 
+                %td.none.vertical_center
+                  .center
+                    =text_area_tag :new_key,  '', :class=>'input_endpoint_settings'
+          - if our_active_admin.is_not_read_only?
+            .widget_submit 
+              =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+.col-md-12  
+  .col-md-12
+    .widget
+      .widget-head
+        Version Settings
+      .widget-content
+        = form_tag do
+          = hidden_field_tag :version, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Patient Unit Version 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :production_version,  Configurable.production_version, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Unit Package Name 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :version_file_name,  Configurable.version_file_name, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Web App Version   
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :web_app_version,  Configurable.web_app_version, :class=>'input_endpoint_settings'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+
+  .col-md-12
+    .widget
+      .widget-head
+        System Settings  
+      .widget-content
+        = form_tag do
+          = hidden_field_tag :system, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Websocket Connection 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :server_name,  Configurable.server_name, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Invite Email Link Server 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :invite_server_name,  Configurable.invite_server_name, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Reporting URL
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :layerx_address,  Configurable.layerx_address, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Alert Notification Action 
+                %td.none.vertical_center
+                  .center
+                    =select_tag :alert_message_sending, options_for_select(Notification::NOTIFICATION_TYPE, :selected => Configurable.alert_message_sending), :id=>"", :class => "input_endpoint_settings"
+
+              %tr
+                %th.endpoint_setting_widget
+                  Release Underway  
+                %td.vertical_center
+                  .center
+                    =check_box_tag :release_underway, 1, Configurable.release_underway == 1 ? true : false
+                    %p (no email notifications)
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+  .col-md-12
+    .widget
+      .widget-head
+        VMR Settings - All  
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :all_vmr_config, "true"
+          #div.leftside
+            %table.endpoint_settings_table_dimensions.onex
+              %tr
+                %th.endpoint_setting_widget
+                  VMR Server Tag (Suffix) 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :server_tag,  Configurable.server_tag, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Use Underscore Before Suffix
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :server_tag_underscore,  Configurable.server_tag_underscore, :class=>'input_endpoint_settings'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                = submit_tag 'Save', :class=>"endpoint_setting_button"
+
+
+  .col-md-12
+    .widget
+      .widget-head
+        VMR Settings - Clinician
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :clinician_vmr_config, "true"
+          #div.leftside
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  VMR Pool
+                %td.vertical_center
+                  .center
+                    =text_field_tag :vmr_on_deck_amount,  Configurable.vmr_on_deck_amount, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  VMR Pool By Channel
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :vmr_on_deck_by_channel_amount,  Configurable.vmr_on_deck_by_channel_amount, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Prefix Tag 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :clinician_vmr_prefix,  Configurable.clinician_vmr_prefix, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Use Underscore After Prefix 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :clinician_prefix_underscore,  Configurable.clinician_prefix_underscore, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Theme URI 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :pexip_theme_uri,  Configurable.pexip_theme_uri, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  PIN length (0=none) 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :clinician_vmr_pin_length,  Configurable.clinician_vmr_pin_length, :class=>'input_endpoint_settings'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit      
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+  .col-md-12
+    .widget
+      .widget-head
+        Pexip Settings - Clinician 
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :pexip_config, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Configuration URI
+                %td.vertical_center
+                  .center
+                    =text_field_tag :pexip_api_base_url,  Configurable.pexip_api_base_url, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  VMR alias domain extension 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :pexip_vmr_domain_name,  Configurable.pexip_vmr_domain_name, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Conference Node Address 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :conference_node,  Configurable.conference_node, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Username
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :pexip_api_username,  Configurable.pexip_api_username, :class=>'input_endpoint_settings', :autocomplete => 'new-password'
+
+              %tr
+                %th.endpoint_setting_widget
+                  Password 
+                %td.none.vertical_center
+                  .center
+                    =password_field_tag :pexip_api_password,  Configurable.pexip_api_password, :class=>'input_endpoint_settings', :autocomplete => 'new-password'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+                
+  .col-md-12
+    .widget
+      .widget-head
+        VMR Settings - Meetings 
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :outpatient_vmr_config, "true"
+          #div.leftside
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  VMR Pool 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :vmr_meeting_on_deck_amount,  Configurable.vmr_meeting_on_deck_amount, :class=>'input_endpoint_settings'
+              %tr.hidden
+                %th.endpoint_setting_widget
+                  VMR Pool By Channel 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :vmr_meeting_on_deck_by_channel_amount,  Configurable.vmr_meeting_on_deck_by_channel_amount, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Prefix Tag 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :outpatient_vmr_prefix,  Configurable.outpatient_vmr_prefix, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Use Underscore After Prefix 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :outpatient_prefix_underscore,  Configurable.outpatient_prefix_underscore, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Theme URI 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :pexip_meeting_theme_uri,  Configurable.pexip_meeting_theme_uri, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  PIN length (0=none) 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :meetings_vmr_pin_length,  Configurable.meetings_vmr_pin_length, :class=>'input_endpoint_settings'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+  .col-md-12
+    .widget
+      .widget-head
+        Pexip Settings - Meetings (MyChart) 
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :hcm_pexip_config, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Configuration URI
+                %td.vertical_center
+                  .center
+                    =text_field_tag :hcm_pexip_api_base_url,  Configurable.hcm_pexip_api_base_url, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  VMR alias domain extension 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :hcm_pexip_vmr_domain_name,  Configurable.hcm_pexip_vmr_domain_name, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Conference Node Address 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :hcm_conference_node,  Configurable.hcm_conference_node, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Username
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :hcm_pexip_api_username,  Configurable.hcm_pexip_api_username, :class=>'input_endpoint_settings', :autocomplete => 'new-password'
+
+              %tr
+                %th.endpoint_setting_widget
+                  Password 
+                %td.none.vertical_center
+                  .center
+                    =password_field_tag :hcm_pexip_api_password,  Configurable.hcm_pexip_api_password, :class=>'input_endpoint_settings', :autocomplete => 'new-password'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+  .col-md-12
+    .widget
+      .widget-head
+        Email SMTP Settings
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :email_config, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %td{:colspan=>2}
+                  %p Please note that SMTP settings changes require a Reset Nginx command (below).  
+                  %p This will restart the server and may cause a momentary interruption of service.
+              %tr
+                %th.endpoint_setting_widget
+                  SMTP Mailing Address 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :mailer_address,  Configurable.mailer_address, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Sending Domain 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :mailer_domain,  Configurable.mailer_domain, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  SMTP Port Number 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :mailer_port,  Configurable.mailer_port, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Username
+                %td.vertical_center
+                  .center
+                    =text_field_tag :mailer_username,  Configurable.mailer_username, :class=>'input_endpoint_settings', :autocomplete=>'new-password'
+
+              %tr
+                %th.endpoint_setting_widget
+                  Password 
+                %td.none.vertical_center
+                  .center
+                    =password_field_tag :mailer_password,  Configurable.mailer_password, :class=>'input_endpoint_settings', :autocomplete=>'new-password'
+              
+              %tr
+                %th.endpoint_setting_widget
+                  Email From Address 
+                %td.vertical_center
+                  .center
+                    =email_field_tag :mailer_default_email,  Configurable.mailer_default_email, :class=>'input_endpoint_settings'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+                  
+  .col-md-12
+    .widget
+      .widget-head
+        Send Test Email
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :send_email_test, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Send test email to:  (optional) 
+                %td.none.vertical_center
+                  .center
+                    =email_field_tag :send_test_email,  '', :class=>'input_endpoint_settings'
+              - if our_active_admin.is_not_read_only?
+                %tr
+                  %th.endpoint_setting_widget
+                    Send Email 
+                  %td.none.vertical_center
+                    .center
+                      =submit_tag 'Send', :class=>"endpoint_setting_button"
+
+
+  .col-md-12
+    .widget
+      .widget-head
+        Reporting Settings 
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :layerx_config, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Show System Reports
+                %td.vertical_center
+                  .center
+                    =check_box_tag :system_use_layerx, 1, Configurable.system_use_layerx == 1 ? true : false
+              %tr
+                %th.endpoint_setting_widget
+                  Username 
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :system_layerx_username,  Configurable.system_layerx_username, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Dashboard ID 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :system_layerx_dashboard_id,  Configurable.system_layerx_dashboard_id, :class=>'input_endpoint_settings'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+
+  .col-md-12
+    .widget
+      .widget-head
+        LDAP Settings 
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :ldap_config, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Use LDAP 
+                %td.vertical_center
+                  .center
+                    =check_box_tag :use_ldap, 1, Configurable.use_ldap == 1 ? true : false
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+  .col-md-12
+    .widget
+      .widget-head
+        Third Party Mailer Template System 
+      .widget-content
+        =form_tag do
+          = hidden_field_tag :mailer_template_system, "true"
+          #div
+            %table.endpoint_settings_table_dimensions.twox
+              %tr
+                %th.endpoint_setting_widget
+                  Use System 
+                %td.vertical_center
+                  .center
+                    =check_box_tag :third_party_mailer_template_system, 1, Configurable.third_party_mailer_template_system == 1 ? true : false
+              %tr
+                %th.endpoint_setting_widget
+                  User ID 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :third_party_mailer_user_id,  Configurable.third_party_mailer_user_id, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  User Password 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :third_party_mailer_user_password,  Configurable.third_party_mailer_user_password, :class=>'input_endpoint_settings'
+              %tr
+                %th.endpoint_setting_widget
+                  Client Unique ID 
+                %td.vertical_center
+                  .center
+                    =text_field_tag :third_party_mailer_unique_id,  Configurable.third_party_mailer_unique_id, :class=>'input_endpoint_settings'
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+
+  .col-md-12
+    .widget
+      .widget-head
+        Twilio Settings 
+      .widget-content
+        #div
+          %table.endpoint_settings_table_dimensions.twox
+            %tr
+              %th.endpoint_setting_widget
+                Messaging Service Sid
+              %td.vertical_center
+                .center
+                  %p #{Configurable.twilio_messaging_service_sid}
+            %tr
+              %th.endpoint_setting_widget
+                Phone Numbers  
+              %td.vertical_center
+                .center
+                  = link_to "View", phone_numbers_admin_panel_setting_path
+
+%br
+%br
+%p.web_application_version RWA2.2

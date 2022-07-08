@@ -1,0 +1,9 @@
+<!-- An intermediary page to protect from SMS preview actions expiring the one-time use functionality -->
+= form_tag join_meeting_api_path, :id => "join_call_form" do
+  = hidden_field_tag :call_token, params[:call_token]
+  = hidden_field_tag :e, params[:e]
+  = hidden_field_tag :accept_join, 'true'
+
+:javascript
+  swal({ title: "Confirm join call", text: "Please confirm you wish to join this call by pressing Join", type: "info", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "Join", closeOnConfirm: false}, function(){document.getElementById('join_call_form').submit();}); 
+  //window.setTimeout(window.location.href = "/api/join_meeting?call_token="+document.getElementById('call_token').value+"&e="+document.getElementById('e').value+"&accept_join=true", 1200);

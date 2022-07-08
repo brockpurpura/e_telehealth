@@ -1,0 +1,6 @@
+prefix,first_name,last_name,channel,customer,clinical_role,specialty,email,phone_number,third_party_auth,has_clinician_role,has_iobserver_role,has_technician_role,has_notification_portal_role,is_read_only
+Mr, Andy, Willis, System Testing Channel,System Testing Customer, Nursing, RN, clinician1@geemail.com, 2154333428, TRUE, TRUE,,,,
+Mr, Tinky, Winky, System Testing Channel,System Testing Customer   , Nursing, RN, clinician2@geemail.com, 2154333428, TRUE, TRUE,,,,
+Mr, Dispy, Sunshine, System Testing Channel,System Testing Customer, Nursing, RRN, clinician3@geemail.com, 2154333428, TRUE, TRUE,,,,
+Mr, Po, Pudding, System Testing Channel,System Testing Customer, Nursing, RN, clinician4@geemail.com, 2154333428, TRUE, TRUE,,,,
+Mr, Bob, Chuckle, System Testindg Channel,System Testing Customer, Nursing, RN, clinician5@geemail.com, 2154333428, TRUE, TRUE,,,,

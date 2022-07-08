@@ -1,0 +1,138 @@
+%div{:id=>'top'}
+
+#sub_title
+  .leftside    
+    %i.fa.fa-exclamation-triangle.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Notifications 
+
+- if our_active_admin.is_super_admin?
+  .col-md-12
+    .col-md-12
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          System Wide Notification Emails 
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #div
+            %table{:class=>'table table-bordered'}
+              %tbody
+                %tr{:onclick=>"open_admin_popup('status_emails_0')"}
+                  %td
+                    Notifications for all Customers
+                  %td 
+                    = SystemAlertEmail.system_email(1)
+                  %td
+                    = SystemAlertEmail.system_email(2) 
+                  %td
+                    = SystemAlertEmail.system_email(3) 
+      #popup_widget_surround
+        .popup_widget.popup_ui{:id => "status_emails_0" }
+          #uhe_admin_popup
+            %h2 Edit System Wide Notification Emails 
+            =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('status_emails_0')" do
+              <i class="far fa-times" aria-hidden="true"></i>
+            =form_tag do 
+              .uhe_admin_popup_body  
+                .uhe_admin_popup_form   
+                  %div
+                    %p.entry_header
+                      Notification Email 1
+                    .entry
+                      %p.leftside
+                        = email_field_tag :alert_email_1, SystemAlertEmail.system_email(1)
+                    .entry
+                      %p.entry_header
+                        Notification Email 2
+                    .entry
+                      %p.leftside
+                        = email_field_tag :alert_email_2, SystemAlertEmail.system_email(2)
+                    .entry
+                      %p.entry_header
+                        Notification Email 3
+                    .entry
+                      %p.leftside
+                        = email_field_tag :alert_email_3, SystemAlertEmail.system_email(3)
+                        = hidden_field_tag :client_no, 0
+                    - if our_active_admin.is_not_read_only?
+                      .entry
+                        .submit
+                          .center
+                            =submit_tag :save
+                    
+#sub_title
+  .leftside.left_5
+    %br
+    %p These email addresses will recieve alert notifications for any Caregility device change:
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Emails 
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div
+          %table{:class=>'table table-bordered'}
+            %thead
+              %tr
+                -if our_active_admin.is_super_admin?
+                  %th 
+                    Channel Name
+                %th
+                  Customer Name 
+                %th  
+                  Notification Email
+                %th 
+                  Notification Email 
+                %th
+                  Notification Email 
+            %tbody
+              -@customer_client_list.each_with_index do |cl, idx|
+                %tr{:class => idx%2==0 ? 'even' : 'odd', :onclick=>"open_admin_popup('cust_status_emails_#{idx}', '')"}    
+                  -if our_active_admin.is_super_admin?
+                    %td #{cl.client_admin.name}
+                  %td #{cl.client_name}
+                  %td #{cl.alert_email(1)}
+                  %td #{cl.alert_email(2)}
+                  %td 
+                    #{cl.alert_email(3)}
+                #popup_widget_surround
+                  .popup_widget.popup_ui{:id => "cust_status_emails_#{idx}" }
+                    #uhe_admin_popup
+                      %h2 Edit Notification Emails <br/> #{cl.client_name} 
+                      =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('cust_status_emails_#{idx}')" do
+                        <i class="far fa-times" aria-hidden="true"></i>
+                      =form_tag do 
+                        .uhe_admin_popup_body  
+                          .uhe_admin_popup_form   
+                            %div
+                              %p.entry_header
+                                Notification Email 1
+                              .entry
+                                %p.leftside
+                                  = email_field_tag :alert_email_1, cl.alert_email(1) 
+                              .entry
+                                %p.entry_header
+                                  Notification Email 2
+                              .entry
+                                %p.leftside
+                                  = email_field_tag :alert_email_2, cl.alert_email(2) 
+                              .entry
+                                %p.entry_header
+                                  Notification Email 3
+                              .entry
+                                %p.leftside
+                                  = email_field_tag :alert_email_3, cl.alert_email(3)
+                                  = hidden_field_tag :client_no, cl.id 
+                              - if our_active_admin.is_not_read_only?
+                                .entry
+                                  .submit
+                                    .center
+                                      =submit_tag :save
+

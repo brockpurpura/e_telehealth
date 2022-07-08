@@ -1,0 +1,113 @@
+- content_for(:javascript_includes) do 
+  =javascript_include_tag "https://www.google.com/jsapi" , "chartkick"
+  =javascript_include_tag "live_charts"
+<!-- Dashboard Graph starts -->
+#sub_title
+  .leftside
+    %i.far.fa-chart-line.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Usage Reports 
+
+.col-md-12
+  .col-md-12.height_20
+    =form_tag :url=> reports_admin_panel_admin_path do 
+      .col-md-2_5
+        .center
+          .usage
+            %p.leftside
+              = text_field_tag :date_from, @start_date, :id=>"datepicker_from" , :class=>'datepick usage_report'
+            %p.leftside
+              &nbsp;&nbsp;<font size='2'>to</font>&nbsp;&nbsp; 
+            %p.leftside
+              = text_field_tag :date_to, @end_date, :id=>"datepicker_to" , :class=>'datepick usage_report'
+        .col-md-1
+          %p.leftside
+            = submit_tag "Refresh", :class=>'endpoint_setting_button'
+        :javascript
+          $( "#datepicker_from" ).datepicker();
+          $( "#datepicker_to" ).datepicker();
+
+  .col-md-6.min_height
+    .widget
+      .widget-head
+        Alert Notification History 
+        <div class="clearfix"></div>
+      .widget-content.limited_alerts
+        .left_10
+          %table{:class=>'table table-bordered'}
+            %thead
+              %tr
+                %th.alert_width
+                  Alert 
+                %th
+                  Answered By 
+                %th
+                  Status 
+            %tbody 
+              - if !@alerts.nil?
+                -@alerts.each_with_index do | v, idx |
+                  %tr{:class => idx%2==0 ? 'even' : 'odd'}              
+                    %td.alert_width #{v.message.sub('Call request from ','') if v.message}
+                    %td #{v.response_name} 
+                    %td 
+                      - if v.is_active == 'ACTIVE'
+                        <font color='red'>#{v.is_active}</font>
+                      - else
+                        Answered 
+      .widget-footer
+        .center
+          = will_paginate @alerts, :param_name=>'alert_page', :params => {:date_from => @start_date, :date_to => @end_date, :page=> params[:page]}
+          
+
+.col-md-12 
+  .col-md-12.min_height
+    .widget
+      .widget-head
+        Detailed Call Data 
+        .rightside
+          = link_to 'Download', reports_admin_panel_admin_path(:date_from => @start_date, :date_to => @end_date, :download=>'true') 
+          &nbsp;/&nbsp;
+          = link_to 'Saved Reports', saved_usage_reports_admin_panel_admin_path, :class => ""
+
+        <div class="clearfix"></div>
+      .widget-content#dest_tree.limited_call_data
+        %table{:class=>'table table-bordered'}
+          %thead
+            %tr
+              %th
+                Customer 
+              %th
+                Clinician 
+              %th
+                Location 
+              %th
+                Unit 
+              %th
+                Room 
+              %th.center  
+                Call Started 
+              %th.center  
+                Call Length 
+              %th.center  
+                No. of participants (including Room) 
+              %th.center  
+                Caregility Conf ID 
+          %tbody
+            - if !@vmrs.nil?
+              -@vmrs.order('start_time DESC').each_with_index do | v, idx |
+                %tr{:class => idx%2==0 ? 'even' : 'odd'}              
+                  %td #{v.client_name}
+                  %td #{v.user_email} 
+                  %td #{v.loc}
+                  %td #{v.unit}
+                  %td #{v.room}
+                  %td.center #{v.start_time}
+                  %td.center #{distance_of_time_in_words(v.start_time, v.end_time || v.start_time) if !v.start_time.nil?}
+                  %td.center #{v.num_of_participants_count }
+                  %td.center #{v.id}
+      .widget-footer
+        .center
+          - if !@vmrs.nil?
+            = will_paginate @vmrs , :params => {:date_from => @start_date, :date_to => @end_date, :alert_page=>params[:alert_page]}
+         
+

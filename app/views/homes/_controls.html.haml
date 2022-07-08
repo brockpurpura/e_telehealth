@@ -1,0 +1,22 @@
+#joystick.joystick_window{:role=>"dialog", :'aria-label'=>"camera controls"}
+  .joystick_mover.fa.fa-arrows.hud_visuals.fade#move_joystick{:tabindex=>"0", :'aria-label'=>"move camera controls", :role=>"application"}
+
+  - if @endpoint.present? && @endpoint.is_cisco?
+    = render :partial => 'homes/fc_control_joystick'
+    = render :partial => 'homes/fc_control_features'
+  - else
+    = render :partial => 'homes/control_joystick'
+    = render :partial => 'homes/control_features'
+
+
+  %button{:id=>'close_hud', :class => 'fa fa-times-circle close_widget hud_visuals fade', :onclick=> "toggle_widget('control_partial', 'compass_button')", :'aria-label'=>"close camera controls"}      
+
+:javascript 
+    var windows = document.querySelectorAll('.control_partial');[].forEach.call(windows,function(win){var title = win.querySelector('.joystick_mover'); title.addEventListener('mousedown',function(evt){ var real = window.getComputedStyle(win), winX = parseFloat(real.left), winY = parseFloat(real.top); var mX = evt.clientX, mY = evt.clientY; document.body.addEventListener('mousemove',drag,false); document.body.addEventListener('mouseup',function(){ document.body.removeEventListener('mousemove',drag,false); },false); function drag(evt){ win.style.left = winX + evt.clientX-mX + 'px'; win.style.top  = winY + evt.clientY-mY + 'px'; }; },false); });
+
+    var firstKeyCode      = #{Configurable.first_key_code};     // shift  
+    var zoomInKeyCode     = #{Configurable.zoom_in_key_code};   // +   
+    var zoomOutKeyCode    = #{Configurable.zoom_out_key_code};  // -  
+
+
+= javascript_include_tag "keyboard-controls"

@@ -1,0 +1,146 @@
+#function_bar_topper.function_bar.topper
+  .tool-tip-icon   
+    =link_to "javascript:;", :id => 'compass_button', :class => '', :onclick=> "toggle_widget('control_partial', 'compass_button')" do   
+      .callout.left.esitter-fa
+        %p Camera Control 
+      .esitter-controller
+
+
+
+
+
+//.function_bar
+//  .icon_holder
+//    .tool-tip-icon{:style => "padding-left: 7px;"}     
+//      =link_to "javascript:;", :id => 'self_mute', :class => '', :onclick=> "muteStreams()" do 
+//        .callout.left.non_fa
+//          %p Mic Mute 
+//        %i.mic_on
+
+//  .icon_holder
+//    .tool-tip-icon{:style => "padding-left: 7px;"}     
+//      =link_to "javascript:;", :id => 'self_video', :class => '', :onclick=> "toggleShow()" do
+//        .callout.left.non_fa
+//          %p Cam Mute 
+//        %i.video_on
+
+//  .icon_holder
+//    .tool-tip-icon                
+//      =link_to "javascript:;", :id => 'ring_bell', :class=>'',  :onclick=> "ringBell()" do
+//        .callout.left
+//          %p Doorbell 
+//        %i.fa.fa-bell.fa-2x{:style => "margin-left: 2px;"}
+//
+//.slider.bell_volume.hidden
+//    .lab
+//      %h2.sm Volume
+//    <div id="flat-slider-vertical-8"></div>
+//    .arrow
+
+.function_bar.action_button_bars{:style => "padding: 8px 0px 8px 0px;"}
+  .icon_holder
+    .tool-tip-icon.action_buttons.bell_action              
+      =link_to "javascript:;", :id => 'ring_bell', :class=>'',  :onclick=> "ringBell()" do
+        .callout.left
+          %p Doorbell 
+        %i.fa.fa-bell.fa-2x{:style => "margin-left: 3px;"}
+  .icon_holder
+    .tool-tip-icon 
+      =link_to "javascript:;", :id => 'self_view_button', :class => '', :onclick=> "toggle_selfview()" do  
+        .callout.left
+          %p Self View 
+        %i.fa.fa-user.fa-2x{:style => "margin-left: 3px; font-size: 22px;"}
+
+
+  .slider.bell_volume.hidden
+    .lab
+      %h2.sm Volume
+    <div id="flat-slider-vertical-8"></div>
+    .arrow
+
+  .icon_holder.action_buttons#vid_action.pd
+    .tool-tip-icon   
+      =link_to "javascript:;", :id => 'self_video', :class => '', :onclick=> "toggleShow()" do
+        .callout.left.non_fa
+          %p Cam Mute 
+        %i.video_on{:style => "margin-top: 1px;"}
+
+
+  .icon_holder.action_buttons#mic_action.pd
+    .tool-tip-icon     
+      =link_to "javascript:;", :id => 'self_mute', :class => '', :onclick=> "muteStreams()" do 
+        .callout.left.non_fa
+          %p Mic Mute 
+        %i.mic_on{:style => "margin-top: 5px;"}
+
+  .icon_holder        
+    .tool-tip-icon 
+      =link_to "javascript:;", :id => 'home_button', :class => '', :onclick=> "go_to_bookmark('Home')" do
+        .callout.left
+          %p Camera Home 
+        %i.fa.fa-home.fa-2x
+
+- if !@invited_guest 
+  .function_bar.height_5#poh
+    .tool-tip-icon         
+      =link_to "javascript:;", :onclick=> "mutePatient()", :id=>'poh_button' do
+        .callout.left.poh
+          %p Patient On Hold 
+        %p.poh_button POH
+
+          
+
+.function_bar
+  .tool-tip-icon 
+    =link_to "javascript:;", :id => 'sliders_button', :class => '', :onclick=> "toggle_widget('sliders', 'sliders_button')" do
+      .callout.left
+        %p Settings 
+    
+      <i class="fa fa-sliders-v" style="font-size: 2em; margin-left: 2px;"></i>
+  .tool-tip-icon     
+    =link_to "javascript:;", :id => 'see_more', :class => 'x', :onclick=> "toggle_widget('bookmark_partial', 'see_more')", :style => "" do
+      .callout.left
+        %p Bookmarks 
+      %i.fa.fa-thumbtack.fa-2x{:style => "margin-left: 4px;"}
+  .tool-tip-icon 
+    =link_to "javascript:;", :id => 'screenshot_button', :class => '', :onclick=> "snapshot()" do
+      .callout.left
+        %p Screenshot 
+      %i.fa.fa-camera.fa-2x
+
+
+
+
+.function_bar.hidden
+  .arrow_box#confirm_bookmark
+    %p New Bookmark
+    =link_to 'Save', "javascript:;", :class=>'btn btn-primary', :onclick=>'save_bookmark()'
+  .tool-tip-icon 
+    =link_to "javascript:;", :id => 'make_bookmark', :class => '', :onclick=> "confirm_bookmark()" do
+      .callout.left
+        %p Bookmarks 
+      %i.fa.fa-map-pin.fa-2x
+  .tool-tip-icon     
+    =link_to "javascript:;", :id => 'see_more', :class => '', :onclick=> "show_more()" do
+      .callout.left
+        %p Self View  
+      %i.fa.fa-list-ul.fa-2x.left_3
+  .tool-tip-icon 
+    =link_to "javascript:;", :id => 'screenshot_button', :class => '', :onclick=> "go_to_bookmark('Home')"  do
+      .callout.left
+        %p Screenshot  
+      %i.fa.fa-camera.fa-2x
+
+#end_call_view
+  #function_bar_bot.function_bar.height_5
+    .tool-tip-icon 
+      =link_to "javascript:;", :id => 'end_call_button', :class => '', :onclick=> "endCall()"  do
+        .callout.left
+          %p End Call  
+        %i.fa.fa-phone.fa-2x
+
+:javascript
+  if (api_call && !e_api_call && !mobile_api_call) {
+    $('#end_call_view').addClass('hidden');
+  }
+  checkMuteWithPexip();

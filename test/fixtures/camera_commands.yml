@@ -1,0 +1,6 @@
+CameraCommand_1:
+  id: 2
+  endpoint_id: 66
+  command_name: reboot
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

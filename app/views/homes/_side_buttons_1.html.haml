@@ -1,0 +1,120 @@
+%nav{'aria-label'=>"sub"}  
+  #function_bar_topper.function_bar.topper
+    .tool-tip-icon   
+      %button{:id => 'compass_button', :class => '', :onclick=> "toggle_widget('control_partial', 'compass_button')", :'aria-expanded'=>"false"}
+        =image_tag image_url('esitter_controller.png'), :class => "", :alt => "Camera Controls"
+        .callout.left.esitter-fa
+          %p{:'aria-hidden'=>"true"} Camera Control
+
+    #control_partial.control_partial
+      = render :partial => 'homes/controls', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+
+  .function_bar
+    .tool-tip-icon              
+      %button{:id => 'ring_bell', :class=>'',  :onclick=> "ringBell()"}
+        =image_tag image_url('bell-solid.png'), :class => "", :alt => "Doorbell"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Doorbell 
+
+    .tool-tip-icon 
+      %button{:id => 'self_view_button', :class => '', :onclick=> "toggle_selfview()", :'aria-expanded'=>"false"} 
+        =image_tag image_url('user-solid.png'), :class => "selfview", :alt => "Self View"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Self View
+
+    #self_view_widget{:class=> is_mobile_device? ? 'self_view hidden' : 'self_view hidden dragme'}
+      = render :partial => 'homes/self_view', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id} 
+
+    .tool-tip-icon#vid_action.pd  
+      .warning#getwell_warning_div
+        =image_tag "warning.png", :id => 'getwell_warning', :class => 'hidden'
+      %button{:id => 'self_video', :class => 'hidden', :onclick=> "toggleShow()", :'aria-pressed'=>"false"}
+        =image_tag image_url('video_on_large.png'), :class => "", :alt => "Cam Mute", :id => "vid_mute_image"
+        =image_tag image_url('video_off_large.png'), :class => "hidden", :alt => "Cam Unmute", :id => "vid_unmute_image"
+        .callout.left.non_fa
+          %p{:'aria-hidden'=>"true"} Camera Mute 
+         
+    .tool-tip-icon#mic_action.pd 
+      %button{:id => 'self_mute', :class => 'hidden', :onclick=> "muteStreams()", :'aria-pressed'=>"false"} 
+        =image_tag image_url('mic_on_large.png'), :class => "", :alt => "Mic Mute", :id => "mic_mute_image"
+        =image_tag image_url('mic_off_large.png'), :class => "hidden", :alt => "Mic Unmute", :id => "mic_ummute_image"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Microphone Mute 
+       
+    .tool-tip-icon 
+      %button{:id => 'home_button', :class => '', :onclick=> "go_to_bookmark('Home')"}
+        =image_tag image_url('home-solid.png'), :class => "", :alt => "Camera Home"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Camera Home
+
+  .function_bar.height_5#poh
+    .tool-tip-icon         
+      %button{:onclick=> "mutePatient()", :id=>'poh_button', :class => 'hidden', :alt=>"Patient on Hold", :'aria-pressed'=>"false"}
+        %p.poh_button POH  
+        .callout.left.poh
+          %p{:'aria-hidden'=>"true"} Patient On Hold 
+      
+
+  .function_bar
+    .tool-tip-icon 
+      %button{:id => 'sliders_button', :class => '', :onclick=> "toggle_widget('sliders', 'sliders_button')", :'aria-expanded'=>"false"}
+        =image_tag image_url('sliders-v-solid.png'), :class => "", :alt => "Settings"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Settings
+
+    #slider_partial.slider_partial
+      = render :partial => 'homes/slider_panel', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+
+      
+    .tool-tip-icon     
+      %button{:id => 'see_more', :class => 'x', :onclick=> "toggle_widget('bookmark_partial', 'see_more')", :'aria-expanded'=>"false"}
+        =image_tag image_url('thumbtack-solid.png'), :class => "bookmark", :alt => "Bookmarks"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Bookmarks 
+
+    #bookmark_partial.bookmark_partial
+      = render :partial => 'homes/bookmarks', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+       
+    .tool-tip-icon 
+      %button{:id => 'screenshot_button', :class => '', :onclick=> "snapshot()", :'aria-expanded'=>"false"}
+        =image_tag image_url('camera-solid.png'), :class => "", :alt => "Screenshot"
+        .callout.left
+          %p{:'aria-hidden'=>"true"} Screenshot
+
+    #snapshot.snapshot
+      = render :partial => 'homes/snapshot', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+
+
+    -if @endpoint.client.content_sharing_enabled.to_i == 1  
+      .tool-tip-icon
+        %button{:id => 'content_sharing_button', :class => 'inactive', :onclick=> "presentScreen()", :'aria-expanded'=>"false"}
+          =image_tag image_url('content-sharing.png'), :class => "", :alt => "Content Sharing"
+          .callout.left
+            %p{:'aria-hidden'=>"true"} Content Sharing 
+   
+      #content_sharing_partial.hidden.content_share
+        = render :partial => 'homes/content_sharing'
+
+  -if !@invited_guest && @endpoint.tytocare_enabled? && @endpoint.tytocare_active_device?
+    .function_bar
+      .tool-tip-icon
+        %button{:id => 'start_exam', :class => 'hidden', :'aria-pressed'=>"false"}
+          %i.fas.fa-heartbeat.fa-2x{:class => "", :onclick=> "startExam()", :alt => "Start Exam", :id => "start_exam_image"}
+          =image_tag image_url('heartbeat-slash.png'), :style => "width: 37px", :class => "hidden", :onclick=> "endExam()", :alt => "End Exam", :id => "end_exam_image"
+          .callout.left
+            %p{:'aria-hidden'=>"true"} Start / End exam
+
+
+  #end_call_view
+    #function_bar_bot.function_bar.height_5
+      .tool-tip-icon
+        %button{:id => 'end_call_button', :class => '', :onclick=> "endCall()"}
+          =image_tag image_url('phone-solid.png'), :class => "end_phone", :alt => "End Call"
+          .callout.left
+            %p{:'aria-hidden'=>"true"} End Call  
+
+:javascript
+  if (api_call && !e_api_call && !mobile_api_call) {
+    $('#end_call_view').addClass('hidden');
+  }
+  checkMuteWithPexip();

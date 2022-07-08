@@ -1,0 +1,293 @@
+- content_for(:title) { "Caregility Healthcare Admin" }
+- content_for(:description) { "Caregility Healthcare Admin" }
+
+%div{:id=>'top'}
+
+<!-- Dashboard Graph starts -->
+#sub_title
+  .leftside
+    %i.fa.fa-user.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside 
+    %h3 Users
+  .rightside.create_new_link
+    - if within_all_users_license_limit?
+      - if our_active_admin.is_not_read_only?
+        =link_to "Add User", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('invite_cga_admin','')"
+        &nbsp;/&nbsp;
+        = link_to "Bulk Upload", bulk_upload_clinician_admin_panel_admin_path
+        
+    - else 
+      Exceeded User license limit
+    
+
+.col-md-12.min_height
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        .search_field  
+          .leftside
+            .search_icon
+              %span.far.fa-search
+
+          = form_for :search_cga_form, :url => cgas_admin_panel_admin_path, :html => {:id => "search_cga_form" } do |x|
+            .leftside
+              = x.text_field :search_cgas, :id=>'search_cgas', :placeholder=>'Search', :value => @search_value, :class=>'search_field_input'
+            #popup_widget_surround 
+              .popup_widget.popup_ui{:id => "filter_layout"}
+                #uhe_admin_popup
+                  %h2 Filter   
+                  =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+                    <i class="far fa-times" aria-hidden="true"></i>
+                  .uhe_admin_popup_body.no_scroll  
+                    .uhe_admin_popup_form   
+                      - if our_active_admin.is_super_admin?
+                        %p.entry_header
+                          By Channel      
+                        .entry 
+                          .center
+                            .dropdowns
+                              %label
+                                = x.collection_select(:filter_channel, ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None", :selected => @channel_value}, {})
+                      - if our_active_admin.is_channel_admin?     
+                        %p.entry_header
+                          By Customer      
+                        .entry 
+                          .center
+                            .dropdowns
+                              %label
+                                = x.collection_select(:filter_customer, our_active_admin.client_admin.clients.active, :id, :client_name, { :multiple => true, :prompt => "None", :selected => @customer_value}, {})
+                        
+                      %p.entry_header
+                        By Admin Level       
+                      .entry 
+                        .center
+                          .dropdowns
+                            %label
+                              - if our_active_admin.is_super_admin? or our_active_admin.is_channel_admin?
+                                = x.select :filter_roles, options_for_select({'Super Admin' => 'SUPER_ADMIN', 'Channel Admin' => 'CHANNEL_ADMIN', 'Customer Admin' => 'CUSTOMER_ADMIN', 'Clinician' => 'UHE', 'iObserver' => 'ESITTER', 'Technician' => 'TECH'}, @role_value), :id=> "filter_cgas", :class=>'', :prompt => "None"
+                              - else
+                                = x.select :filter_roles, options_for_select({'Clinician' => 'UHE', 'iObserver' => 'ESITTER', 'Technician' => 'TECH'}, @role_value), :id=> "filter_cgas", :class=>'', :prompt => "None"
+
+                  .submit
+                    .center 
+                      = x.submit "Apply", :class=> "button", :onclick => "close_admin_popup('filter_layout')" 
+                  .footer_link
+                    .center
+                      =x.button "Reset Filter",  :type =>  'submit', :name => 'reset_filter', :value => 'true', :class => "reset_filter_submit"
+            .leftside
+              .clear_search
+                =x.button "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+                  %span.fal.fa-times
+
+            .leftside
+              .filter_link
+                .center
+                  =link_to "Filter", "javascript:;", :class=>"", :onclick=>"open_admin_popup('filter_layout','')"
+
+
+        .rightside
+          - if our_active_admin.is_super_admin?
+            =link_to "Download", cgas_admin_panel_admin_path(:download_admin_permissions => "true"), :class => ""
+            &nbsp;/&nbsp;
+            =link_to 'Saved Reports', saved_reports_admin_panel_admin_path 
+
+
+        <div class="clearfix"></div>
+      .widget-content
+        #accounts_partial
+          = render :partial => 'cga_client_list'
+
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround 
+    .popup_widget.popup_ui{:id => "invite_cga_admin"}
+      #uhe_admin_popup
+        %h2 Add User 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('invite_cga_admin')" do
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        =form_for :invite,  :url => cgas_admin_panel_admin_path  do |x|
+          .uhe_admin_popup_body  
+            .uhe_admin_popup_form  
+              %p.entry_header
+                Email *
+              .center
+                = x.email_field :email, :placeholder => "", :maxlength => 200
+              %p.entry_header
+                Name  
+              .entry
+                .leftside   
+                  .dropdowns
+                    %label
+                      = select_tag :prefix, options_for_select(User::USER_PREFIX_SELECT, :selected => ""), :id=>"", :class => "prefix_name_entry prefix_name uhe_admin"
+                .leftside
+                  = x.text_field :first_name,  :placeholder => "", :class => "prefix_name_entry first_name", :maxlength => 200
+                .leftside
+                  = x.text_field :last_name,  :placeholder => "", :class => "prefix_name_entry last_name", :maxlength => 200
+              .entry_footer 
+                .leftside
+                  %p.prefix_name_entry.prefix_name Prefix 
+                .leftside
+                  %p.prefix_name_entry.first_name First
+                .leftside
+                  %p.prefix_name_entry.last_name Last             
+              %p{:class=> our_active_admin.is_super_admin? ? 'entry_header' : 'entry_header hidden'}
+                Channel *      
+              %div{:class=> our_active_admin.is_super_admin? ? 'center' : 'center hidden'}
+                .dropdowns
+                  %label
+                    - if our_active_admin.is_super_admin?
+                      = x.collection_select(:client_admin_id, ClientAdmin.active, :id, :name,  {:prompt=>"All Channels"}, :onchange=>'checkCustomers(false,false,-1,"All Customers")', :id=>'channelDropDown')  
+                    - if our_active_admin.is_channel_admin?
+                      = x.collection_select(:client_admin_id, ClientAdmin.active.where('id = ?', our_active_admin.client_admin_id), :id, :name, {}, :onchange=>'checkCustomers(false,false,-1,"All Customers")', :id=>'channelDropDown')  
+                    - if our_active_admin.is_customer_admin?
+                      = x.collection_select(:client_admin_id, ClientAdmin.active.where('id = ?', our_active_admin.client.client_admin.id), :id, :name, {},:onchange=>'checkCustomers(false,false,-1,"All Customers")', :id=>'channelDropDown')  
+                
+              %p.entry_header
+                Customer *      
+              .center
+                .dropdowns
+                  %label
+                    - if our_active_admin.is_super_admin?
+                      = x.collection_select(:client_id, Client.active, :id, :client_name,  {:prompt=>'All Customers'}, :onchange=>'checkAdminPermissions(-1)', :id=> 'customerDropDown') 
+                    - elsif our_active_admin.is_channel_admin?
+                      = x.collection_select(:client_id, Client.active.where('client_admin_id = ?', our_active_admin.client_admin_id), :id, :client_name,  {:prompt=>'All Customers'}, :onchange=>'checkAdminPermissions(-1)', :id=> 'customerDropDown') 
+                    - else
+                      = x.collection_select(:client_id, Client.active.where('id=?', our_active_admin.client_id), :id, :client_name, {}, :onchange=>'checkAdminPermissions(-1)', :id=> 'customerDropDown')  
+              %p.entry_header.hidden
+                Phone Number      
+              .center.hidden
+                .entry#clinician_phone1
+                  .leftside
+                    =  text_field :phone_number1, "Phone Number",  id: "clinician_phone_one_main", :placeholder => "",  :class => " phone_number_field", :onblur=>"checkPhoneLength('clinician_phone_one_main')" 
+                    = hidden_field_tag("flag_1", "us", :id => "flag1_value_main")
+                .entry_footer 
+                  .leftside
+                    %p Example: (555) 555-5555
+
+
+              %p.entry_header
+                Admin Level * 
+              - if within_license_limit?('Admin')
+                .center
+                  .dropdowns
+                    %label
+                      -if our_active_admin.is_super_admin?
+                        = x.select :admin_level, options_for_select({'None'=> 'NONE',  'Super Admin' => 'SUPER_ADMIN'} )
+                      -if our_active_admin.is_channel_admin?
+                        = x.select :admin_level, options_for_select({'None'=> 'NONE',  'Channel Admin' => 'CHANNEL_ADMIN'} )
+                      -if our_active_admin.is_customer_admin?
+                        = x.select :admin_level, options_for_select({'None'=> 'NONE',  'Customer Admin' => 'CUSTOMER_ADMIN'} )
+              - else
+                %p Admin license limit reached
+                =x.hidden_field :admin_level, value: 'NONE' 
+              
+              - if within_license_limit?('Clinician')
+                - @show_clinician = true 
+              - else
+                %p Clinician license limit reached 
+              - if within_license_limit?('Observer')
+                - @show_observer = true 
+              - else
+                %p iObserver license limit reached 
+              - if within_license_limit?('Tech')
+                - @show_technician = true 
+              - else
+                %p Technician license limit reached   
+              - @show_notification_portal = true
+              .entry
+                .leftside
+                  - if @show_clinician 
+                    .left_checkbox_entry
+                      .leftside
+                        %input{:name => "telehealth", :id=>'select_telehealth', :type=>'checkbox', :class=>'checkbox'}   
+                      .leftside
+                        %p.checkbox_subtitle Clinician  
+                - if @show_observer
+                  .leftside
+                    .right_checkbox_entry
+                      .leftside
+                        %input{:name => "esitter", :id=>'select_esitter', :type=>'checkbox', :class=>'checkbox'}   
+                      .leftside
+                        %p.checkbox_subtitle iObserver  
+              .entry 
+                .leftside
+                  - if @show_technician 
+                    .left_checkbox_entry
+                      .leftside
+                        %input{:name => "technician", :id=>'select_technician', :type=>'checkbox', :class=>'checkbox'}   
+                      .leftside
+                        %p.checkbox_subtitle Technician  
+                .leftside
+                  .right_checkbox_entry
+                    .leftside
+                      %input{:name => "read_only", :id=>'read_only', :type=>'checkbox', :class=>'checkbox'}   
+                    .leftside
+                      %p.checkbox_subtitle Read Only 
+                      
+              .entry 
+                .leftside
+                  - if @show_notification_portal 
+                    .left_checkbox_entry
+                      .leftside
+                        %input{:name => "notification_portal", :id=>'select_notification_portal', :type=>'checkbox', :class=>'checkbox'}   
+                      .leftside
+                        %p.checkbox_subtitle Notification Portal  
+                .leftside
+                  .right_checkbox_entry
+                    
+
+              - if !Configurable.use_ldap.to_s == "1"
+                .entry 
+                  .leftside
+                    %input{:name => "allow_demo", :id=>'allow_demo', :type=>'checkbox', :class=>'checkbox'}   
+                  .leftside
+                    %p.checkbox_subtitle Allow local database authentication 
+              .entry 
+                .leftside
+                  .left_checkbox_entry  
+                    .leftside
+                      %input{:name => "thirdpartyauth", :id=>'select_thirdpartyauth', :type=>'checkbox', :class=>'checkbox'}   
+                    .leftside
+                      %p.checkbox_subtitle 3rd Party Auth
+          .submit
+            .center 
+              //= link_to "Save for later", ""
+              = x.submit "Add", :class=> "button"            
+
+
+
+#popup_widget_surround 
+  .popup_widget.popup_ui{:id => "filter_layout"}
+    #uhe_admin_popup
+      %h2 Filters  
+      =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+        <i class="far fa-times" aria-hidden="true"></i>
+      - if our_active_admin.is_super_admin?
+        %p.entry_header
+          By Channel      
+        .entry 
+          .center
+            .dropdowns
+              %label
+                = collection_select(:filter_channel,  :id, ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None"}, {:style => "", :onchange=>"filterCgas('#{our_active_admin.is_super_admin?}')"})
+      %p.entry_header
+        By Admin Level       
+      .entry 
+        .center
+          .dropdowns
+            %label
+              = select_tag :filter_roles, options_for_select({'None' => 'NONE', 'Super Admin' => 'SUPER_ADMIN', 'Channel Admin' => 'CHANNEL_ADMIN', 'Customer Admin' => 'CUSTOMER_ADMIN', 'Clinician' => 'UHE', 'eSitter' => 'ESITTER', 'Technician' => 'TECH'}), :id=> "filter_cgas", :onchange=>"filterCgas('#{our_active_admin.is_super_admin?}')", :class=>'' 
+      .submit
+        .center 
+          //= link_to "Save for later", ""
+          = submit_tag "Filter", :class=> "button", :onclick => "close_admin_popup('filter_layout')" 
+      .footer_link
+        .center
+          =link_to "Reset", "javascript:;", :class => "", :onclick => "reset_cga_filter('#{our_active_admin.is_super_admin?}')"
+
+
+            
+:javascript
+  document.getElementById('invite_email').required = true;

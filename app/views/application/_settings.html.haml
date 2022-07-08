@@ -1,0 +1,36 @@
+#settings_sidebar{:class=>((request.env['PATH_INFO'] == "/observation")) ? 'call_settings_view_surround iobserver hidden' : is_mobile_device? ? 'call_settings_view_surround mobile hidden' : 'call_settings_view_surround hidden'}
+  .call_settings_view
+    .c_settings
+      - if !is_mobile_device?
+        %h2 
+          Settings
+          %div{:class=>is_mobile_device? ? 'hidden': ''}
+            %label.more_margin{:for=> "videoSettingView"} Video Display
+            <video controls autoplay playsinline muted='muted' id='videoSettingView' tabindex=-1 aria-label='Self View Video'></video>
+      %div{:class=>is_mobile_device? ? 'hidden': ''}
+        %label#audioOutputLabel{:for=> "audioOutput"} Audio Output Destination
+        .dropdowns
+          %span
+            %select{:id=>"audioOutput", :class=>"audio_output_select", :onchange=>"saveCamMic()"}
+        %audio{:id=>"player", :src=>"#{asset_path('sound_test.wav')}"}
+        %button#blueSoundTestLink{:onclick=>"testSound()", :class => "blue_sound_test"} Test Sound
+        .center
+          %button.form_button.hidden{:onclick=>"changeAudioDestination(true)", :id=>'change_speaker_button'}
+            Change Speaker 
+        %label.more_margin{:for=> "audioSource"} Audio Input Source
+        .dropdowns
+          %span
+            %select{:id=>"audioSource", :class=>'',  :onchange=>"saveCamMic()"}
+              
+      %label{:for=>"videoSource"} Video Source
+      .dropdowns
+        %span
+          %select{:id=>"videoSource",  :onchange=>"saveCamMic()"}
+      .web_app_version{:class=> is_mobile_device? ? 'hidden' : ''}
+        %p Version #{Configurable.web_app_version}
+      - if !is_mobile_device?
+        .center
+          %button.form_button{:onclick=>"close_c_sidebar()"}
+            Close 
+
+

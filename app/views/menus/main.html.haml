@@ -1,0 +1,49 @@
+= render "application/caregility_greeting"
+
+%main
+  .univago_login_form
+    = form_for :menu, :url => main_menu_path, html: {:onsubmit => "return formValidation(this)"} do
+      = hidden_field_tag "refresh_token", ""
+      = hidden_field_tag "access_token", ""
+      = render "devise/shared/error_messages", resource: nil 
+      %br
+      %h1.center Select Your System
+      %br
+      %label{:for=> "systemSelect"} System
+      %br
+      .menu_select
+        .center
+          .dropdowns
+            %label
+              =select_tag "next_step", options_for_select(@options_for_select, @options_for_select[0]), :prompt=>"", :class=>'', :id => "systemSelect"
+        %label.error#systemSelectError.hidden Select your system
+      %br
+      %br
+      .center  
+        = submit_tag "Select", :class=>""
+      %br
+      %br
+      .center.admin_caption 
+        = render :partial => "/homes/contact"  
+      %br
+      .admin_privacy
+        = render :partial => '/homes/privacy'
+
+= render "application/session_timeout"
+
+:javascript 
+  var lochash = location.hash.substr(1);
+  var ref_token = lochash.substr(lochash.search(/(?<=^|&)refresh_token=/))
+                  .split('&')[0]
+                  .split('=')[1];
+  if(typeof ref_token !== "undefined") {
+    document.getElementById("refresh_token").value = ref_token;
+  } 
+  
+
+  var acc_token = lochash.substr(lochash.search(/(?<=^|&)access_token=/))
+                  .split('&')[0]
+                  .split('=')[1];
+  if(typeof acc_token !== "undefined") {
+    document.getElementById("access_token").value = acc_token;
+  }

@@ -1,0 +1,4 @@
+{:deps
+ {org.clojure/core.async {:mvn/version "1.2.603"}
+  org.eclipse.jetty.websocket/websocket-client {:mvn/version "9.4.29.v20200521"}}
+ :paths ["src"]}

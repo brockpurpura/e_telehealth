@@ -1,0 +1,164 @@
+Client_1:
+  id: 1
+  client_name: System Testing Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+  translation_type_id: 1
+  use_layerx: 1
+  layerx_username: yorktel
+  layerx_dashboard_id: JHW2UAK2UWFIKTDV1520268568974U02FHOVAPQETKU
+  group_turn_server_name: uhe_stag_ha_Caregility
+  clinician_sidebutton_layout: 0
+  auto_reboot: 0
+  perfectserve_url: https://uhehadev.univago.com
+  content_sharing_enabled: 0
+  screenshot_enabled: 1
+
+Client_2:
+  id: 2
+  client_name: Second Testing Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+  translation_type_id: 2
+  use_layerx: 1
+  layerx_username: yorktel
+  layerx_dashboard_id: JHW2UAK2UWFIKTDV1520268568974U02FHOVAPQETKU
+  group_turn_server_name: uhe_stag_ha_Caregility
+  clinician_sidebutton_layout: 0
+  auto_reboot: 0
+  perfectserve_url: https://uhehadev.univago.com
+  content_sharing_enabled: 0
+  screenshot_enabled: 1
+
+Client_3:
+  id: 3
+  client_name: Third Testing Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+  translation_type_id: 3
+  use_layerx: 1
+  layerx_username: yorktel
+  layerx_dashboard_id: JHW2UAK2UWFIKTDV1520268568974U02FHOVAPQETKU
+  group_turn_server_name: uhe_stag_ha_Caregility
+  clinician_sidebutton_layout: 0
+  auto_reboot: 0
+  perfectserve_url: https://uhehadev.univago.com
+  content_sharing_enabled: 0
+  screenshot_enabled: 1
+
+Client_4:
+  id: 4
+  client_name: Fourth Testing Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+  translation_type_id: 4
+  use_layerx: 1
+  layerx_username: yorktel
+  layerx_dashboard_id: JHW2UAK2UWFIKTDV1520268568974U02FHOVAPQETKU
+  group_turn_server_name: uhe_stag_ha_Caregility
+  clinician_sidebutton_layout: 0
+  auto_reboot: 0
+  perfectserve_url: https://uhehadev.univago.com
+  content_sharing_enabled: 0
+  screenshot_enabled: 1
+
+Client_5:
+  id: 5
+  client_name: Fifth Testing Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+  translation_type_id: 4
+  use_layerx: 1
+  layerx_username: yorktel
+  layerx_dashboard_id: JHW2UAK2UWFIKTDV1520268568974U02FHOVAPQETKU
+  group_turn_server_name: uhe_stag_ha_Caregility
+  clinician_sidebutton_layout: 0
+  auto_reboot: 0
+  perfectserve_url: https://uhehadev.univago.com
+  content_sharing_enabled: 0
+  screenshot_enabled: 1
+
+# Client with ID 6 is intentionally not in the DB
+# Client_6:
+  # id: 6
+  # client_name: Dummy Customer
+
+
+Client_7:
+  id: 7
+  client_name: Seventh Testing Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 2
+  translation_type_id: 4
+  use_layerx: 1
+  layerx_username: yorktel
+  layerx_dashboard_id: JHW2UAK2UWFIKTDV1520268568974U02FHOVAPQETKU
+  group_turn_server_name: uhe_stag_ha_Caregility
+  clinician_sidebutton_layout: 0
+  auto_reboot: 0
+  perfectserve_url: https://uhehadev.univago.com
+  content_sharing_enabled: 0
+  screenshot_enabled: 1
+
+Client_8:
+  id: 8
+  client_name: Unit Testing Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+
+Client_9:
+  id: 9
+  client_name: BH Little Rock
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 3
+
+Client_10:
+  id: 10
+  client_name: EIS Enabled Customer
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 3
+
+Client_11:
+  id: 11
+  client_name: Customer A
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+
+Client_12:
+  id: 12
+  client_name: Customer B
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+  translation_type_id: 1
+
+# MOB-775: Duplicate naming
+Client_13:
+  id: 13
+  client_name: Customer B
+  status: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  client_admin_id: 1
+  translation_type_id: 1

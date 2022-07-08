@@ -1,0 +1,32 @@
+#help{:role=>"dialog", :'aria-labelledby'=>"shortcutWidgetTitle"}
+  #alert_inner
+    .leftside
+      .help_mover.fa.fa-arrows.hud_visuals.fade#move_help{:tabindex=>"0", :'aria-label'=>"move shortcuts", :role=>"application"}
+    .rightside 
+      %h2{:id=>"shortcutWidgetTitle"} Shortcuts
+      %ul
+        %li 
+          %p Camera Up: Shift + Up Arrow
+        %li    
+          %p Camera Down: Shift + Down Arrow   
+        %li   
+          %p Camera Left: Shift + Left Arrow    
+        %li      
+          %p Camera Right: Shift + Right Arrow   
+        %li
+          %p Camera Zoom In: Shift + Plus(+)      
+        %li
+          %p Camera Zoom Out: Shift + Minus(-)    
+        %li
+          %p Camera Home: Shift + H   
+        %li      
+          %p Ring Doorbell: Shift + D    
+        %li
+          %p Patient On Hold: Shift + P
+        %li
+          %p.large_desc Widget Movement: Focus on the widget's directional icon and use arrow keys
+    
+      %button{:id=>'close_help', :class => 'fa fa-times-circle close_widget', :onclick=> "toggle_widget('help', '')", :'aria-label'=>"close shortcuts"}
+:javascript
+    var windows = document.querySelectorAll('#help');[].forEach.call(windows,function(win){var title = win.querySelector('.help_mover'); title.addEventListener('mousedown',function(evt){ var real = window.getComputedStyle(win), winX = parseFloat(real.left), winY = parseFloat(real.top); var mX = evt.clientX, mY = evt.clientY; document.body.addEventListener('mousemove',drag,false); document.body.addEventListener('mouseup',function(){ document.body.removeEventListener('mousemove',drag,false); },false); function drag(evt){ win.style.left = winX + evt.clientX-mX + 'px'; win.style.top  = winY + evt.clientY-mY + 'px'; }; },false); });
+

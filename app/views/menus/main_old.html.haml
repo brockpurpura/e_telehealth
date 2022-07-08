@@ -1,0 +1,34 @@
+#header_bar.header_bar
+  .header_notes
+    #header_left.header_left
+      #notif_header
+        = link_to destroy_admin_session_path, :class=>'leftside' do
+          %p#notifs.notifications.leftside <i class="fa fa-backward" aria-hidden="true"></i> Logout
+.admin_provisioning
+  .col-sm-12
+    .col-sm-12
+      #sub_title.height_40
+        %div
+          .leftside
+            %i.fa.fa-info.fa-2x.dashboard_subheader_icon.dashboard_text_color
+          .leftside
+            %h3 Menu 
+  .col-sm-12
+    .col-sm-12
+      %div
+        %ul
+          - if current_admin.has_admin_type?
+            %li 
+              = link_to 'Provisioning Portal', current_admin.admin_after_signin_path
+          - if current_admin.is_tech? and current_admin.is_tech_approved? 
+            %li 
+              = link_to 'Tech Portal', room_tech_path
+          - if current_admin.is_uhe?
+            %li 
+              = link_to 'Clinician', root_path
+          - if current_admin.is_esitter?
+            %li 
+              = link_to 'eSitter', root_path
+    
+         
+

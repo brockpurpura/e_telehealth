@@ -1,0 +1,43 @@
+= render "application/caregility_greeting"
+
+- if resource.is_admin?
+  %main
+    .univago_login_form
+      = form_for(resource, as: resource_name, url: admins_sign_in_path, html:{:class=> '', :onsubmit=>'return formValidation(this)' }) do |f| 
+        = render "devise/shared/error_messages", resource: resource
+        %br
+        %h1.center Sign In Here   
+        %br 
+        - if Configurable.use_ldap == 1 and Configurable.ldap_bind_filter == 'samaccountname'
+          %label{:for=> "inputEmail"} Email / Username          
+        - else
+          %label{:for=> "inputEmail"} Email
+
+        =f.email_field :email,  :id=>'inputEmail', :autocomplete => 'off', :class=>''
+        %label.error#inputEmailError.hidden{:for=>"inputEmail"} Please enter your email
+        %br
+        %br
+        %label{:for=> "inputPassword"} Password
+        = f.password_field :password, :autocomplete=>'off', :id=>'inputPassword', :class=>''
+        %label.error#inputPasswordError.hidden{:for=>"inputPassword"} Please enter your password
+        %br
+        %br
+        .center
+          = f.submit "Sign in", :class=>""
+        %br
+        .center        
+          = link_to 'Forgot Password?', new_admin_password_path, :class => ''
+      %br
+      %br
+      =render :partial => "/homes/contact"  
+      %br
+      = render :partial => '/homes/privacy'
+- else
+  %br
+  %br
+  %br
+  %br
+  .col-sm-3
+  .col-sm-6
+    .login_column.center
+      <font color='darkgray' size='6'>Thank you for using Caregility</font>

@@ -1,0 +1,73 @@
+:javascript
+  invited = false;
+  api_call = false;
+  e_api_call = false;
+%div{:id=>'account_partial'}
+  =render :partial=>'account'
+.hidden
+  %p#server_name #{@server_name}
+#block_screen.blocked
+#login_widget_surround
+  #login_widget{:class=> user_signed_in? ? '' : 'sign_in'}
+    #sign_in{:class=> user_signed_in? ? 'hidden' : ''}
+      //.header_ 
+      //  %p.leftside HealthCare 2.0 Login
+      .user_login
+        %h2.login Clinician Access
+        = email_field_tag :email,'', autofocus: true,  :placeholder=>'Email', :id=>'user_email', :autocomplete => false
+        = password_field_tag :password,'', autocomplete: "off" , :placeholder=>'Password', :id=>'user_password'
+        = hidden_field_tag :authenticity_token, form_authenticity_token, :id=>'auth_token'
+        %button.btn_login.initial_login{:onclick=>"processLogin()"}
+          LOGIN
+        %br
+        .rightside.height_15
+          = link_to 'Forgot password?', new_user_password_path, :class=>'user_forgot'
+        %br
+        = render :partial=>'privacy'
+    #dial_patient{:class=> user_signed_in? ? '' : 'hidden'}
+
+      //.header_ 
+      //%p.leftside HealthCare 2.0 Login
+      //.rightside
+      //= collection_select(:location_id, :id, Location.all, :id, :name, {},{:class=>'in_header'})
+      .user_login
+        %h2.patient Dial Patient
+        .dropdowns
+          %label{:for=>"locationSelect"} Customer
+            = collection_select(:client_id, :id, {}, :id, :name, {:prompt => "Hospital"}, {:id=>'locationSelect', :onchange=>'checkBuildings()'})
+        .dropdowns
+          %label{:for=>"buildingSelect"} Location
+            = collection_select(:building_id, :id, {}, :id, :name, {:prompt=>"Location"},{:id=>'buildingSelect', :onchange=>'checkRooms()'})
+        .dropdowns
+          %label{:for=>"roomSelect"} Unit
+            = collection_select(:room_id, :id, {}, :id, :name, {:prompt=>"Room"},{:id=>'roomSelect', :onchange=>'checkEndpoints()'})
+        .dropdowns
+          %label{:for=>"endpointSelect"} Room
+            = collection_select(:endpoint_id, :id, {}, :id, :name,  {:prompt=>"Bed"},{:id=>'endpointSelect'})
+        //.row
+        //  .leftside
+        //    %input{:name => "privacy", :id=>'privacy_select', :type=>'checkbox', :class=>'checkbox'}   
+        //  .leftside
+        //    %label{:for=>'privacy_select', :class=>'checkbox_label'} Call In Privacy Mode         
+        //  .leftside
+        //  //  #settings_link
+        //  //    = link_to "Settings", "javascript:;", :class => "settings_link", :onclick => "show_settings()"
+	    
+        .row 
+          .leftside
+            %input{:name => "privacy", :id=>'privacy_select', :type=>'checkbox', :class=>'checkbox'}   
+          .leftside
+            %label{:for=>'privacy_select', :class=>'checkbox_label'} Call In Privacy Mode     
+
+        .center
+          .buttons
+            %button.btn_login.conf_login{:onclick=>"dial_conf()"}
+              Call 
+
+
+
+
+=render :partial=>'conference_view' , :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias} 
+
+
+ 

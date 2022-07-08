@@ -1,0 +1,101 @@
+%div{:id=>'top'}
+
+#sub_title
+  .leftside    
+    %i.fas.fa-phone.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Twilio Numbers 
+  .rightside.create_new_link
+    = link_to 'Twilio SMS Documentation', 'https://www.twilio.com/guidelines/us/sms', target: :_blank
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Existing Twilio Numbers 
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        %table{:class=>'table table-bordered', :id => "api_info_table"}
+          %thead
+            %tr
+              %th
+                Country Name 
+              //%th  
+              //  Phone Number
+              %th 
+                Dialing Code
+              %th 
+                ISO Code 
+              %th
+                Format
+              - if our_active_admin.is_not_read_only?
+                %th.center
+                  Delete
+            %tbody
+              -@twilio_numbers.each_with_index do |tn, idx|
+                %tr{:class => idx%2==0 ? 'even' : 'odd'}    
+                  %td 
+                    %i.flag-icon{:class => "flag-icon-#{tn.flag_code}"}
+
+                    #{tn.name}
+                  //%td #{tn.number}
+                  %td #{tn.dial_code}
+                  %td #{tn.flag_code}
+                  %td #{tn.format}
+                  - if our_active_admin.is_not_read_only?
+                    %td
+                      .center
+                        = link_to phone_numbers_admin_panel_setting_path(:delete_number => true, :phone_number_id => tn.id), :title => "Delete Numer"  do 
+                          <i class="far fa-trash-alt fa-1x" aria-hidden="true"></i>
+
+.col-md-12
+  .col-md-12.min_height
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Add Twilio Number  
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        %div.endpoint_settings_widget_dimensions_actions
+          = form_for "" do |x|
+            = hidden_field_tag :add_phone_number, true 
+            %div.leftside
+              %table.endpoint_settings_table_dimensions.twox
+                %tr
+                  %th.endpoint_setting_widget
+                    Country Name *
+                  %td.none.vertical_center
+                    .center
+                      = x.text_field :name, :class => "input_endpoint_settings", :placeholder => 'EG: United States'
+                //%tr
+                //  %th.endpoint_setting_widget
+                //    Twilio Number *
+                //  %td.none.vertical_center
+                //    .center
+                //      = x.text_field :number, :class=>'input_endpoint_settings', :placeholder => 'EG: 17326318859', :maxlength => 200
+                %tr
+                  %th.endpoint_setting_widget
+                    Dialing Code *
+                  %td.none.vertical_center
+                    .center
+                      = x.text_field :dial_code,  :class=>'input_endpoint_settings', :placeholder => 'EG: +1', :maxlength => 200
+                %tr
+                  %th.endpoint_setting_widget
+                    ISO Code *
+                  %td.none.vertical_center
+                    .center
+                      = x.text_field :flag_code, :class => "input_endpoint_settings", :placeholder => 'EG: us', :maxlength => 200
+                %tr
+                  %th.endpoint_setting_widget
+                    Format
+                  %td.none.vertical_center
+                    .center
+                      = x.text_field :format, :class => "input_endpoint_settings", :placeholder => 'EG: (xxx) xxx-xxxx', :maxlength => 200
+              - if our_active_admin.is_not_read_only?
+                .widget_submit
+                  = button_to "Save", 'javascript:', :onclick=>"", :class=>'endpoint_setting_button'

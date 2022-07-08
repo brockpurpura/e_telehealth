@@ -1,0 +1,126 @@
+#sub_title
+  .leftside
+    %i.fa.fa-user.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside      
+    %h3 #{@customer.client_name} 
+  .rightside.create_new_link
+
+.col-md-12
+  .col-md-12.min_height
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        #{@waiting_functions.size} Commands Waiting To Run &nbsp; &nbsp; #{link_to 'Open', 'javascript:;', :onclick=> 'openView()', :id=>'toggle_view'}
+        %br 
+        %br 
+        = form_for :refresh, :url => bulk_functions_admin_panel_admin_path do |f|
+          = hidden_field_tag :customer_id, params[:customer_id]
+          = f.submit 'Refresh'
+        <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #function_table.hidden
+            %div.endpoint_settings_widget_dimensions_actions
+              %div.leftside
+                %table.endpoint_settings_table_dimensions.threex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Room 
+                    %th.endpoint_setting_widget  
+                      Command
+                    %th.endpoint_setting_widget  
+                      Cancel
+                  - @waiting_functions.each do |wf|
+                    %tr
+                      %td
+                        %p #{wf.endpoint_name}
+                      %td
+                        %p #{wf.command_name}
+                      %td
+                        = form_tag do
+                          =hidden_field_tag :cancel_command, 'true'
+                          =hidden_field_tag :cancel_id, wf.bc_id
+                          =hidden_field_tag :customer_id, params[:customer_id]
+                          =submit_tag 'cancel'
+:javascript
+  function openView() {
+    if ($('#function_table').hasClass('hidden')) {
+      $('#function_table').removeClass('hidden'); 
+      $('#toggle_view').text('Close');
+    } 
+    else {
+      $('#function_table').addClass('hidden'); 
+      $('#toggle_view').text('Open');
+    }
+  }       
+    
+- if @customer.endpoints.online.count > 0
+
+  = form_for :bulk, :url => bulk_functions_admin_panel_admin_path do |f|
+    .col-md-12
+      .col-md-12.min_height
+        <!-- Widget -->
+        .widget
+          <!-- Widget head -->
+          .widget-head
+            Bulk Functions  
+            <div class="clearfix"></div>
+          <!-- Widget content -->
+          .widget-content
+            %div.endpoint_settings_widget_dimensions_actions
+              %div.leftside
+                %table.endpoint_settings_table_dimensions.threex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Select Type
+                    %td.none.vertical_center
+                      .center
+                        .bulk_functions
+                          = hidden_field_tag :customer_id, @customer.id
+                          =radio_button_tag :bulk_option, 'soft_reboot',  :checked => "checked"
+                          %label{:for => "bulk_option_soft_reboot",} Soft Reboot
+  
+                          =radio_button_tag :bulk_option, 'reboot'
+                          %label{:for => "bulk_option_reboot"} Hard Reboot
+                          
+                          =radio_button_tag :bulk_option, 'update_version'
+                          %label{:for => "bulk_option_update_version"} Update Version
+                          
+                        
+                  %tr
+                    %th.endpoint_setting_widget
+                      Select Rooms 
+                      %br 
+                      <i>(Defaults on)</i>
+                    %td.none.vertical_center
+                      .center
+                        .bulk_functions
+                          = check_box_tag :select_all_rooms, 1,  true, :class => 'checkbox', :onclick => "toggleAllBulkPermission()"
+                          %label{:for => "select_all_rooms"} Select All
+                          -@customer.endpoints.online.order(name: :asc).each_with_index do |cl, idx|   
+                            - if cl.endpoint_status.present?
+                              - if cl.endpoint_status.in_a_call.to_s == '1'                           
+                                = f.check_box "#{idx}", {:class => "", :style => "", :id => "bulk_#{idx}", :disabled => "disabled", multiple: true}, 1, nil
+                                %label{:for => "#bulk_{idx}", :style => "border: 1px solid red; background: red; color: #fff; cursor: not-allowed;"} #{cl.name}
+                              - else
+                                = f.check_box "#{cl.name}", {:id => "bulk_#{idx}", :checked=>true, :class=> "bulk_selector", :onclick=>"toggleSingleBulkPermission(this)"}, "#{cl.id}", nil 
+                                %label{:for => "bulk_#{idx}"} #{cl.name}
+
+
+                - if our_active_admin.is_not_read_only?
+                  .widget_submit
+                    = f.submit "Submit", :class=>'endpoint_setting_button'
+- else
+  .col-md-12
+    .col-md-12.min_height
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          No rooms exist for this customer.
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+  
+                    

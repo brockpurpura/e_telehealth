@@ -1,0 +1,39 @@
+
+:javascript
+  invited = false;
+  api_call = true;
+  e_api_call = true;
+  isMeeting = true;
+- if !@usertype.nil? and @usertype.to_s == '2'
+  :javascript 
+    invited = true;
+    epic_patient = true;
+- if params[:silent] == 'true'
+  :javascript
+    silence = true;
+- if params[:no_prompt] == 'true'
+  :javascript
+    no_prompt = true;
+- if !@endpoint.nil?
+  :javascript
+    this_internal_id = '#{@internal_id}'
+- @api_make_call = true  
+.hidden
+  %p#from_api true
+  %p#call_token
+  %p#cid #{@cid}
+  %p#client_id #{@client_id}
+  %p#usertype #{@usertype}
+  %p#username #{@username}
+  %p#ext_user_id #{@userid}
+  %p#appt_time #{@appt_time}
+  %p#org_id #{@org_id}
+  %p#server_name #{Configurable.server_name}
+  %p#call_alias #{@call_alias}
+  %p#main_participant init
+  %p#customer_invite_expiry #{@customer_invite_expiry}
+
+=render :partial=>'meetings/conference_view' , :locals=> {:endpoint => @endpoint, :current_user => @current_user, :tunnel=>@tunnel, :call_alias => @call_alias, :make_call=> @make_call} 
+ 
+
+ 

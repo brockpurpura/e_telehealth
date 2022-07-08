@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+%html
+  %head
+    %title Technician | Caregility
+    = stylesheet_link_tag 'application', media: 'all'
+    = stylesheet_link_tag "style"
+    = stylesheet_link_tag "tech"
+    = stylesheet_link_tag "components"
+
+
+    = javascript_include_tag 'application'
+    = csrf_meta_tags
+    %meta{:charset=>"UTF-8", :lang=>"en"} 
+    %meta{:content => "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1", :name => "viewport"}/
+  %body.admin
+    -if flash[:alert] or @message 
+      .alert.alert-warning.alert-dismissable
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        = flash[:alert] || @message 
+    = yield 

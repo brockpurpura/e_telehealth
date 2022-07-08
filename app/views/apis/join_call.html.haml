@@ -1,0 +1,26 @@
+:javascript
+  invited = true;
+  api_call = false;
+  e_api_call = false;
+  isMeeting = false;
+.hidden
+  %p#call_alias #{@call_alias}
+  %p#call_token #{@call_token}
+  %p#server_name #{@server_name}
+  %p#room_join_timeout #{Configurable.clinician_estimated_room_join_in_milliseconds}
+  - if !@endpoint.nil?
+    %p#endpoint_id #{@endpoint.id }
+    %p#room_name #{@endpoint.name }
+    %p#conf_node #{@endpoint.conference_node}
+    %p#default_input #{(@endpoint.default_input.to_f*2).to_i}
+    %p#default_output #{(@endpoint.default_output.to_f*2).to_i}
+    %p#default_bell #{(@endpoint.default_bell.to_f*2).to_i}
+    %p#from_invite true
+    %p#g_announce #{@g_announce}
+  %p#main_participant init
+  - if user_signed_in?
+    %p#current_user_id #{current_user.id}
+=render :partial=>'homes/conference_view' , :locals=> {:endpoint => @endpoint, :current_user => @current_user, :tunnel=>@tunnel, :call_alias => @call_alias} 
+ 
+
+ 

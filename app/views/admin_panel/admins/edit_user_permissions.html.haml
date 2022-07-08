@@ -1,0 +1,189 @@
+#sub_title
+  .leftside
+    %i.fa.fa-user.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside      
+    %h3 Edit #{@client_admin.email} 
+  .rightside.create_new_link
+  
+    = form_tag params[:is_mobile_user] == "true" ? edit_mobile_user_admin_panel_admin_path : edit_user_admin_panel_admin_path, :style => "display: inline;" do
+      = hidden_field_tag :admin_id, @client_admin.id 
+      = submit_tag "Back", :class => "edit_permissions_link"
+
+- @uhe_for_level = @client_admin.is_uhe_for_level?(our_active_admin)
+- @esitter_for_level = @client_admin.is_esitter_for_level?(our_active_admin)
+- @tech_for_level = @client_admin.is_tech_for_level?(our_active_admin)
+- @read_only = @client_admin.is_read_only?
+- @allow_demo = @client_admin.allow_demo > 0
+
+.col-md-12
+  .col-md-12.min_height
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        Permission Settings
+      <!-- Widget content -->
+      .widget-content
+        .edit_permissions_grid
+          = form_tag edit_user_permissions_admin_panel_admin_path do
+            = hidden_field_tag :admin_id, @client_admin.id
+            = hidden_field_tag :is_mobile_user, params[:is_mobile_user]
+            = hidden_field_tag :total_permission_count, @client_admin.total_permission_count
+            = hidden_field_tag :contextual_permission_count
+
+            .permissions_header_row 
+              .permissions_customer_wrapper
+                .permissions_customer_cell
+                  
+              .permissions_checkbox_wrapper
+                .permissions_checkbox_cell
+                  - if within_license_limit?('Clinician')
+                    .center
+                      Clinician
+                  - else
+                    .center
+                      Clinician
+                      %span.limit_reached license limit reached
+
+                .permissions_checkbox_cell
+                  - if within_license_limit?('Observer')
+                    .center
+                      iObserver
+                  - else
+                    .center
+                      iObserver
+                      %span.limit_reached license limit reached 
+
+                .permissions_checkbox_cell
+                  - if within_license_limit?('Tech')
+                    .center
+                      Technician
+                  - else
+                    .center
+                      Technician 
+                      %span.limit_reached license limit reached 
+
+            .permissions_header_row
+              .permissions_customer_wrapper.select_all
+                .permissions_customer_cell
+
+              .permissions_checkbox_wrapper
+                .permissions_checkbox_cell.select_all
+                  .permission_checkbox_cell_wrapper
+
+                    //Clinician select all customers
+                    - if !within_license_limit?('Clinician') and !@client_admin.mirror_user_clients_list.present?
+                      .center
+                        %p N/A
+                        = check_box_tag :uhe_checkboxes_all, 1,  false, :class => 'checkbox edit_user_permission_checkbox', :onclick => "toggleAllPermission(this)", :class => "hidden"
+                    - else
+                      - if !within_license_limit?('Clinician') and @client_admin.mirror_user_clients_list.count == 0
+                        .center
+                          %p N/A
+                          = check_box_tag :uhe_checkboxes_all, 1,  false, :class => 'checkbox edit_user_permission_checkbox', :onclick => "toggleAllPermission(this)", :class => "hidden"
+                      - else
+                        = check_box_tag :uhe_checkboxes_all, 1,  false, :class => 'checkbox edit_user_permission_checkbox', :onclick => "toggleAllPermission(this)"
+
+
+                .permissions_checkbox_cell.select_all
+                  .permission_checkbox_cell_wrapper
+                    
+                    //iObserver select all customers
+                    - if !within_license_limit?('Observer') and @client_admin.observer_clients_list.count == 0
+                      .center 
+                        %p N/A
+                        = check_box_tag :esitter_checkboxes_all, 1, false, :class => 'checkbox edit_user_permission_checkbox', :onclick => "toggleAllPermission(this)", :class => "hidden"
+                               
+                    - else 
+                      = check_box_tag :esitter_checkboxes_all, 1, false, :class => 'checkbox edit_user_permission_checkbox', :onclick => "toggleAllPermission(this)"
+
+                .permissions_checkbox_cell.select_all
+                  .permission_checkbox_cell_wrapper
+                     
+
+                    //Technician select all customers
+                    - if !within_license_limit?('Tech') and @client_admin.tech_clients_list.count == 0
+                      .center 
+                        %p N/A
+                        = check_box_tag :tech_checkboxes_all, 1,  false, :class => 'checkbox edit_user_permission_checkbox', :onclick => "toggleAllPermission(this)", :class => "hidden"
+                    - else
+                      = check_box_tag :tech_checkboxes_all, 1,  false, :class => 'checkbox edit_user_permission_checkbox', :onclick => "toggleAllPermission(this)"
+
+
+
+
+            .permissions_list_body 
+              .permissions_customer_column_wrapper
+                %ul
+                  - @customers.each_with_index do |customer, idx|
+                    %li
+                      - if @customer.class.name == "Client"
+                        #{customer.name}  
+                      - else
+                        #{customer.client_name} 
+ 
+              .permissions_checkbox_column_wrapper
+                .permissions_checkbox_column_section
+
+                  //Clinician customer checkboxes
+                  %ul
+                    - if !within_license_limit?('Clinician') and !@client_admin.mirror_user_clients_list.present?
+                      = collection_check_boxes(:telehealth_permissions, :id, @customers, :id, :client_name, {:checked => @client_admin.mirror_user_clients_list}, {:class => "uhe_permission_selector edit_user_permission_checkbox", :onclick => "toggleSinglePermission(this)", :disabled => "disabled"})  do |cb|
+                        %li
+                          = cb.check_box
+                    - else
+                      - if !within_license_limit?('Clinician') and @client_admin.mirror_user_clients_list.count == 0
+                        = collection_check_boxes(:telehealth_permissions, :id, @customers, :id, :client_name, {:checked => @client_admin.mirror_user_clients_list}, {:class => "uhe_permission_selector edit_user_permission_checkbox", :onclick => "toggleSinglePermission(this)", :disabled => "disabled"})  do |cb|
+                          %li
+                            = cb.check_box
+                      - else
+                        = collection_check_boxes(:telehealth_permissions, :id, @customers, :id, :client_name, {:checked => @client_admin.mirror_user_clients_list}, {:class => "uhe_permission_selector edit_user_permission_checkbox", :onclick => "toggleSinglePermission(this)"})  do |cb|
+                          %li
+                            = cb.check_box
+
+                .permissions_checkbox_column_section
+
+                  //iObserver customer checkboxes
+                  %ul
+                    - if !within_license_limit?('Observer') and @client_admin.observer_clients_list.count == 0
+                      = collection_check_boxes(:esitter_permissions, :id, @customers, :id, :client_name, {:checked => @client_admin.observer_clients_list}, {:class => "iobserver_permission_selector edit_user_permission_checkbox", :onclick => "toggleSinglePermission(this)", :disabled => "disabled"})  do |cb|
+                        %li
+                          = cb.check_box
+                    - else
+                      = collection_check_boxes(:esitter_permissions, :id, @customers, :id, :client_name, {:checked => @client_admin.observer_clients_list}, {:class => "iobserver_permission_selector edit_user_permission_checkbox", :onclick => "toggleSinglePermission(this)"})  do |cb|
+                        %li
+                          = cb.check_box
+
+
+                .permissions_checkbox_column_section 
+
+                  //Technician customer checkboxes
+                  %ul
+                    - if !within_license_limit?('Tech') and @client_admin.tech_clients_list.count == 0
+                      = collection_check_boxes(:tech_permissions, :id, @customers, :id, :client_name, {:checked =>  @client_admin.tech_clients_list}, {:class => "tech_permission_selector edit_user_permission_checkbox", :onclick => "toggleSinglePermission(this)", :disabled => "disabled"})  do |cb|
+                        %li
+                          = cb.check_box
+                    - else
+                      = collection_check_boxes(:tech_permissions, :id, @customers, :id, :client_name, {:checked =>  @client_admin.tech_clients_list}, {:class => "tech_permission_selector edit_user_permission_checkbox", :onclick => "toggleSinglePermission(this)"})  do |cb|
+                        %li
+                          = cb.check_box
+
+            .permissions_header_row.notification
+              .permissions_customer_wrapper.notification
+                .permissions_customer_cell
+                  Notification Portal access
+                
+              .permissions_checkbox_wrapper
+                .permissions_checkbox_cell.notification
+                  = hidden_field_tag :allow_notification_portal, 0
+                  = check_box_tag :allow_notification_portal, 1, @client_admin.allow_notification_portal?
+
+
+            - if our_active_admin.is_not_read_only?
+              = submit_tag "Save", :class=>'endpoint_setting_button'            
+
+:javascript
+  $(document).ready( function() {
+    permissionInitiation();
+  });
+

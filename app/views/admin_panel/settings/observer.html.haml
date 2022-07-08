@@ -1,0 +1,222 @@
+#sub_title
+  .leftside
+    %i.far.fa-cog.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 iObserver Settings
+.col-md-12 
+  .col-md-12
+    - if !current_admin.is_super_admin?
+      .widget
+        .widget-head
+          Please contact admin for iObserver settings 
+    - if current_admin.is_super_admin?
+      .widget
+        .widget-head
+          Controller Settings 
+        .widget-content
+          =form_tag do
+            = hidden_field_tag :esitter, "true"
+            #div
+              %table.endpoint_settings_table_dimensions.twox
+                %tr
+                  %th.endpoint_setting_widget
+                    Default System Controller 
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :esitter_controller_default,  Configurable.esitter_controller_default, :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Update for all clients with matching controller 
+                  %td.none.vertical_center
+                    .center
+                      =check_box_tag :update_clients, 1, false 
+                - if our_active_admin.is_not_read_only?
+                  %tr
+                    %th.endpoint_setting_widget
+                      Save Settings 
+                    %td.none.vertical_center
+                      .center
+                        =submit_tag 'Save', :class=>"endpoint_setting_button"
+      - if current_admin.is_super_admin?
+        .widget
+          .widget-head
+            Default System Turn Servers  
+          .widget-content
+            #div
+              %table.endpoint_settings_table_dimensions.twox
+                %tr
+                  %th.endpoint_setting_widget
+                  %th.endpoint_setting_widget
+                    %p Group Name 
+                  %th.endpoint_setting_widget
+                    %p Type 
+                  %th.endpoint_setting_widget
+                    %p IP address 
+                  %th.endpoint_setting_widget
+                    %p UserName 
+                  %th.endpoint_setting_widget
+                    %p Actions
+                %tr{:id=>'default_placeholder'}
+      #popup_widget_surround.left_auto
+        .popup_widget.width_auto.popup_ui{:id => "edit_turn_form"}
+          #uhe_admin_popup
+            %p.hidden{:id=>'current_group_name'}
+            %h2{:id=>'turn_server_popup_title'} Edit Turn Servers
+            = link_to "javascript:;", :class=>'login_x rightside fade', :onclick=>"close_admin_popup('edit_turn_form')" do 
+              %i.far.fa-times{:'aria-hidden' => 'true'}
+            = form_tag do 
+              .uhe_admin_popup_body
+                .uhe_admin_popup_form.width_auto
+                  %table.endpoint_settings_table_dimensions.centered.twox{:id=>'form_placeholder'}
+              .endpoint_settings_table_dimensions.centered
+                .leftside
+                  = link_to 'Add New Turn Server', 'javascript:;', :onclick=>'addRow()'
+                .rightside
+                  = link_to 'Save', 'javascript:;', :onclick=>'saveTurnData()'
+      .widget
+        .widget-head
+          Add/Edit Customer Turn Server Group  
+        .widget-content
+          #div
+            .endpoint_settings_table_dimensions.onex
+              = form_tag do
+                = select_tag :customer_list, options_for_select(@customers.map{|d| ["#{d.client_name}" , d.turn_server_group]}), :id=>'customer_list'
+              %br
+              = link_to 'Add/Edit', 'javascript:;', :onclick=>'addTurnServer()'
+              %br                        
+              %br                        
+      - if current_admin.is_super_admin?
+        .widget
+          .widget-head
+            Customer Turn Servers  
+          .widget-content
+            #div
+              %table.endpoint_settings_table_dimensions.onex
+                %tr
+                  %th.endpoint_setting_widget
+                    %p Customer
+                  %th.endpoint_setting_widget
+                    %p Group Name 
+                  %th.endpoint_setting_widget
+                    %p Type 
+                  %th.endpoint_setting_widget
+                    %p IP address 
+                  %th.endpoint_setting_widget
+                    %p UserName 
+                  %th.endpoint_setting_widget
+                    %p Actions
+                %tr{:id=>'customer_placeholder'}
+
+= javascript_include_tag 'socket.io', 'data-turbolinks-track' => false 
+=render :partial => "streaming"   
+:javascript
+  let our_controller = 'https://#{Configurable.esitter_controller_default}';
+  streaming.onConnect = id => {
+    console.log('streaming is connected');
+    setTimeout( 
+    function() {
+      streaming.getMediaRelayGroups().then(
+        function(groups){
+          groups.forEach(function(group){
+            streaming.getMediaRelays(group).then(turns=> printGroups(turns,group)).catch(console.log);
+          });
+        }
+      ).catch(console.log);
+    }, 300);
+  }
+  streaming.connect(our_controller);
+  var row_count = 0;
+  function printGroups(list, group_name){
+          list.forEach(function(group){  
+            console.log(JSON.stringify(group));
+            var tRow = "<tr><td class='input_endpoint_settings'><p>" + group_name + "</p></td><td class='input_endpoint_settings'><p>" + group_name + "</p></td><td class='input_endpoint_settings'><p>" + group.proto + "</p></td><td class='input_endpoint_settings'><p>" + group.address + "</p></td><td class='input_endpoint_settings'><p>" + group.username + "</p></td>";
+            tRow = tRow + "<td><a href='javascript:;' onclick=\"edit_turn_server('"+ group_name+ "')\">Edit</a></td>";
+            if (group_name == 'default'){  
+              document.getElementById('default_placeholder').insertAdjacentHTML('beforebegin', tRow);
+            }
+            else {
+              document.getElementById('customer_placeholder').insertAdjacentHTML('beforebegin', tRow);
+            }
+          }); 
+  }
+  function edit_turn_server(group_name){
+    // remove current form if any 
+    var formNode = document.getElementById('form_placeholder');  
+    while (formNode.firstChild) {
+      formNode.removeChild(formNode.firstChild);  
+    }
+    
+    // populate with our form
+    streaming.getMediaRelays(group_name).then(turns=> printGroupForm(turns, group_name)).catch(console.log);
+  }  
+  function printGroupForm(list, group_name) {
+    var thRow = "<tr><th>IP Address</th><th>Username</th><th>Password</th><th>Actions</th></tr>"  
+    document.getElementById('form_placeholder').insertAdjacentHTML('afterbegin', thRow);
+    if (list){
+      list.forEach(function(group){
+        var tRow =  "<tr id=row_" + row_count + "><td><input type='text' class='input_endpoint_settings' id='address' value ='" + group.address + "'></input></td>";
+        tRow = tRow + "<td><input type='text' class='input_endpoint_settings' id='username' value ='" + group.username + "'></input></td>";
+        tRow = tRow + "<td><input type='text' class='input_endpoint_settings' id='credential' value ='" + group.credential + "'></input></td>";
+        tRow = tRow + "<td><a id= 'delete_link' href='javascript:;' onclick=deleteRow(row_" + row_count + ")> Delete </a></td></tr> "
+        document.getElementById('form_placeholder').insertAdjacentHTML('beforeend', tRow);
+        row_count = row_count + 1;
+      });
+    }
+    else {
+      addRow();  
+    }
+    document.getElementById('turn_server_popup_title').innerHTML = 'Edit Turn Servers for ' + group_name
+    document.getElementById('current_group_name').innerHTML = group_name
+    open_admin_popup('edit_turn_form', 'none');
+  }
+  function addRow() {
+    var tRow =  "<tr id=row_"+ row_count +"><td><input type='text' class='input_endpoint_settings' id='address'></input></td>";
+    tRow = tRow + "<td><input type='text' class='input_endpoint_settings' id='username'></input></td>";
+    tRow = tRow +  "<td><input type='text' class='input_endpoint_settings' id='credential'></input></td>";
+    tRow = tRow + "<td><a id = 'delete_link' href='javascript:;' onclick=deleteRow(row_" + row_count + ")> Delete </a></td></tr> "
+    row_count = row_count + 1;
+    document.getElementById('form_placeholder').insertAdjacentHTML('beforeend', tRow);
+  }
+  function addTurnServer(){
+    var custList = document.getElementById('customer_list')
+    var groupName = custList.options[custList.selectedIndex].value;
+    edit_turn_server(groupName);  
+  }
+  function saveTurnData(){
+    var dataTable = document.getElementById('form_placeholder');
+    var dataRows = dataTable.querySelectorAll("tr");  
+    var JSONObject = [];
+    for (var i=0; i<dataRows.length; i++){
+      dataRow = dataRows[i];
+      var dataCols = dataRow.querySelectorAll("td");
+      if (dataCols.length > 0 && !document.getElementById(dataRow.id).classList.contains('hidden')){
+        var addData = true;
+        var JSONRow = {};
+        for (var z=0; z<dataCols.length; z++){ 
+          var colValue = dataCols[z].firstChild;
+          if (colValue && (colValue.id == 'address' || colValue.id == 'username' || colValue.id == 'credential')){
+             JSONRow[colValue.id] = colValue.value;  
+          }
+          else {
+            if (colValue.id != 'delete_link'){
+              addData = false;
+            }
+          }
+        } 
+        if (addData){
+          JSONObject.push(JSONRow);
+        }
+      }
+    }
+    var currentGroupName = document.getElementById('current_group_name').innerHTML;
+    if (JSONObject.length>0){
+      streaming.setMediaRelays(JSONObject,currentGroupName);
+    }
+    else {
+      streaming.setMediaRelays([], currentGroupName); // is there a delete function we could use?
+    }
+    location.reload();
+  }
+  function deleteRow(row_id){
+    $(row_id).addClass('hidden'); 
+  } 

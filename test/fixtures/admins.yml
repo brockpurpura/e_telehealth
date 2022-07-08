@@ -1,0 +1,586 @@
+super_admin:
+  id: 1
+  email: 'super_admin@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 3
+  client_id: 0
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+
+clinician:
+  id: 2
+  email: 'clinician@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_id: 2
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+
+mobile_patient_device_1:
+  id: 3
+  email: 'patient1@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 0
+  client_id: 2
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  tech_approved: 0
+  is_mobile_user: 1
+  mobile_role: Patient
+  mobile_specialty: InPatient
+
+mobile_patient_device_2:
+  id: 4
+  email: 'patient2@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 0
+  client_id: 3
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  tech_approved: 0
+  is_mobile_user: 1
+  mobile_role: Patient
+  mobile_specialty: InPatient
+
+mobile_patient_device_3:
+  id: 5
+  email: 'patient3@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 0
+  client_id: 4
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  tech_approved: 0
+  is_mobile_user: 1
+  mobile_role: Patient
+  mobile_specialty: InPatient
+
+mobile_patient_device_4:
+  id: 6
+  email: 'patient4@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 0
+  client_id: 5
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  tech_approved: 0
+  is_mobile_user: 1
+  mobile_role: Patient
+  mobile_specialty: InPatient
+
+non-admin-clinician:
+  id: 7
+  email: 'non-admin-clinician@caregility.com'
+  encrypted_password: "$2a$10$Weaff4zSp5.Dj3Hj1jb0/OMsnB50knNJHK6Am42U8esNMOWTSLyxK"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 0
+  client_id: 2
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+
+super-admin-clinician:
+  id: 8
+  email: 'super-admin-clinician@caregility.com'
+  encrypted_password: "$2a$10$Weaff4zSp5.Dj3Hj1jb0/OMsnB50knNJHK6Am42U8esNMOWTSLyxK"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 3
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+
+
+channel-admin-clinician:
+  id: 9
+  email: 'channel-admin-clinician@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 2
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+
+customer-admin-clinician:
+  id: 10
+  email: 'customer-admin-clinician@caregility.com'
+  encrypted_password: "$2a$10$Weaff4zSp5.Dj3Hj1jb0/OMsnB50knNJHK6Am42U8esNMOWTSLyxK"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  client_id: 2
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+
+patient-1:
+  id: 11
+  email: 'patient@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_id: 2
+  client_admin_id: 1
+  mobile_location_id: 1
+  mobile_unit_id: 1
+  is_mobile_user: 1
+  mobile_specialty: "InPatient"
+  mobile_role: "Patient"
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0super_admin@caregility.com
+  tech_approved: 0
+  failed_attempts: 0
+
+clinician_7:
+  id: 12
+  email: 'clinician_7@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_id: 7
+  client_admin_id: 2
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0  
+
+mobile_patient_device_5:
+  id: 13
+  email: 'patient5@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 0
+  client_id: 7
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  tech_approved: 0
+  is_mobile_user: 1
+  mobile_role: Patient
+  mobile_specialty: InPatient
+
+clinician_8:
+  id: 14
+  email: 'clinician_8@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0  
+
+clinician_9:
+  id: 15
+  email: 'clinician_9@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0  
+  client_admin_id: 1
+  
+mobile_non_channel_admin_all_customers_clinician:
+  id: 16
+  email: 'clinician_10@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  current_sign_in_ip: 72.68.78.25
+  last_sign_in_ip: 72.68.78.25
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0  
+  client_admin_id: 1
+
+clinician_11:
+  id: 17
+  email: 'clinician11@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 1
+  current_sign_in_at: <%= 5.days.ago.to_date %>
+  last_sign_in_at: <%= 5.days.ago.to_date %>
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_id: 2
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+
+customer-admin-2-clinician:
+  id: 18
+  email: 'customer-admin-2-clinician@caregility.com'
+  encrypted_password: "$2a$10$tg7e5WMJiNgE2izGCuZ5p.UyczbrmTNf.dU/pZlowf4rmtyMZawii"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  client_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+
+all-customers-clinician:
+  id: 19
+  email: 'all-customers-clinician@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+
+clinician_with_names:
+  id: 20
+  email: 'clinician_5@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+  prefix: Count
+  first_name: Reginald
+  last_name: Vonn Trapp
+
+clinician_without_names:
+  id: 21
+  email: 'clinician_6@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+
+clinician_with_names_2:
+  id: 22
+  email: 'clinician_17@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+  prefix: Ms
+  first_name: Poppy
+  last_name: Tart
+
+clinician_18@caregility.com:
+  id: 23
+  email: 'clinician_18@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+  prefix: Ms
+  first_name: Geraldine
+  last_name: Cumberbatch
+
+clinician_19@caregility.com:
+  id: 24
+  email: 'clinician_19@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_id: 13
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 1
+  prefix: Mr
+  first_name: Ki
+  last_name: Suh
+
+clinician_25@caregility.com:
+  id: 25
+  email: 'clinician_25@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+  prefix:
+  first_name:
+  last_name:
+
+clinician_26@caregility.com:
+  id: 26
+  email: 'clinician_26@caregility.com'
+  encrypted_password: "$2a$10$dXOkAJuvRDOohKipA4k2v.gdHvzoaMpMMEw7i7kdDUnhauXTc6G.2"
+  sign_in_count: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  approved: 1
+  authorized: 1
+  role_type: 1
+  client_admin_id: 1
+  invitations_count: 0
+  default_admin: 0
+  country_phone_abbv: us
+  allow_demo: 0
+  should_timeout: 0
+  tech_approved: 0
+  failed_attempts: 0
+  is_mobile_user: 0
+  prefix: Sir
+  first_name: Kevin
+  last_name: Bacon
+  is_mobile_user: 1
+  prefix: Mr
+  first_name: Ki
+  last_name: Suh

@@ -1,0 +1,55 @@
+InDemand:
+  id: 1
+  name: InDemand
+  use_domain: 1
+  use_gender: 1
+  domain: "@telehealth.indemand.us"
+  male: '1'
+  female: '2'
+  any: '0'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  use_skill: 0
+  use_mapping: 0
+
+Stratus:
+  id: 2
+  name: Stratus
+  use_domain: 0
+  use_gender: 0
+  domain: "@univago.com"
+  male: '0'
+  female: '0'
+  any: '0'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  use_skill: 0
+  use_mapping: 1
+
+LanguageLine:
+  id: 3
+  name: LanguageLine
+  use_domain: 0
+  use_gender: 0
+  domain: "@univago.com"
+  male: '0'
+  female: '0'
+  any: '0'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  use_skill: 0
+  use_mapping: 3
+
+Cloudbreak:
+  id: 4
+  name: Cloudbreak
+  use_domain: 0
+  use_gender: 0
+  domain: "@univago.com"
+  male: '0'
+  female: '0'
+  any: '0'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  use_skill: 0
+  use_mapping: 2

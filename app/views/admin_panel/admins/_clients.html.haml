@@ -1,0 +1,221 @@
+-if @client_list.present?
+  %table{:class=>'table table-bordered', :id => 'customer_client_list'}
+    %thead
+      %tr
+        -if our_active_admin.is_super_admin?
+          %th 
+            Channel Name
+        %th
+          Customer Name 
+        %th  
+          .center
+            No. of Clinicians 
+        //%th 
+        //  .center
+        //    No. of Technicians 
+        %th
+          .center
+            No. of Rooms 
+        %th
+          .center
+            Interpreter 
+        %th
+          .center
+            Advanced Reports
+        %th
+          .center
+            Branding
+        %th
+          .center
+            Actions
+    %tbody
+      -@client_list.each_with_index do |cl, idx|
+        %tr{:class => idx%2==0 ? 'even' : 'odd'}             
+          - if our_active_admin.is_super_admin?
+            %td.vertical_center{:onclick=> "submit_form('edit_customer_#{idx}')"}
+              - if cl.client_admin.present?
+                #{cl.client_admin.name} 
+          %td.vertical_center{:onclick=> "submit_form('edit_customer_#{idx}')"}
+            - if cl.default_admin.nil?
+              Error! Create a default admin for #{cl.client_name}
+            - else
+              #{cl.client_name}
+          %td.vertical_center{:onclick=> "submit_form('edit_customer_#{idx}')"}
+            .center
+              #{cl.users.count}
+          //%td 
+          //  .center
+          //    #{cl.technicians.where('default_admin != 1').count}
+          %td.vertical_center{:onclick=> "submit_form('edit_customer_#{idx}')"}
+            .center
+              #{cl.endpoints.active.count}
+          %td{:onclick=> "submit_form('edit_customer_#{idx}')"}
+            .center
+              - if cl.translation_type_id == 0 
+                None
+              - else  
+                #{cl.translation_type.name}
+
+
+          %td{:onclick=> "submit_form('edit_customer_#{idx}')"}
+            .center
+              - if cl.use_layerx == 0 
+                Off
+              - else  
+                On
+
+          %td.vertical_center
+            .center
+              =link_to "", "javascript:;", :class => "fa fa-font" , :onclick=>"open_admin_popup('branding_#{idx}','')"
+                            
+              #popup_widget_surround
+                .popup_widget.popup_ui{:id => "delete_" + cl.id.to_s}
+                  #uhe_admin_popup
+                    %h2 Delete Customer 
+                    =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('delete_#{cl.id.to_s}')" do 
+                      <i class="far fa-times" aria-hidden="true"></i>
+                    = form_tag customers_admin_panel_admin_path, :class=>'' do     
+                      .uhe_admin_popup_body.no_scroll  
+                        .uhe_admin_popup_form
+                          %p.entry_header
+                            Confirm Delete
+                          .center
+                            = text_field_tag :confirm_edittext, nil, placeholder: 'Type DELETE to confirm', :class => "password_confirm", :oninput => "check_delete_button_activation('#{cl.id.to_s}')", :id => "delete_confirm_" + cl.id.to_s
+                          %p.entry_informational You are about to delete #{cl.client_name}  
+                      .submit
+                        .center
+                          = hidden_field_tag :delete_customer, cl.id 
+                          = submit_tag "Delete", :class=> "inactive", :disabled => "disabled", :id => "delete_btn_" +cl.id.to_s 
+              .hidden
+                =form_tag :customer_settings_admin_panel_admin, :id=>"edit_customer_#{idx}" do
+                  = hidden_field_tag :customer_id, cl.id
+                  
+              #popup_widget_surround
+                .popup_widget.popup_ui{:id => "" }
+                  #uhe_admin_popup
+                    %h2 Edit Customer 
+                    =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_customer_#{idx}')" do 
+                      <i class="far fa-times" aria-hidden="true"></i>
+                      
+                    = form_for :client do |x|
+                      .uhe_admin_popup_body
+                        .uhe_admin_popup_form
+                          %p.entry_header
+                            Customer Name *     
+                          .center
+                            = text_field_tag :name, cl.client_name, :class => "admin-border"                  
+                          %p.entry_header
+                            Interpreter Service *      
+                          .center
+                            .dropdowns
+                              %label
+                                = x.select :translation_type_id, content_tag(:option,'None',:value=>"0") + options_from_collection_for_select(TranslationType.all, 'id', 'name', cl.translation_type_id), :class=>'admin-border'
+                          %p.entry_header
+                            Interpreter Customer Code 
+                          .center
+                            = x.text_field :translation_customer_code, :value => cl.translation_customer_code, :class => "admin-border"
+                          %p.entry_header
+                            Advanced Reports *      
+                          .center
+                            .dropdowns
+                              %label
+                                = x.select :use_layerx, options_for_select({'Off'=> '0',  'On' => '1'}, cl.use_layerx), :class => "admin-border"
+                          %p.entry_header
+                            Advanced Reports Username      
+                          .center
+                            = x.text_field :layerx_username, :value => cl.layerx_username, :class => "admin-border"
+                          %p.entry_header
+                            Advanced Reports Dashboard Id       
+                          .center
+                            = x.text_field :layerx_dashboard_id,:value =>  cl.layerx_dashboard_id, :class => "admin-border"
+                          %p.entry_header
+                            Epic Interconnect Server 
+                          .center
+                            = x.text_field :interconnect_server,:value =>  cl.interconnect_server, :class => "admin-border"
+                          %p.entry_header
+                            Epic Interconnect Username 
+                          .center
+                            = x.text_field :interconnect_username,:value =>  cl.interconnect_username, :class => "admin-border"
+                          %p.entry_header
+                            Epic Interconnect Password 
+                          .center
+                            = x.text_field :interconnect_password,:value =>  cl.interconnect_password, :class => "admin-border"
+                            = hidden_field_tag :edit_customer, 'true'
+                            = hidden_field_tag :customer_id, cl.id
+                      - if our_active_admin.is_not_read_only?
+                        .submit  
+                          .center
+                            = submit_tag "Update", :class=> "button"
+                        .footer_link
+                          .center
+                            =link_to "Delete Customer", "javascript:;", :class => "", :onclick=>"open_admin_popup('delete_" + cl.id.to_s+"','edit_customer_#{idx}')"
+        
+          %td.vertical_center
+            .center    
+              = form_tag bulk_functions_admin_panel_admin_path, :id => 'open_bulk_actions_', :style => "display: inline;" do
+                = hidden_field_tag :customer_id, cl.id 
+
+                = submit_tag "Bulk", :class => "edit_permissions_link table"
+
+        #popup_widget_surround 
+          .popup_widget.popup_ui{:id => "branding_#{idx}"}
+            #uhe_admin_popup
+              %h2 Branding #{cl.client_name}
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('branding_#{idx}')" do 
+                <i class="far fa-times" aria-hidden="true"></i>
+                
+              = form_for @icon, url: customers_admin_panel_admin_path, :method => :post, html:{multipart: true} do |x|
+                .uhe_admin_popup_body.no_scroll  
+                  .uhe_admin_popup_form
+              
+                    %p.entry_header
+                      Header Color
+                    .entry
+                      .leftside 
+                        = x.text_field :banner_color, :id => "banner_color_input_#{idx}", :class => 'one_action right', :placeholder => "#{cl.has_icon? ? determine_branding_banner_color(cl) : 'Enter hex code'}", :oninput => "updateBannerColor('#{idx}')", :maxlength => 7
+                      .leftside
+                        #entry_action.color_picker
+                          %input{:id => "color_banner_branding_#{idx}",:oninput => "getBannerColor('#{idx}')",:class => "branding_box", :type => "color", :value => determine_branding_banner_color(cl)}
+                    %p.entry_header
+                      Header Text Color
+                    .entry
+                      .leftside
+                        = x.text_field :font_color, :id => "font_color_input_#{idx}", :class => 'one_action right', :placeholder =>"#{cl.has_icon? ? determine_branding_font_color(cl) : 'Enter hex code'}", :oninput => "updateFontColor('#{idx}')", :maxlength => 7
+                      .leftside
+                        #entry_action.color_picker
+                          %input{:id => "color_font_branding_#{idx}", :oninput => "getFontColor('#{idx}')",:class => "branding_box", :type => "color", :value => determine_branding_font_color(cl)}
+                    %p.entry_header
+                      Upload Photo
+                    .entry_image 
+                      .leftside
+                        .image-upload
+                          %label{:for => "file-input_#{idx}"}
+                            %span.far.fa-file-image 
+                      .leftside
+                        -if cl.has_icon? and cl.icon.attachment_url.present?
+                          = image_tag(cl.icon.attachment_url :height=>'40')
+                        - else
+                          %p.padding_top12 Choose File
+                    %div.entry_footer
+                      %p Recommended Height: 40px,    JPG & PNG Only
+                      = x.hidden_field :client_id, :value=> cl.id    
+                      = x.hidden_field :status, :value=>"1"
+                      = hidden_field_tag :update_design, true
+  
+                    .height0
+                      = x.file_field :attachment, :class => "support_upload pdf banner", :id => "file-input_#{idx}"
+                .submit
+                  .center 
+                    - if our_active_admin.is_not_read_only?
+                      = x.submit "Update", :class=> "button add_button" 
+
+  .pagination_tr
+    .center
+      = will_paginate @client_list, params: params
+
+-else
+  %p.no_matching_info No matching information
+
+
+<script>$(document).ready(function() { $("#customer_client_list").tablesorter(); } );</script> 
+

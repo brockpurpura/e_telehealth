@@ -1,0 +1,321 @@
+- content_for(:title) { "Caregility Healthcare Admin" }
+- content_for(:description) { "Caregility Healthcare Admin" }
+
+%div{:id=>'top'}
+
+<!-- Dashboard Graph starts -->
+#sub_title
+  .leftside
+    %i.fa.fa-tablet-alt.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside 
+    %h3 Mobile Patients
+  .rightside.create_new_link
+    - if within_all_users_license_limit?
+      - if our_active_admin.is_not_read_only?
+        =link_to "Add Mobile Patient", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('invite_cga_mobile_admin','')"
+        &nbsp;/&nbsp;
+        = link_to "Bulk Upload", bulk_upload_patient_admin_panel_admin_path
+        
+    - else 
+      Exceeded User license limit
+    
+
+.col-md-12.min_height
+  .col-md-12
+
+
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        .search_field  
+          .leftside
+            .search_icon
+              %span.far.fa-search
+
+          = form_for :search_cga_form, :url => cgas_mobile_admin_panel_admin_path, :html => {:id => "search_cga_form" } do |x|
+            .leftside
+              = x.text_field :search_cgas, :id=>'search_cgas', :placeholder=>'Search', :value => @search_value, :class=>'search_field_input'
+            #popup_widget_surround 
+              .popup_widget.popup_ui{:id => "filter_layout"}
+                #uhe_admin_popup
+                  %h2 Filter   
+                  =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+                    <i class="far fa-times" aria-hidden="true"></i>
+                  .uhe_admin_popup_body.no_scroll  
+                    .uhe_admin_popup_form   
+                      - if our_active_admin.is_super_admin?
+                        %p.entry_header
+                          By Channel      
+                        .entry 
+                          .center
+                            .dropdowns
+                              %label
+                                = x.collection_select(:filter_channel, ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None", :selected => @channel_value}, {})
+                      - if our_active_admin.is_channel_admin?     
+                        %p.entry_header
+                          By Customer      
+                        .entry 
+                          .center
+                            .dropdowns
+                              %label
+                                = x.collection_select(:filter_customer, our_active_admin.client_admin.clients.active, :id, :client_name, { :multiple => true, :prompt => "None", :selected => @customer_value}, {})
+                        
+                      %p.entry_header
+                        By Admin Level       
+                      .entry 
+                        .center
+                          .dropdowns
+                            %label
+                              - if our_active_admin.is_super_admin? or our_active_admin.is_channel_admin?
+                                = x.select :filter_roles, options_for_select({'Super Admin' => 'SUPER_ADMIN', 'Channel Admin' => 'CHANNEL_ADMIN', 'Customer Admin' => 'CUSTOMER_ADMIN', 'Clinician' => 'UHE', 'iObserver' => 'ESITTER', 'Technician' => 'TECH'}, @role_value), :id=> "filter_cgas", :class=>'', :prompt => "None"
+                              - else
+                                = x.select :filter_roles, options_for_select({'Clinician' => 'UHE', 'iObserver' => 'ESITTER', 'Technician' => 'TECH'}, @role_value), :id=> "filter_cgas", :class=>'', :prompt => "None"
+
+                  .submit
+                    .center 
+                      = x.submit "Apply", :class=> "button", :onclick => "close_admin_popup('filter_layout')" 
+                  .footer_link
+                    .center
+                      =x.button "Reset Filter",  :type =>  'submit', :name => 'reset_filter', :value => 'true', :class => "reset_filter_submit"
+            .leftside
+              .clear_search
+                =x.button "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+                  %span.fal.fa-times
+
+            .leftside
+              .filter_link
+                .center
+                  =link_to "Filter", "javascript:;", :class=>"", :onclick=>"open_admin_popup('filter_layout','')"
+
+
+        .rightside
+          - if our_active_admin.is_super_admin?
+            =link_to "Download", cgas_mobile_admin_panel_admin_path(:download_admin_permissions => "true"), :class => ""
+            &nbsp;/&nbsp;
+            =link_to 'Saved Reports', saved_mobile_reports_admin_panel_admin_path
+
+
+        <div class="clearfix"></div>
+      .widget-content
+        #accounts_partial
+          = render :partial => 'cga_mobile_client_list'
+
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround 
+    .popup_widget.popup_ui{:id => "invite_cga_mobile_admin"}
+      #uhe_admin_popup
+        %h2{:style => "margin-bottom: 0px"} Add Mobile Patient 
+        =link_to "javascript:;", :class => "login_x rightside fade", :onclick=>"close_admin_popup('invite_cga_mobile_admin')" do
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        = form_tag(cgas_mobile_admin_panel_admin_path, id: "new_mobile_user_form" ) do
+          .uhe_admin_popup_body  
+            .uhe_admin_popup_form  
+
+              %p.entry_header
+                Medical Role * 
+              .center
+                .dropdowns
+                  %label
+                    = select_tag("create_mobile_patient[mobile_role]", options_for_select(Admin::PATIENT_ROLES.keys), :onchange=>"handleMobileRoleChange()", :id=>"mobileRoleDropdown")
+                    
+              %p.entry_header
+                Medical Specialty * 
+              .center
+                .dropdowns
+                  %label
+                    = select_tag("create_mobile_patient[mobile_specialty]", options_for_select([]), :onchange=>"handleMobileSpecialtyChange()", :id=>"mobileSpecialtyDropdown")         
+
+              %p.entry_header
+                Email *
+              .center
+                = email_field(nil, "create_mobile_patient[email]", maxlength: 200, autocomplete: "new-password", 'data-lpignore': "true")
+                
+              .hidden{:id => "password_block"}
+                %p.entry_header
+                  Password *
+                .center
+                  = password_field(nil, "create_mobile_patient[password]", minlength: 6, maxlength: 200, autocomplete: "new-password", 'data-lpignore': "true")
+              
+              %p.entry_header
+                Name  
+              .entry
+                .leftside   
+                  .dropdowns
+                    %label
+                      = select_tag('create_mobile_patient[prefix]', options_for_select(User::USER_PREFIX_SELECT, selected: ""), class: "prefix_name_entry prefix_name uhe_admin")
+                .leftside
+                  = text_field_tag('create_mobile_patient[first_name]', nil, placeholder: "", class: "prefix_name_entry first_name", maxlength: 200)
+                .leftside
+                  = text_field_tag('create_mobile_patient[last_name]', nil, placeholder: "", class: "prefix_name_entry last_name", maxlength: 200)
+              .entry_footer 
+                .leftside
+                  %p.prefix_name_entry.prefix_name Prefix 
+                .leftside
+                  %p.prefix_name_entry.first_name First / Room Number
+                .leftside
+                  %p.prefix_name_entry.last_name Last  
+              %p.entry_header
+                Channel *      
+              .center
+                .dropdowns
+                  %label
+                    - if our_active_admin.is_super_admin?
+                      = collection_select(nil, 'create_mobile_patient[client_admin_id]', ClientAdmin.active, :id, :name,  {}, :onchange=>'adminMobileCheckCustomers()', :id=>'channelDropDown')  
+                    - if our_active_admin.is_channel_admin?
+                      = collection_select(nil, 'create_mobile_patient[client_admin_id]', ClientAdmin.active.where('id = ?', our_active_admin.client_admin_id), :id, :name, {}, :onchange=>'adminMobileCheckCustomers()', :id=>'channelDropDown')  
+                    - if our_active_admin.is_customer_admin?
+                      = collection_select(nil, 'create_mobile_patient[client_admin_id]', ClientAdmin.active.where('id = ?', our_active_admin.client.client_admin.id), :id, :name, {},:onchange=>'adminMobileCheckCustomers()', :id=>'channelDropDown')  
+                
+              %p.entry_header
+                Customer *      
+              .center
+                .dropdowns
+                  %label
+                    = select_tag('create_mobile_patient[client_id]', options_for_select([]), onchange: 'adminMobileCheckBuildings()', id: 'customerDropDown')
+
+              %div.hidden{:class => 'patient_only'}
+                %p.entry_header
+                  Location *      
+                .center
+                  .dropdowns
+                    %label
+                      = select_tag('create_mobile_patient[location_id]', options_for_select([]), onchange: 'adminMobileCheckRooms()', id: 'room_building_id')
+
+                %p.entry_header
+                  Unit *      
+                .center
+                  .dropdowns
+                    %label
+                      = select_tag('create_mobile_patient[unit_id]', options_for_select([]), id: 'roomSelect')
+
+              %div.hidden{:class => 'patient_only'}
+                %p.entry_header
+                  Alias
+                .center
+                  = text_field_tag('create_mobile_patient[alias]', '', placeholder: "", maxlength: 200)
+
+                %p.entry_header
+                  Notification URL
+                .center
+                  = text_field_tag('create_mobile_patient[notification_url]', '', placeholder: "", maxlength: 200)
+
+              %div{:class => 'non_patient_only'}
+                %p.entry_header
+                  Roles
+                - if within_license_limit?('Clinician')
+                  - @show_clinician = true 
+                - else
+                  %p Clinician license limit reached 
+                - if within_license_limit?('Observer')
+                  - @show_observer = true 
+                - else
+                  %p iObserver license limit reached 
+                - if within_license_limit?('Tech')
+                  - @show_technician = true 
+                - else
+                  %p Technician license limit reached   
+                - @show_notification_portal = true
+                .entry
+                  .leftside
+                    - if @show_clinician 
+                      .left_checkbox_entry
+                        .leftside
+                          %input{:name => "telehealth", :id=>'select_telehealth', :type=>'checkbox', :class=>'checkbox'}   
+                        .leftside
+                          %p.checkbox_subtitle &nbsp; Clinician  
+                  - if @show_observer
+                    .leftside
+                      .right_checkbox_entry
+                        .leftside
+                          %input{:name => "esitter", :id=>'select_esitter', :type=>'checkbox', :class=>'checkbox'}   
+                        .leftside
+                          %p.checkbox_subtitle &nbsp; iObserver 
+                  
+                .entry 
+                  .leftside
+                    - if @show_technician 
+                      .left_checkbox_entry
+                        .leftside
+                          %input{:name => "technician", :id=>'select_technician', :type=>'checkbox', :class=>'checkbox'}   
+                        .leftside
+                          %p.checkbox_subtitle &nbsp; Technician  
+                  .leftside
+                    .right_checkbox_entry
+                      .leftside
+                        %input{:name => "read_only", :id=>'read_only', :type=>'checkbox', :class=>'checkbox'}   
+                      .leftside
+                        %p.checkbox_subtitle &nbsp; Read Only 
+                        
+                .entry 
+                  .leftside
+                    - if @show_notification_portal 
+                      .left_checkbox_entry
+                        .leftside
+                          %input{:name => "notification_portal", :id=>'select_notification_portal', :type=>'checkbox', :class=>'checkbox'}   
+                        .leftside
+                          %p.checkbox_subtitle &nbsp; Notification Portal  
+                  .leftside
+                    .right_checkbox_entry
+                                    
+          .submit
+            .center
+              = submit_tag("Add", class: "button")  
+
+#popup_widget_surround 
+  .popup_widget.popup_ui{:id => "filter_layout"}
+    #uhe_admin_popup
+      %h2 Filters  
+      =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+        <i class="far fa-times" aria-hidden="true"></i>
+      - if our_active_admin.is_super_admin?
+        %p.entry_header
+          By Channel      
+        .entry 
+          .center
+            .dropdowns
+              %label
+                = collection_select(:filter_channel,  :id, ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None"}, {:style => "", :onchange=>"filterCgas('#{our_active_admin.is_super_admin?}')"})
+      %p.entry_header
+        By Admin Level       
+      .entry 
+        .center
+          .dropdowns
+            %label
+              = select_tag :filter_roles, options_for_select({'None' => 'NONE', 'Super Admin' => 'SUPER_ADMIN', 'Channel Admin' => 'CHANNEL_ADMIN', 'Customer Admin' => 'CUSTOMER_ADMIN', 'Clinician' => 'UHE', 'eSitter' => 'ESITTER', 'Technician' => 'TECH'}), :id=> "filter_cgas", :onchange=>"filterCgas('#{our_active_admin.is_super_admin?}')", :class=>'' 
+      .submit
+        .center 
+          //= link_to "Save for later", ""
+          = submit_tag "Filter", :class=> "button", :onclick => "close_admin_popup('filter_layout')" 
+      .footer_link
+        .center
+          =link_to "Reset", "javascript:;", :class => "", :onclick => "reset_cga_filter('#{our_active_admin.is_super_admin?}')"
+
+
+            
+:javascript
+  handleMobileRoleChange();
+
+  $(document).ready(function () {
+    jQuery.validator.addMethod("password_complexity", function(value, element) {
+        var pwregex = /^(?=.*[a-z])(?=.*[A-Z])((?=.*[^a-zA-Z0-9])|(?=.*\d))(?!.*\s).{6,}$/;
+        var result = this.optional(element) || value.length >= 6 && value.match(pwregex);
+        return result;
+    }, "Must contain 3 out of 4 : Uppercase letter, lowercase letter, number and/or special character");
+    $("#create_email").val("");
+    $("#create_password").val("");
+    $("#new_mobile_user_form").validate({
+      errorElement: 'div',
+      rules: {
+        "create_mobile_patient[email]": {
+          required: true,
+          email: true
+        },
+        "create_mobile_patient[password]": {
+          required: true,
+          password_complexity: true
+        }
+      }
+    });
+  });

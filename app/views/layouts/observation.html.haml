@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+%html
+  %head
+    %title #{get_title_by_controller_value} | Caregility
+    %meta{:charset=>"UTF-8", :lang=>"en"}
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => false
+    = stylesheet_link_tag 'style' 
+    = stylesheet_link_tag 'admin' 
+    = stylesheet_link_tag 'univago_admin'
+    = stylesheet_link_tag 'observation', media: 'all', 'data-turbolinks-track' => false
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="#{request.protocol}#{request.host_with_port}/jquery-ui.min.js"></script>
+    <script src="#{request.protocol}#{request.host_with_port}/sweetalert.min.js"></script>
+    = javascript_include_tag 'obs_pre', 'data-turbolinks-track' => false 
+    = csrf_meta_tags 
+    %meta{:content => "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1", :name => "viewport"}
+    - if is_mobile_device?
+      = javascript_include_tag 'mobile', 'data-turbolinks-track' => false 
+      = stylesheet_link_tag    'mobile', media: 'all', 'data-turbolinks-track' => false
+  
+  %body#main_body.main_body
+    .univago_admin
+      .hidden#popup_overlay{:style => "position: absolute; background-color: rgba(0,0,0,0.3); z-index: 2000; height: 100%; width: 100%;"}
+    
+    #error_message.alert.alert-info.alert-dismissable.hidden
+      <a href="#" class="close" aria-label="close" onclick="hideError()">&times;</a>
+      %p#e_m
+    %div
+      -if Configurable.in_maintain.to_s == '1'
+        :javascript
+          swal({ title: "Under Maintenance", text: "This application is currently under maintenance. Please try again later", type: "error", showCancelButton: false, confirmButtonClass: "btn-primary", confirmButtonText: "OK", closeOnConfirm: false}, function(){location.reload();}); 
+      - else
+        = yield 
+        = javascript_include_tag 'webrtc'
+        - if user_signed_in?
+          :javascript 
+            mediaUserId = #{current_user.id};
+            loadDefaults = true;
+            initiateLocalStreaming(); 
+  %footer
+    = javascript_include_tag 'observer_helper', 'data-turbolinks-track' => false 

@@ -1,0 +1,16 @@
+- c = Client.find_by_id(client)
+- if c.technicians.where('admins.default_admin != 1').count < 1
+  %p.inner_double_tab No Technicians at this time.
+- c.technicians.where('admins.default_admin != 1').each_with_index do |user, iddx|
+  .u_name
+    = link_to 'javascript:;', :onclick=>"toggleHide('#tech_c" + idx.to_s + "_" +  iddx.to_s + "')" do 
+      %p.inner_double_tab #{user.email} &nbsp; 
+      //%p.c (
+      //%p.c{:id=>'techcount_'+user.id.to_s+'_'+idx.to_s} #{user.tech_clients.count}
+      //%p.c )
+      %br.clearfix
+  %div.hidden{:id=>'tech_c' + idx.to_s + '_' + iddx.to_s}
+    %div{:id=>'techdestination_' + user.id.to_s + '_' + iddx.to_s + '_' + c.id.to_s + '_' + idx.to_s}
+      %ol#this_list
+        -user.tech_clients.each do |uc|
+          %li.inner_triple_tab{:id=>uc.id}  #{uc.client_name} <a href='javascript:;' onclick="removeTechPermissions(#{user.id},#{uc.id},#{iddx}, #{c.id}, #{idx})"><i class="fa fa-trash" aria-hidden="true"></i></a> 

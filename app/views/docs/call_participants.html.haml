@@ -1,0 +1,47 @@
+%div.docs_text.col-md-6
+  %h1 Retrieving Call Participant Information 
+  %hr
+  %p You can query the current live participant status of a call using this API POST command using the token provided in your result of initializing the call. 
+  %p NOTE:  This is a live participant number.  After the call has been ended the call participant call_status will be "Ended" and participant_count will be "0" 
+  %hr
+
+  %h5 HTTP POST to get Call Participant Information 
+  %p To request call participant information, make an HTTP POST request to the call resource URI:
+  %pre.notranslate.http-request https://healthcare.univago.com/api/call_participants
+  %h5 POST Parameters
+  %table.docs_table
+    %thead
+      %th Parameter
+      %th Status 
+      %th Description
+    %tbody
+      %tr
+        %td call_token 
+        %td * Required 
+        %td Call token received in initialization step 
+  %h5 Request Response 
+  %h4 Successful Result -- JSON response - 200 Header status OK
+  %p Example: {"message":"Success", "call_status": "In Progress", "participant_count":"3", "results" : [{"display_name":"Dr Smith", "role:"chair"}, {"display_name":"Room 123", "role":"chair"}, {"display_name":"Dr Brown", "role":"guest"}]}
+  %p All calling clincians and patient rooms will have a role status of "chair", any invited outside participants will have the status of "guest".  
+  %p Below is an example if the call participant request is made after a call has completed
+  %p Example: {"message":"Success", "call_status":"Ended", "participant_count":"0"}
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Invalid Call Token"}
+  %p This response means that you have provided an invalid call token 
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Authentication MisMatch"}
+  %p This response means that the call token provided is not registered under your account  
+
+
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example:
+    %span curl  -u Mm4cbQ:Tf0sTHtH_70  -H "Content-Type: application/json, Accept: application/json" -X POST -d '{"call_token":"vXC4LExOyj9RnJt7"}' https://healthcare.univago.com/api/call_participants
+    %span Where:
+    %span "Mm4cbQ" = your api username 
+    %span "Tf0sTHtH_70" = your api password
+    %span "vXC4LExOyj9RnJt7" = the call token provided to you from the call initialization step 
+    %span Example Result: 
+    %span Example: {"message":"Success", "call_status": "In Progress", "participant_count":"3", "results" : [{"display_name":"Dr Smith", "role:"chair"}, {"display_name":"Room 123", "role":"chair"}, {"display_name":"Dr Brown", "role":"guest"}]}
+

@@ -1,0 +1,69 @@
+%div{:id=>'top'}
+
+#sub_title
+  .leftside    
+    %i.fa.fa-desktop.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Developer 
+
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        API Information 
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        #div
+          -if our_active_admin.is_customer_admin?
+            %table.endpoint_settings_table_dimensions.onex
+              %tr
+                %th.endpoint_setting_widget
+                  API UserName
+                %td.vertical_center
+                  .center
+                    =text_field_tag :api_username,  @client.api_key.api_username, :class=>'input_endpoint_settings', :readonly => "readonly"                 
+
+              %tr
+                %th.endpoint_setting_widget
+                  API Password
+                %td.none.vertical_center
+                  .center
+                    =text_field_tag :api_password,  @client.api_key.api_password, :class=>'input_endpoint_settings', :readonly => "readonly"                 
+                    
+              %tr
+                %th.endpoint_setting_widget
+                  API Encrypt Key (optional)
+                %td.vertical_center
+                  .center
+                    =text_field_tag :api_encrypt_key,  @client.api_key.api_encrypt_key, :class=>'input_endpoint_settings', :readonly => "readonly"                 
+          -else
+            %table{:class=>'table table-bordered', :id => "api_info_table"}
+              %thead
+                %tr
+                  -if our_active_admin.is_super_admin?
+                    %th 
+                      Channel Name
+                  %th
+                    Customer Name 
+                  %th  
+                    API UserName
+                  %th 
+                    API Password
+                  %th
+                    API Encrypt Key
+              %tbody
+                -@api_list.each_with_index do |cl, idx|
+                  - if cl.api_key.present?
+                    %tr{:class => idx%2==0 ? 'even' : 'odd'}    
+                      -if our_active_admin.is_super_admin?
+                        %td #{cl.client_admin.name}
+                      %td #{cl.client_name}
+                      %td #{cl.api_key.api_username}
+                      %td #{cl.api_key.api_password}
+                      %td #{cl.api_key.api_encrypt_key}
+
+<script>$(document).ready(function() { $("#api_info_table").tablesorter(); } );</script> 
+

@@ -1,0 +1,67 @@
+%div.docs_text.col-md-6
+  %h1 Connecting A Call
+  %hr
+  %p Once you have #{link_to 'initialzied a call', call_init_doc_path} you can make a GET request with your call token to connect your call. 
+  %hr
+  %p The connection part of the call is a GET request to make it easy to pop up the call or embed your call in an iframe on a Chrome browser.  The call token in the call initialization step expires in 5 minutes, so your call must be connected within this time frame 
+  %hr
+
+  %h5 HTTP GET to Connect Call
+  %p To make a call, make an HTTP GET request to your account's Calls list resource URI:
+  %pre.notranslate.http-request https://healthcare.univago.com/api/call
+  %br
+  %br
+  %h5 GET Parameters
+  %p Do not surround your values with quotes.  Replace spaces with + where applicable.
+  %table.docs_table
+    %thead
+      %th Parameter
+      %th Status
+      %th Description
+    %tbody
+      %tr
+        %td call_token  
+        %td * Required
+        %th The token provided by the #{link_to 'call initialization', call_init_doc_path} step 
+      %tr
+        %td c_id 
+        %td * Required
+        %th Your API password 
+      %tr
+        %td dr_name 
+        %td * Required
+        %th Doctor's display name
+      %tr
+        %td uid 
+        %td * Required 
+        %th Doctor's internal unique system ID
+      %tr
+        %td private 
+        %td optional
+        %td true or false  - <b>true</b> value sets sound off, camera off and patient screen blank (on hold)
+      %tr
+        %td silent 
+        %td optional
+        %td true or false  - <b>true</b> value sets sound off and camera off 
+      %tr
+        %td no_prompt 
+        %td optional
+        %td true or false  - <b>true</b> value auto joins existing calls 
+    
+
+  %h5 Request Response 
+  %p The result will provide you with a clickable or embeddable link to conduct the call
+  %p If the call times out or the call token and password do not match the browser will pop up an error for Call Request Timeout
+  
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example (open in a browser or iframe):
+    %span https://healthcare.univago.com/api/call?call_token=vXC4LExOyj9RnJt7&c_id=Tf0sThtH_70<br/>&dr_name=Dr+Smith&uid=3429
+    %span Where:
+    %span "vXC4LExOyj9RnJt7" = the call token returned from the call initialization request 
+    %span "Tf0sThtH_70" = your api password
+    %span "Dr Smith" = the Dr's name to display to the patient (replace spaces with +)
+    %span "3429" = Dr Smith's internal system ID 
+
+

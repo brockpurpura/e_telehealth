@@ -1,0 +1,30 @@
+%div{:id=>'top'}
+.hidden
+  %p#x_name #{@x_name}
+  %p#x_id #{@x_id}
+  %p#report_url #{@report_url}
+<!-- Dashboard Graph starts -->
+#sub_title
+  .leftside      
+    %i.fas.fa-chart-pie.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside 
+    %h3 Advanced Reports
+  .rightside.create_new_link
+
+.col-sm-12    
+  .col-sm-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+
+        %iframe{:width => "100%", :height => "4500px", :id=> "layer_x_iframe"}
+:javascript
+  $(document).ready( function() {
+    //load_iframe();
+    layerx();
+  });
+

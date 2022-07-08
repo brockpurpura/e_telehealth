@@ -1,0 +1,143 @@
+%div{:id=>'top'}
+
+%p#building_selected.hidden #{@building_selected}
+  
+
+<!-- Dashboard Graph starts -->
+#sub_title
+  .leftside
+    %i.fas.fa-notes-medical.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside  
+    %h3 Units
+  .rightside.create_new_link
+    - if our_active_admin.is_not_read_only?
+      =link_to "Add Unit", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('add_room', '')"
+
+
+.col-md-12.min_height
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        .search_field  
+          .leftside 
+            .search_icon
+              %span.far.fa-search
+
+          = form_for :search_room_form, :url => rooms_admin_panel_admin_path, :html => {:id => "search_room_form" } do |x|
+            .leftside
+              = x.text_field :search_rooms, :id=>'search_rooms', :placeholder=>'Search', :class=>'search_field_input', :value => @search_value 
+            #popup_widget_surround 
+              .popup_widget.popup_ui{:id => "filter_layout"}
+                #uhe_admin_popup
+                  %h2 Filter 
+                  =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+                    <i class="far fa-times" aria-hidden="true"></i>
+                  .uhe_admin_popup_body.no_scroll  
+                    .uhe_admin_popup_form    
+                    
+                      - if our_active_admin.is_super_admin?                
+                        %p.entry_header
+                          By Channel      
+                        .entry 
+                          = x.collection_select(:filter_channel,  ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None", :selected => @channel_value}, {})
+                      - if our_active_admin.is_channel_admin?                
+                        %p.entry_header
+                          By Customer      
+                        .entry 
+                          = x.collection_select(:filter_customer,  our_active_admin.client_admin.clients.active, :id, :client_name, { :multiple => true, :prompt => "None", :selected => @customer_value}, {})
+                  .submit
+                    .center 
+                      = x.submit "Apply", :class=> "button" 
+                  .footer_link
+                    .center
+                      = x.button "Reset Filter", :type =>  'submit', :name => 'reset_filter', :value => 'true', :class => "reset_filter_submit"
+
+            .leftside
+              .clear_search
+                =x.button "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+                  %span.fal.fa-times
+            .leftside
+              .filter_link          
+                -if our_active_admin.is_super_admin? or our_active_admin.is_channel_admin?          
+                  =link_to "Filter", "javascript:;", :class=>"", :onclick=>"open_admin_popup('filter_layout','')"
+        <div class="clearfix"></div>
+
+
+      <!-- Widget content -->
+      .widget-content
+        #room_list_partial
+          =render :partial => "room_list"
+
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround 
+    .popup_widget.popup_ui{:id => "add_room"}
+      #uhe_admin_popup
+        %h2 Add Unit
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_room')" do
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        =form_for :room_create, :url => rooms_admin_panel_admin_path do |x|
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+              -if @building.nil?
+                %p.entry_header
+                  - if our_active_admin.is_super_admin?
+                    Channel *      
+                  - else
+                    Customer *
+                .center
+                  .dropdowns
+                    %label
+                      - if our_active_admin.is_super_admin?
+                        = x.collection_select(:client_admin_id, ClientAdmin.active, :id, :name,  {:prompt=>""}, :onchange=>"checkCustomers(true, false, -1, 'Select Customer')", :id=>'channelDropDown')  
+                      - elsif our_active_admin.is_channel_admin?
+                        = x.collection_select(:client_id, our_active_admin.client_admin.clients.active, :id, :client_name,  {:prompt=>""}, :onchange=>'adminCheckBuildings()', :id=>'customerDropDown') 
+                      - else
+                        = x.collection_select(:client_id, Client.where('id=?', our_active_admin.client_id), :id, :client_name)  
+                - if our_active_admin.is_super_admin?
+                  %p.entry_header
+                    Customer 
+                  .center
+                    .dropdowns
+                      %label
+                        = x.collection_select(:client_id, Client.active, :id, :client_name,  {:prompt=>""}, :onchange=>'adminCheckBuildings()', :id=>'customerDropDown') 
+                %p.entry_header
+                  Location * 
+                .center
+                  .dropdowns
+                    %label
+                      - if our_active_admin.is_customer_admin?
+                        = x.collection_select(:building_id, Client.find_by_id(our_active_admin.client_id).buildings, :id, :name, {:prompt=>""}, {:id=>'room_building_id'} )
+                      - else
+                        = x.collection_select(:building_id, {}, :id, :name, {:prompt=>""}, {:id=>'room_building_id'} )
+              - else 
+                = hidden_field_tag :building_id, @building.id
+              %p.entry_header
+                Name * 
+              .center
+                = x.text_field :name, :placeholder => "", :class => "", :maxlength => 200
+              =hidden_field_tag :add_room, true
+         
+          .submit
+            .center 
+              = x.submit "Add", :class=> "button" 
+
+:javascript
+  if (document.getElementById('building_id'))
+    {document.getElementById('building_id').required= true;}
+  if (document.getElementById('room_create_name'))
+    {document.getElementById('room_create_name').required= true;}
+  if (document.getElementById('room_name'))
+    {document.getElementById('room_name').required= true;}
+  if (document.getElementById('channelDropDown')) {
+    document.getElementById('channelDropDown').required = true;}
+  if (document.getElementById('customerDropDown')) {
+    document.getElementById('customerDropDown').required = true;
+  }
+  if (document.getElementById('room_building_id')) {
+    document.getElementById('room_building_id').required = true;
+  }
+
+ 

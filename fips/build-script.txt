@@ -1,0 +1,31 @@
+# Build FIPS module
+script /tmp/build-1-fips-module.log
+cd /usr/local/src
+gunzip -c /tmp/openssl-fips-2.0.10.tar.gz | tar xf -
+cd openssl-fips-2.0.10
+./config
+make
+make install
+exit
+
+# Build OpenSSL
+script /tmp/build-2-openssl.log
+cd /usr/local/src
+gunzip -c /tmp/openssl-1.0.2s.tar.gz | tar xf -
+cd openssl-1.0.2s
+./config fips
+make depend
+make
+make install
+exit
+
+# Build nginx
+script /tmp/build-3-nginx.log
+cd /usr/local/src
+gunzip -c /tmp/nginx-1.16.0.tar.gz | tar xf -
+cd nginx-1.16.0
+patch -p1 < /tmp/nginx.patch
+./configure --with-cc-opt='-I/usr/local/ssl/include -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2' --with-ld-opt='-L/usr/local/ssl/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-z,now' --prefix=/usr/share/nginx --with-	debug --with-pcre-jit --with-http_ssl_module --with-http_stub_status_module --with-http_realip_module --with-http_auth_request_module --with-http_v2_module --with-http_dav_module --with-http_slice_module --with-threads --with-http_addition_module --with-http_dav_module --with-http_flv_module --with-http_geoip_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_image_filter_module --with-http_mp4_module --with-http_perl_module --with-http_random_index_module --with-http_secure_link_module --with-http_sub_module --with-http_xslt_module --with-mail --with-mail_ssl_module --with-stream --with-stream_ssl_module --add-module=$(passenger-config --nginx-addon-dir)
+FIPSLD_CC=cc make
+make install
+exit

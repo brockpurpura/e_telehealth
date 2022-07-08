@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd /home/uheadmin/e_telehealth
+cp config/nginx/on-prem/default_file /etc/nginx/sites-available/default
+cp config/nginx/on-prem/dhparam.pem /etc/ssl/certs/dhparam.pem
+cp config/nginx/on-prem/Gemfile . 
+bundle install --local > bundleinstall.txt 2>&1
+bundle exec rake db:migrate RAILS_ENV=onprem > dbmigrate.txt 2>&1
+bundle exec rake assets:precompile RAILS_ENV=onprem > assetspre.txt 2>&1
+bundle exec rake db:seed RAILS_ENV=onprem > assetspre.txt 2>&1
+/usr/bin/passenger-config restart-app / > restartapp.txt 2>&1
+service nginx restart > restartnginx.txt 2>&1 

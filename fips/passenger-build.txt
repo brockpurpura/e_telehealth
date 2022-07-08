@@ -1,0 +1,6 @@
+# Build passenger
+tar -xzf /tmp/passenger-6.0.2.tar.gz -C /opt/
+chown -R root:root /opt/passenger-6.0.2/
+chmod 755 /opt/passenger-6.0.2/
+cd /opt/passenger-6.0.2/
+EXTRA_PRE_CFLAGS="-I/usr/local/ssl/include -fPIC" EXTRA_PRE_CXXFLAGS="-I/usr/local/ssl/include -fPIC" EXTRA_PRELDFLAGS="-L/usr/local/ssl/lib" EXTRA_PRE_CXX_LDFLAGS="-L/usr/local/ssl/lib" CACHING=false rake nginx

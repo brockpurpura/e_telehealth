@@ -1,0 +1,12 @@
+EpicApiResult_1:
+  id: 1
+  vmr_meeting_id: 1
+  cid: '22856'
+  ext_user_id: '123'
+  usertype: '1'
+  vendor_name: Yorktel Staging Customer
+  connect_status: '1'
+  api_result: FAIL
+  api_message: 'An error occurred while executing the command: INVALID-USER-ID.'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

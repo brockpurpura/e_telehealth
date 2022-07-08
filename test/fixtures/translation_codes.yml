@@ -1,0 +1,45 @@
+InDemand Arabic:
+  id: 1
+  translation_type_id: 1
+  name: Arabic
+  prefix: '110100100'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+InDemand French:
+  id: 2
+  translation_type_id: 1
+  name: French
+  prefix: '110100101'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+InDemand Spanish:
+  id: 3
+  translation_type_id: 1
+  name: Spanish
+  prefix: '110100102'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+InDemand German:
+  id: 4
+  translation_type_id: 1
+  name: German
+  prefix: '110100103'
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Cloudbreak Spanish:
+  id: 5
+  translation_type_id: 4
+  name: Spanish
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Cloudbreak German:
+  id: 6
+  translation_type_id: 4
+  name: German
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

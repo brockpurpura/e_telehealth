@@ -1,0 +1,53 @@
+ClientAttributeType_1:
+  id: 2
+  name_tag: getwell_base_url
+  title_display: Getwell URL with protocol
+  group_no: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  send_to_device: 1
+  is_boolean: 0
+
+ClientAttributeType_2:
+  id: 22
+  name_tag: notification_portal_enabled
+  title_display: Notification Portal Enabled (TRUE[default]|FALSE)
+  group_no: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  send_to_device: 0
+  is_boolean: 0
+  force_editable: true
+
+ClientAttributeType_3:
+  id: 3
+  name_tag: mychart_participant_invite_expiry_time
+  title_display: mychart_participant_invite_expiry_time
+  group_no: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  send_to_device: 0
+  is_boolean: 0
+  force_editable: true
+
+ClientAttributeType_marttiid:
+  id: 4
+  name_tag: cloudbreak_id
+  title_display: cloudbreak_id
+  group_no: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  send_to_device: 0
+  is_boolean: 0
+  force_editable: true
+
+ClientAttributeType_guest_invite_clinician_template:
+  id: 5
+  name_tag: guest_invite_clinician_template
+  title_display: guest_invite_clinician_template
+  group_no: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  send_to_device: 0
+  is_boolean: 0
+  force_editable: true

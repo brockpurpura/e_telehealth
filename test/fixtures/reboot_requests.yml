@@ -1,0 +1,32 @@
+---
+RebootRequest_1:
+  id: 1
+  endpoint_id: 1
+  reboot_request: 1
+  reboot_answered: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-01-01 00:00:00.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-06-04 16:45:32.000000000 Z
+    zone: *2
+    time: *3
+
+---
+RebootRequest_2:
+  id: 2
+  endpoint_id: 1
+  reboot_request: 1
+  reboot_answered: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-01-01 00:00:00.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-06-05 19:28:45.000000000 Z
+    zone: *2
+    time: *3
+

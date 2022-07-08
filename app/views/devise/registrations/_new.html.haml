@@ -1,0 +1,12 @@
+=form_for(:admin, as: :admin, url: registration_path(:admin)) do |f| 
+  .modal-body
+    .row
+      .col-md-12
+        .center
+          = devise_error_messages! 
+          = f.label :email
+          =f.email_field :email, autofocus: true 
+        .no_padd.height_20
+  .modal-footer
+    .center
+      = f.submit "Send Invite" , :class=>'btn btn-info'

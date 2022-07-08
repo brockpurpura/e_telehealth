@@ -1,0 +1,48 @@
+#observation_endpoints_partial
+  = check_box_tag :name_check, "", true, :id=>'',:class=>'hidden'
+
+  .tab_data_row
+    .hidden
+      = check_box_tag :name_gap, "", :style => "", :checked => "checked"
+    %div{:class => "right", :style=> "width: 30%; text-align: right;"}
+      %a{:href=> "#", :onclick=> 'check_option_iobserver("' + @endpoint_room_names + '" ,"' + @endpoint_machine_names+'")', :class => 'btn btn-primary apply_footer_btn'}
+        Admit
+
+.center
+  .hidden
+    - if @endpoints.nil?
+      %p.title Available Rooms: 0
+    - else
+      %p.title Available Rooms: #{@endpoints.size}
+
+%br
+%hr.no_margin
+.center
+  %p#admitted_list ADMITTED LIST
+%hr.no_margin
+%div{:style => "height: 198px; margin-top:10px;"}
+  .center
+    - if @selected_rooms.nil? or @selected_rooms.count < 1
+      %p#no_rooms No rooms currently admitted
+  - if @endpoints_admitted.present?
+    - @endpoints_admitted.each_with_index do |ep, idx|
+      .tab_data_row.hidden{:id => "selected_endpoint_row_"+ ep.machine_name}
+        = check_box_tag :turn_on, 1, nil, {:id=>'checkbox_' + ep.machine_name, :class=>'ob_check_box_class hidden', :style => "margin-top: 6px;", :onclick=>"changeObserverCheckbox('#{ep.machine_name}')"}
+        %p{:id=> 'r_name_' + ep.machine_name, :class =>'ep_name'} #{ep.building_name + ' - ' +  ep.this_room_name + ' - ' +  ep.name}
+        =link_to "javascript:;", :class => "discharge hidden", :id=>'end_button_'+ep.machine_name, :style => "color: red; margin-top: 5px; font-size: 16px;", :onclick=>"unCheckObserverCheckbox('#{ep.machine_name}', true)" do
+          %i.fa.fa-plus-circle.dismiss_button{:style => "color: red; font-size: 18px; margin-top: 9px; "}
+  -#.right
+  -#  <a href="#" class="btn btn-primary apply_footer_btn" onclick="refresh_ob_page()">Apply</a>
+  %hr{:style => "margin-top: 20px;"}
+    .tab_footer{:style => "padding: 20px 0 0 0;"}
+      .rightside_footer
+        = link_to 'Apply', '#', :class=>'btn btn-primary apply_footer_btn',:onclick=>'refresh_ob_page()'
+
+
+
+%script
+  $(document).ready( function() {
+  - if !@selected_rooms.nil?
+    - @selected_rooms.each do |sr|
+      changeObserverCheckbox('#{sr}');
+  });

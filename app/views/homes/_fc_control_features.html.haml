@@ -1,0 +1,5 @@
+.zoom.fcc{:role=>"application"}
+  %button{:id => 'raise_audio_button', :class => 'border', :onmousedown=> "zoom('wide')", :onmouseup=>"zoom('stop')", :onmouseleave=>"zoom('stop')", :draggable=>"false", :'aria-label'=>"zoom out", :onkeypress => "zoomWithKeyboard('wide', event)",  :onkeyup => "zoomWithKeyboard('stop', event)"}
+    %i.fal.fa-minus
+  %button{:id => 'lower_audio_button', :class => '', :onmousedown=> "zoom('tele')", :onmouseup=>"zoom('stop')", :onmouseleave=>"zoom('stop')", :draggable=>"false", :'aria-label'=>"zoom in", :onkeydown => "zoomWithKeyboard('tele', event)",  :onkeyup => "zoomWithKeyboard('stop', event)"}
+    %i.fal.fa-plus

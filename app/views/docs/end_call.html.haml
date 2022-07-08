@@ -1,0 +1,50 @@
+%div.docs_text.col-md-6
+  %h1 Ending a call 
+  %hr
+  %p You can end a call in progress from within your own system by using this API POST command using the token provided in your result of initializing the call. 
+  %hr
+
+  %h5 HTTP POST to End a Call
+  %p To end a call, make an HTTP POST request to the call resource URI:
+  %pre.notranslate.http-request https://healthcare.univago.com/api/end_call 
+  %h5 POST Parameters
+  %table.docs_table
+    %thead
+      %th Parameter
+      %th Status 
+      %th Description
+    %tbody
+      %tr
+        %td call_token 
+        %td * Required 
+        %td Call token received in initialization step 
+      %tr
+        %td uid 
+        %td * Required 
+        %td Doctor's internal unique system ID 
+  %h5 Request Response 
+  %h4 Successful Result -- JSON response - 200 Header status OK
+  %p Example: {"message":"Success"}
+  %p This command without the uid token will disconnect the call for all participants 
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Invalid Call Token"}
+  %p This response means that you have provided an invalid call token 
+  %h4 Unsuccessful Result -- JSON response - 400 Header status Bad Request 
+  %p Example: {"message":"Authentication MisMatch"}
+  %p This response means that the call token provided is not registered under your account  
+
+
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example:
+    %span curl  -u Mm4cbQ:Tf0sTHtH_70  -H "Content-Type: application/json, Accept: application/json" -X POST -d '{"call_token":"vXC4LExOyj9RnJt7", "uid":"3429"}' https://healthcare.univago.com/api/end_call
+    %span Where:
+    %span "Mm4cbQ" = your api username 
+    %span "Tf0sTHtH_70" = your api password
+    %span "vXC4LExOyj9RnJt7" = the call token provided to you from the call initialization step 
+    %span "3429" = Dr Smith's internal system ID 
+    %span Example Result: 
+    %span {"message":"Success"}
+
+

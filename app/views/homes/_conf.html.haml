@@ -1,0 +1,417 @@
+.hidden
+  =audio_tag("dialing.wav", :autoplay=> false, :loop => true, :id=> 'dialing_sound')
+  %p#dr_name #{ user_signed_in? ? current_user.dr_name : ''}
+-if user_signed_in? 
+  #dialing{:class => (@api_make_call.nil? and @invited_guest.nil?) ? 'hidden' : ''}
+    - if !endpoint.nil?
+      %p#room Calling #{endpoint.room_info}
+      .hidden
+        %p#device_type #{endpoint.endpoint_type}
+        %p#unit_medwel #{endpoint.is_medwel? ? 'yes' : 'no'}
+        %p#cisco_protocol #{endpoint.dial_out_type}
+        %p#cisco_sip #{endpoint.alias}
+        %p#room_join_timeout #{endpoint.client.seconds_to_reinvite}
+        %p#custom_bandwidth #{endpoint.client.custom_bandwidth}
+        %p#poh_mute_incoming #{endpoint.client.poh_mute_incoming}
+        %p#lock_vmrs #{endpoint.client.lock_vmrs.downcase}
+        %p#waiting_room #{endpoint.client.waiting_room? ? 'yes' : 'no' }
+        %p#epic_muted #{endpoint.client.epic_mute? ? 'yes' : 'no' }
+        %p#multiple_call_poh #{endpoint.client.multiple_call_poh? ? 'yes' : 'no' }
+        %p#allow_make_host #{endpoint.client.allow_make_host?}
+    #anime.container
+      .dot.dot-1
+      .dot.dot-2
+      .dot.dot-3
+    %p#cameraMicPrompt.mic_audio_prompt If prompted, please allow access to Camera/Mic and ensure pop up blocker is disabled
+
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1"><defs><filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" /><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -7"/></filter></defs></svg>
+  #conf
+    .hidden
+      %p#stream_reconnect_time #{Configurable.stream_reconnect_time_in_milliseconds}
+      %p#endpoint_version #{endpoint.nil? ? 1 : endpoint.endpoint_status.nil? ? 1 : endpoint.endpoint_status.version}
+      - if !@api_make_call
+        %p#call_alias #{call_alias}
+        %p#call_token
+        - if !endpoint.nil?
+          %p#endpoint_id #{endpoint.id}
+          %p#room_name #{endpoint.room_name}
+          %p#conf_node #{endpoint.conference_node}
+          %p#default_input #{(endpoint.default_input.to_f*2).to_i}
+          %p#default_output #{(endpoint.default_output.to_f*2).to_i}
+          %p#default_bell #{(endpoint.default_bell.to_f*2).to_i}
+          %p#marttiId #{@endpoint.client.marttiId}
+        %p#from_api false
+        %p#from_invite false
+        %p#main_participant init
+        - if user_signed_in?
+          %p#current_user_id #{current_user.id}
+   
+    #videocontainer.videocontainer.fullscreen-bg
+      <video autoplay playsinline id='video' width='100%' height='100%' aria-label='Patient View Video'></video>
+    <button id="double_click_me" class="cbutton cbutton--effect-ivana" tabindex=-1 'aria-hidden'="true"></button>
+    <button id="hold_me_down" class="cbutton cbutton--effect-simo" tabindex=-1 'aria-hidden'="true"></button>
+    <button id="hold_me_down_backwards" class="cbutton cbutton--effect-owen" tabindex=-1 'aria-hidden'="true"></button>
+
+    #participants.hidden
+      %h2#rosterheading Participants
+      #rosterlist.rosterlist
+        %ul#rosterul
+    #in_call_notifications{:role=>"alert", :class=> is_mobile_device? ? 'hidden' : ''}
+      %p#in_call_notif Mic Muted
+
+    #status_message.hidden
+      %p#s_message{:class=> is_mobile_device? ? 'hidden' : ''}  Patient on Hold 
+
+    %p#mobile_view.hidden #{is_mobile_device? ? 'true' : 'false'}
+    %p#iphone_mobile_view.hidden #{is_iphone_mobile_device? ? 'true' : 'false'}
+    
+    - if is_mobile_device?
+      %p#inc_561_enabled.hidden #{Configurable.inc_561_enabled}
+      %p#inc_561_audio_gain.hidden #{Configurable.inc_561_audio_gain}
+      %p#inc_561_upper_version.hidden #{Configurable.inc_561_upper_version}
+      .div#mobile_buttons_div{:class=> @endpoint.nil? ? 'hidden' : ''}
+        = render :partial => 'homes/joystick_mobile'
+        = render :partial => 'application/buttons_mobile', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id, :is_mychart => false}
+    - else
+      #function_bar_column
+        #side_buttons_view
+          = render :partial => 'homes/side_buttons', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+    #pinentry.hidden
+    #maincontent.main.cf.hidden
+
+    %div.hidden
+      #sidebar
+        %p.slide_bar_title Sidebar Conversation 
+        .invite_button_div
+          =link_to 'Place Patient on Hold', 'javascript:;', :class=>'slide_bar_button muted_patient hidden', :onclick=>'mutePatient()', :id=>'mute_patient_button'
+        %br
+          %p#hold_detail.info.leftside.hidden Turn off patient audio and video
+    #call_colors
+    #call_colors_left.left
+    #call_colors_right.right
+  :javascript
+    var version = document.getElementById('endpoint_version').innerHTML;
+    var pressTimer;
+    var clickScreen = document.getElementById("video");
+    if (!invited && !isCisco() && !is_mobile()) {
+      $("#video").mouseup(function(){clearTimeout(pressTimer);return false;})
+      clickScreen.ondblclick = moveToPoint;
+      clickScreen.onmousedown = setZoom;
+      clickScreen.addEventListener('contextmenu', function(ev) { ev.preventDefault(); return false; }, false);
+    }
+
+    function loadParticipants() {
+       if (document.getElementById('endpoint_id') != null) {
+         var endpoint_id = document.getElementById('endpoint_id').innerHTML;
+         var url_string = '/fetch_participants?endpoint_id='.concat(endpoint_id)
+         console.log('loading participants ep ' + endpoint_id);
+         $.get(url_string)
+       }
+    };
+    loadParticipants();
+
+    animateClick();
+    if (!is_mobile()) {
+      var windows = document.querySelectorAll('.self_view, .snapshot');[].forEach.call(windows,function(win){var title = win.querySelector('.joystick_mover, .self_view_mover, .snapshot_mover'); title.addEventListener('mousedown',function(evt){ var real = window.getComputedStyle(win), winX = parseFloat(real.left), winY = parseFloat(real.top); var mX = evt.clientX, mY = evt.clientY; document.body.addEventListener('mousemove',drag,false); document.body.addEventListener('mouseup',function(){ document.body.removeEventListener('mousemove',drag,false); },false); function drag(evt){ win.style.left = winX + evt.clientX-mX + 'px'; win.style.top  = winY + evt.clientY-mY + 'px'; }; },false); });
+    }
+    //$( "#snapshot" ).resizable({alsoResize: $(this).find('my-screenshot'), aspectRatio:true });
+  %script{:type=>"text/javascript"}
+    :plain
+      function loadBookmarks() {
+        var endpoint_id = document.getElementById('endpoint_id').innerHTML;
+        var url_string = '/fetch_bookmarks?endpoint_id='.concat(endpoint_id).concat('&user_id=').concat(document.getElementById('user_id').innerHTML)
+        $.get(url_string)
+        var bookmark_p = document.getElementById('bookmark_partial');
+        };
+      function loadControls() {
+        var endpoint_id = document.getElementById('endpoint_id').innerHTML;
+        var url_string = '/fetch_controls?endpoint_id='.concat(endpoint_id).concat('&user_id=').concat(document.getElementById('user_id').innerHTML).concat('&vmr_alias=').concat(document.getElementById('call_alias').innerHTML)
+        $.get(url_string)
+        };
+       function loadSliders(endpoint_id) {
+        var url_string = '/fetch_sliders?endpoint_id='.concat(endpoint_id).concat('&user_id=').concat(document.getElementById('user_id').innerHTML)
+        console.log('loading sliders ep ' + endpoint_id);
+        $.get(url_string)
+        };
+      function loadSideButtons(endpoint_id) {
+        var url_string = '/fetch_side_buttons?endpoint_id='.concat(endpoint_id).concat('&user_id=').concat(document.getElementById('user_id').innerHTML)
+        console.log('loading side buttons ep ' + endpoint_id);
+        $.get(url_string)
+        };
+
+-if @under_maintanence
+  :javascript
+    proAlert("Upgrade In Progress", "error", "This room is currently under maintenance. Please try again later", "OK", "reload", false);
+
+-if @out_of_vmrs
+  :javascript
+    proAlert("Development VMR limit reached", "error", "DEV has a limit on VMR use.  New VMRs are being created.  Please try again in 2 minutes.", "OK", "reload", false);
+
+-if @api_call_expired 
+  :javascript
+    proAlert("Unable to Join", "error", "This call has expired.", "OK", "reload", false);
+
+-if @api_unauthorized
+  :javascript
+    proAlert("Unauthorized Request", "error", "You are not authorized to make this call.", "OK", "reload", false);
+
+-if (!@under_maintanence and !@out_of_vmrs and !@api_call_expired and !@api_unauthorized)
+  :javascript
+    uhe_make_call = "#{@make_call}";
+    uhe_call_alias = "#{@call_alias}";
+    uhe_endpoint_id = "#{@endpoint_id}";
+    uhe_rm_name = ''; 
+    uhe_announce = "#{@g_announce}";
+    uhe_machine_name = "#{@machine_name}";
+    uhe_invited = false;
+
+    var not_ie = detectIE();
+    var r = document.getElementById("room_name");
+    server_name = document.getElementById("server_name").innerHTML;
+    cable = ActionCable.createConsumer("wss://"+server_name);
+    if (r) {
+      rm_name = r.innerHTML;
+    }
+    if (not_ie) {
+      if ("#{@make_call}" !== "") {
+        console.log("registered an in conf call request 1");
+        if (document.getElementById('device_type').innerHTML != 'CISCO') {
+          loadBookmarks();
+        }
+      }
+      if ("#{@invited_guest}" !== "") {
+        console.log("registered an in conf call request 2");
+        loadBookmarks();
+        uhe_invited = true;
+        uhe_announce = "true";
+      }
+      $(document).ready(function(){initiateMedia();}); 
+    }
+- else
+  :javascript
+    if (!is_mobile()){
+      initiateMedia();
+    }
+
+
+:javascript
+  var end_call = document.getElementById('from_api')
+  if (end_call && !e_api_call) {
+    if (end_call.innerHTML == 'true' && !mobile_api_call){
+      $('#function_bar_bot').addClass('hidden');
+      //$('#clinician_nav').addClass('hidden');
+    }
+  }
+  if (isCisco()) { 
+    $('#clinician_nav').addClass('hidden');
+  }
+
+  if (invited) {
+    $('#home_button').addClass('hidden');
+    $('#sliders_button').addClass('hidden');
+    $('#see_more').addClass('hidden');
+    $('#poh').addClass('hidden');
+    $('#ring_bell').addClass('hidden');
+    $('#sidebar').addClass('hidden');
+    $('#room_lock').addClass('hidden');
+    $('#toggle_lock_vmr_button').addClass('hidden');
+    $('#toggle_favorite_button').addClass('hidden');
+    $('#participant_link').addClass('hidden');
+    $('#screenshot_button').addClass('hidden');
+    $('#function_bar_topper').addClass('hidden');
+
+    if (document.getElementById('participants_button')) {
+      document.getElementById('participants_button').innerHTML = document.getElementById('participants_button').innerHTML.replace('Participants','Chat Room');
+    }
+
+    if (!is_mobile()){
+      var sidebar_type = document.getElementById('sidebar_layout_type')
+      if (sidebar_type.innerHTML == "default") {
+        $('#vid_action').addClass('limited_actions');
+      }
+      if (sidebar_type.innerHTML == "action_based") {
+        $('#mic_action').addClass('limited_actions');
+      }
+    }
+
+  }
+
+  function loadAccount() {
+    var url_string = '/fetch_account'
+    $.get(url_string)
+  };
+  var doorbell = false;
+- if !endpoint.nil? and endpoint.client.play_doorbell
+  :javascript
+    doorbell = true; 
+
+- if user_signed_in?
+  %p#d_audio.hidden #{current_user.d_audio}
+  %p#d_video.hidden #{current_user.d_video}
+  %p#d_output.hidden #{current_user.d_speaker}
+  :javascript
+    var in_call = false;
+    defaultAudio = "#{current_user.d_audio}";
+    defaultVideo = "#{current_user.d_video}";
+    defaultOutput = "#{current_user.d_speaker}";
+    console.log('ASSIGNED DEFAULT FROM USER ' + defaultOutput);
+    mediaUserId = #{current_user.id};
+
+    function loadAlerts(open) {
+      var url_string = '/fetch_alerts?open=' + open
+      $.get(url_string);
+    };
+    // start notification check - 
+    function doPoll() {
+      if ( $("#alerts").hasClass('hidden') ) {
+        loadAlerts('closed');
+      } 
+      else {
+        loadAlerts('open');
+      }
+    }
+
+    doPoll();
+    var num_of_calls = 0;
+    var rooms_i_am_in = [];
+    var call_colors = ['darkgray','blank','red', 'blue', 'green', 'orange', 'gray'];
+    var callCountTimerOn = true; // how many seconds should we allow between multi calls going up 
+    var user_tunnel = cable.subscriptions.create({
+        channel: "UserChannel", 
+        user_id: "#{current_user.id}"
+       }, {
+      connected: function() {
+        console.log("connected to the user tunnel");
+      },
+      disconnected: function() {
+        console.log("disconnected from the user tunnel");
+      },
+      send_command: function(command) {
+        console.log("sending command " + JSON.stringify(command) + " " + JSON.stringify(call_token));
+        return this.perform('send_command', {
+          command: command
+        });
+      },
+      received: function(data) {
+        console.log("response received from user tunnel: " + JSON.stringify(data));
+        if (data) {
+          switch (data['command']) {
+            case "load_alerts":
+                console.log("alert received"); 
+                doPoll(); 
+                break;
+            case "mediaFail":
+              console.log('mediaFail');
+              console.log('mediaFail: ' + data['params'].response);
+              if (data['params'].response == 'all') {
+                proAlert("No Media", "error", "This room does not have any audio or video. Please try again later", "OK", "reload", false);
+              }
+              if (data['params'].response == 'video') {
+                show_in_call_notification('No room video');
+                setTimeout(function(){show_in_call_notification('No room video');}, 5000); // blinking 
+                setTimeout(function(){show_in_call_notification('No room video');}, 10000); // blinking
+                setTimeout(function(){show_in_call_notification('No room video');}, 15000); // in case they missed it
+              }
+              if (data['params'].response == 'audio') {
+                show_in_call_notification('No room audio');
+                setTimeout(function(){show_in_call_notification('No room audio');}, 5000);// blinking
+                setTimeout(function(){show_in_call_notification('No room audio');}, 10000);// blinking 
+                setTimeout(function(){show_in_call_notification('No room audio');}, 15000);// in case they missed it
+              }
+              break
+              break
+            case "inCall":
+              console.log("inCall received");
+              var loaded = document.getElementById("endpoint_id"); // grabbing any element from loaded screen - this is to prevent response to this without endpoint being dialed
+              if (!in_call && loaded) {
+                if (!webInCall()) {
+                  in_call = true;
+                  if (data['params'].response == 'ok') {
+                    if (doorbell){
+                      ringBell();
+                    }
+                    $("#settings_sidebar").addClass('hidden'); 
+                    processCall(false); 
+                  } 
+                  else {
+                    if (invited || no_prompt) {
+                      $("#settings_sidebar").addClass('hidden');
+                      processCall(true);
+                    } 
+                    else {
+                      /** Room is either locked or busy */
+                      endpoint_id = document.getElementById("endpoint_id").innerHTML
+                      alertLockedOrBusy(endpoint_id);
+                    }
+                  }
+                }
+              }
+              else {
+                if (loaded) {
+                  console.log("ignoring received inCall due to already being in a call");
+                } 
+                else {
+                  console.log("ignoring received inCall because sitting on room select screen");
+                }
+              }
+              break;
+            case "buildCallCount":
+              setTimeout(function(){callCountTimerOn = false;}, 5000);
+              if (callCountTimerOn) {
+                if (!rooms_i_am_in.includes(data['params'].endpoint_id)) {
+                  rooms_i_am_in.push(data['params'].endpoint_id);
+                  num_of_calls++;
+                  console.log('I am in ' + num_of_calls + ' calls!');
+                 }
+                var m_poh = document.getElementById('multiple_call_poh');
+                if (m_poh && m_poh.innerHTML == 'yes') {
+                  var bottomBar = document.getElementById('call_colors');
+                  bottomBar.classList.add(call_colors[num_of_calls]);
+                  var leftBar = document.getElementById('call_colors_left');
+                  leftBar.classList.add(call_colors[num_of_calls]);
+                  var rightBar = document.getElementById('call_colors_right');
+                  rightBar.classList.add(call_colors[num_of_calls]);
+                }
+              }
+              break;
+            case "checkForMultiCall":
+              // support multi call scenario
+              if (in_call) {
+                if (webInCall()) {
+                  var callobj = new Object;
+                  callobj = {endpoint_id: endpoint_id};
+                  send_command_by_user_id("#{current_user.id}", 'buildCallCount', callobj);
+                  if (data['params'].endpoint_id != endpoint_id) { 
+                    // this client is in a call
+                    var m_poh = document.getElementById('multiple_call_poh');
+                    if (m_poh && m_poh.innerHTML == 'yes') {
+                      var obj = new Object;
+                      obj = {endpoint_id: endpoint_id};
+                      send_command_by_user_id("#{current_user.id}", 'inCallWithRoom', obj);
+                      forceMutePatient();
+                      proAlert("Call Placed on Hold", "warning", "Another call has started", "Continue This Call", "continue_call", "multi_call_button");
+                    }
+                  }
+                }
+              }
+            break;
+            case "start_exam":
+              if (tyto_exam_in_progress == false) {
+                tyto_exam_in_progress = true;
+                var tyto_popup = window.open("/tyto_popup?url=" + btoa(data['params'].tyto_url),"","height=600,width=600");
+                tyto_popup.onbeforeunload = function(){ endExam(); }
+              }
+              break;
+            case "start_exam_error":
+              proAlert("Error", "error", "There was an error starting the exam", "OK", "close", "");
+              tyto_exam_in_progress = false;
+              $("#end_exam_image").addClass('hidden');
+              $("#start_exam_image").removeClass('hidden');
+              break;
+            default: 
+              console.log("Unknown response: " + data);
+          }
+        }
+      }});
+= render :partial => 'application/streaming'
+= render :partial => 'application/media'

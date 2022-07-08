@@ -1,0 +1,9 @@
+{
+    "name": "camera-controller",
+    "version": "0.0.1",
+    "description": "Camera Controller",
+    "dependencies": {
+        "ioredis": "^4.9.3",
+        "socket.io": "^2.0.4"
+    }
+}

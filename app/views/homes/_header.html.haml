@@ -1,0 +1,85 @@
+%nav{'aria-label'=>'main'}
+  - if @invited_guest || @mobile_api_call
+    - @hide_logout = true
+  .header_control_bar
+    #header_left
+      - if current_admin.present? && !(current_admin.migrated?)
+        #notif_header{:class => @mobile_api_call ? '' : 'hidden'}
+          - if (!@api_make_call and !@invited_guest) || @mobile_api_call
+            %button{:onclick=>"toggle_widget('alerts','notifs')", :class=>'leftside', :id => "notifs", :'aria-expanded'=>"false"}
+              %p#js_count
+              %p.notifs Notifications
+        #alert_partial.alert_partial
+          = render :partial => 'homes/alerts'
+      #search_box_view.hidden
+        %audio{:id=>"notif_player", :src=>"#{asset_path('sound_test.wav')}"}
+        %button{:class =>  ((@api_make_call || @invited_guest) && !@mobile_api_call) ? 'no_notifications' : '', :onclick=>"toggle_sidebar_panel('participant')", :'aria-expanded'=>"false", :id => 'participants_button'} 
+          %p.parts Participants
+          #chat_notification.fa.fa-comment.hidden.animate__animated
+            %p#chat_js_count 0 
+
+    #room_time.hidden
+      .room_wrapper
+        #lock_vmr_toggle.hidden 
+          .tool-tip-icon
+            - if @invited_guest
+              .callout
+                %p{:'aria-hidden'=>"true"} Lock Status
+              %button{:'aria-label'=>"Lock Room", :id => "toggle_lock_vmr_button", :'aria-pressed'=>"false", :disabled => "disabled"} 
+                #lock_vmr_inactive.deactivated.far.fa-lock-open
+                #lock_vmr_active.deactivated.fas.fa-lock.hidden
+            - else 
+              .callout
+                %p{:'aria-hidden'=>"true"} Lock Room
+              %button{:onclick => "toggleLockConference()", :'aria-label'=>"Lock Room", :id => "toggle_lock_vmr_button", :'aria-pressed'=>"false"} 
+                #lock_vmr_inactive.far.fa-lock-open
+                #lock_vmr_active.fas.fa-lock.hidden
+
+        %h1#r_name.r_name
+        #favorite_toggle.hidden
+          .tool-tip-icon
+            .callout
+              %p{:'aria-hidden'=>"true"} Save Room 
+            %button{:onclick => "toggle_favorite('#{@endpoint}')", :'aria-label'=>"Save Room", :'aria-pressed'=>"false", :id => "toggle_favorite_button", :'aria-pressed'=>"false"}
+              #favorite_inactive.far.fa-star  
+              #favorite_active.fas.fa-star.hidden  
+
+    #right_of_header{:class=> current_user.nil? ? 'hidden' : ''}
+      #clinician_nav.rightside
+        .dropdown
+          %button{:'data-toggle'=>"dropdown", :id=>"menu_button", :class=>"dropdown-toggle", :'aria-controls'=>"dropdown_list", :'aria-haspopup'=>"true", :'aria-expanded'=>"false"} 
+            %i{:alt=>"Control icon", :class =>  (!@api_make_call && !@hide_logout) ? 'fa fa-user dropdown' : 'fa fa-user dropdown api_username'}
+            %p#top_dr_name{:class => (!@api_make_call && !@hide_logout) ? '' : 'hidden'}
+            %b.caret
+          %ul.dropdown-menu{:role=>"menu", :id=>"dropdown_list", :labelledby=>"menu_button"}
+            %li{:class => (!@api_make_call && !@hide_logout) || @mobile_api_call ? '' : 'hidden'} 
+              =link_to 'javascript:;', :onclick=>'toggle_account()', :role=>"menuitem" do
+                <i class="fa fa-user li"  alt="Account icon"></i> 
+                <span>Account</span> 
+            //%li{:id => "favorite_menu_item"} 
+            //  =link_to 'javascript:;', :onclick=>'open_favorites_sidebar()', :role=>"menuitem", :class => "favorite_star" do
+            //    <i class="fas fa-star li"  alt="Favorite icon"></i> 
+            //    <span>Favorites</span>
+            %li 
+              =link_to 'javascript:;', :onclick=>'open_media_settings()', :role=>"menuitem" do
+                <i class="fas fa-video li"  alt="Settings icon"></i> 
+                <span>Settings</span> 
+            %li 
+              =link_to 'javascript:;', :onclick=>"toggle_widget('help', '')", :role=>"menuitem" do
+                <i class="fas fa-keyboard li" alt="Shortcuts icon"></i>
+                <span>Shortcuts</span> 
+            %li{:class => (!@api_make_call && !@hide_logout) || @mobile_api_call ? '' : 'hidden'} 
+              =link_to support_home_path, :target=>'_blank', :role=>"menuitem" do 
+                <i class="fa fa-info-circle li" alt="Support icon"></i> 
+                <span>Support</span> 
+            %li{:class => (!@api_make_call && !@hide_logout) ? '' : 'hidden'} 
+              =link_to destroy_admin_session_path, :method=>:delete, :role=>"menuitem" do
+                <i class="fa fa-sign-out" alt="Log out icon"></i> 
+                <span>Logout</span> 
+          #account_partial
+            =render :partial=>'homes/account'
+          #help_partial.help_partial
+            =render :partial => 'homes/help'
+          #favorites_sidebar.hidden
+            =render :partial=>'homes/favorites'
+          =render :partial=>'application/settings'

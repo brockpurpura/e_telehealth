@@ -1,0 +1,345 @@
+:javascript
+
+  if (!is_mobile()) {
+    window.streaming = streaming;
+  }
+  
+  const camera = document.getElementById('videoSource');
+  const microphone = document.getElementById('audioSource');
+  const speaker = document.getElementById('audioOutput');
+  const localVideoStream = document.getElementById('videoSettingView');
+  var onlyCallOnce = true;
+  function initiateMedia() {
+    (async() => {
+      try{
+        let devices = await navigator.mediaDevices.enumerateDevices();
+        let anyCamera = false;
+        let anyMicrophone = false;
+        let anySpeaker = false;
+        let cameras = 0;
+        let microphones = 0;
+        let speakers = 0;
+        let frontCameraIndex = 0;
+
+        if (camera) 
+          camera.options.length = 0;
+        
+        if (microphone) 
+          microphone.options.length = 0;
+        
+        if (speaker) 
+          speaker.options.length = 0;
+
+        devices.forEach(device => {
+          console.log('finished enumerate devices');
+          if (device.kind === 'videoinput') {
+            if (camera) {
+              console.log('Found video device - ' + device.label);
+              camera.appendChild(deviceOption(device, `camera ${camera.length}`, videoHash));
+              if (is_safari && device.label.toLowerCase().includes('front')) {
+                console.log('*** frontCamera: ', frontCameraIndex);
+                frontCameraIndex = cameras;
+              }
+              cameras++;
+            }
+            anyCamera = true;
+          } else if (device.kind === 'audioinput') {
+            if (microphone) {
+              microphone.appendChild(deviceOption(device, `microphone ${microphone.length}`, audioHash));
+            }
+            microphones++;
+            anyMicrophone = true;
+          } else if (device.kind === 'audiooutput') {
+            if (speaker) {
+              speaker.appendChild(deviceOption(device, `audio output ${speaker.length}`, outputHash));
+            }
+            speakers++;
+            anySpeaker = true;
+          }
+        });
+
+        if (is_mobile()) {
+          document.getElementById('d_video').innerHTML = Object.keys(videoHash)[frontCameraIndex];
+          document.getElementById('d_audio').innerHTML = Object.keys(audioHash)[0];
+        }
+    
+        if (anyCamera && camera){
+          camera.selectedIndex = 0;
+        }
+
+        if (anyMicrophone && microphone) {
+          microphone.selectedIndex = 0;
+        }
+    
+        if (anySpeaker && speaker){
+          speaker.selectedIndex = 0;
+        }
+
+        // Set default values
+        var selected_camera = document.getElementById('d_video').innerHTML;
+        console.log('selected camera is ' + selected_camera);
+        updateSelectedDropdown("videoSource", videoHash[selected_camera]);
+      
+        var selected_microphone = document.getElementById('d_audio').innerHTML;
+        updateSelectedDropdown("audioSource", audioHash[selected_microphone]);
+
+        var selected_speaker = document.getElementById('d_output').innerHTML;
+        updateSelectedDropdown("audioOutput", outputHash[selected_speaker]);
+        audioOutput =  selected_speaker; // webui uses outputHash
+        
+        var option = document.createElement('option');
+        if (videoSelect && videoSelect.options.length == 0){
+            option.text = 'No camera options';
+            noCamera = true;
+            camera.appendChild(option);
+        }
+        else {
+          noCamera = false;
+        }
+
+        if (audioInputSelect && audioInputSelect.options.length == 0){
+            noAudio = true;
+            option.text = 'No audio options';
+            audioInputSelect.appendChild(option);
+        }
+        else {
+          noAudio = false;
+        }
+        
+        if (audioOutputSelect && audioOutputSelect.options.length == 0){
+          noSpeaker = true;
+          option.text = 'Default Speaker';
+          audioOutputSelect.appendChild(option);
+        }
+        else {
+          noSpeaker = false;
+        }
+
+        if (noCamera && noAudio) {
+            proAlert("No microphone or video options!", "warning", "Your call will not have audio or video!", "OK", "close", false);
+        }
+        else {
+          if (noCamera) {
+            proAlert("No camera option!", "warning", "Your call will not have video!", "OK", "close", false);
+          }
+          if (noAudio) {
+            proAlert("No microphone options!", "warning", "Your call will not have audio!", "OK", "close", false);
+          }
+        }
+        initCall(); // get Pexip going
+
+        if (!is_mobile()) {
+          startLocalStream().then(function(){
+            // inititate locals
+            updateSpeaker(localVideoStream);
+            updateTestSound();
+          }).catch(function(e){ console.log('startLocalStream failed: ' + e);}) ;
+        }
+      }
+      catch (err) {
+        console.log(err);
+      }
+    })();
+  }
+
+  async function startLocalStream() {
+    try {
+      await streaming.startLocalStream(streaming.formatMediaConstraints((microphone && microphone.value) ? microphone.value : null, (camera && camera.value) ? camera.value : null));
+    }
+    catch (err) {
+      console.log(`failed to start local stream: ${err}`);
+    }
+  }
+
+  if (is_safari) {
+    $('#audioOutput').addClass('hidden');
+    $('#player').addClass('hidden');
+    $('#blueSoundTestLink').addClass('hidden');
+    $('#audioOutputLabel').addClass('hidden');
+    if (is_touch_screen) {
+      $('#content_sharing_button').addClass('hidden');
+    }
+  } else if (speaker != null) { 
+    speaker.onchange = () => {
+      updateSpeaker(localVideoStream);
+      //remoteVideo.forEach((video, mediaId) => updateSpeaker(video));
+      updateTestSound();
+      saveSelectionsWithoutPexip();
+    };
+  }
+
+  if (camera) { 
+    camera.onchange = () => {
+      uhe_make_call = "";
+      startLocalStream();
+      saveSelections();
+    }
+  }
+
+  if (microphone) { 
+    microphone.onchange = () => {
+      uhe_make_call = "";
+      startLocalStream();
+      saveSelections();
+    } 
+  }
+
+  const runAdjustPexip = async element => {
+    console.log('await renegotiate');
+    try {
+
+      if (is_muted_ios_device()) {
+        rtc.muteAudio(); // Unmute
+      }  
+
+      console.log("---- begin renegotiate");
+      var reneg = await rtc.renegotiate();
+      console.log("---- end renegotiate");
+
+      if (is_muted_ios_device()) {
+        console.log("---- call was muted, remuting");
+        setTimeout(function(){
+          rtc.muteAudio();}
+        , 2000);
+      }  
+    
+    }
+    catch (err) {
+      console.log(err);
+    }
+  }
+
+  const updateSpeaker = async element => {
+    try {
+      var pexVideo = document.getElementById('video');
+      if (pexVideo && speaker) { pexVideo.setSinkId(speaker.value); }
+      await element.setSinkId(speaker.value);
+    }
+    catch (err) {
+      console.log(err);
+    }
+  };
+
+  const updateTestSound = async element => {
+    try {
+      if (!is_safari && document.getElementById('player') != null) { // safari currently does not support output selection
+        await document.getElementById('player').setSinkId(speaker.value);
+      }
+    }
+    catch (err) {
+      console.log(err);
+    }
+  }
+
+  // Mobile just needs the video, audio and speaker hashes
+  const createMediaHash = (device, defaultLabel, theHash) => {
+    theHash[device.label || defaultLabel] = device.deviceId;
+  };
+
+  // This is where videoHash and audioHash are created
+  const deviceOption = (device, defaultLabel, theHash) => {
+    const option = document.createElement('option');
+    option.value = device.deviceId;
+    option.text = device.label || defaultLabel;
+    theHash[option.text] = option.value;
+    return option;
+  };
+
+  streaming.onLocalStreamStart = stream => {
+    console.log('local stream started');
+    if (localVideoStream) {
+      localVideoStream.srcObject = stream;
+    }
+    selfvideo = document.getElementById('selfvideo');
+    if (selfvideo) {
+      selfvideo.srcObject = stream;
+    }
+  };
+
+  streaming.onLocalStreamStop = stream => {
+    console.log('local stream stopped');
+  };
+
+
+  async function callMeetingAsync(){
+    const pin_data = await getPin();
+    var use_pin = 'no';
+    try {use_pin = pin_data.pin_info.use_pin;} catch(err) {/** pin_data/pin_info is undefined */}
+     
+    if (use_pin == 'no') {
+      initialise("#{Configurable.hcm_conference_node}", "#{@call_alias}", null, "#{@username}", null, null, null, "#{@vmr}", null, null, false); 
+    }
+    else {
+      var host_pin = pin_data.pin_info.host_pin;
+      initialise("#{Configurable.hcm_conference_node}", "#{@call_alias}", null, "#{@username}", host_pin, null, null, "#{@vmr}", null, null, false); 
+    }
+  }
+
+  /**
+  * INC-2: iOS devices on mute are not un-muted following a camera change (rtc.renegotiate())
+  */
+  function is_muted_ios_device() {
+    var selfMute = document.getElementById("self_mute");
+    return is_safari && hasClass(selfMute, 'muted')
+  }
+
+  function initCall() {
+    if (onlyCallOnce ) {
+      console.log("making call now..");
+      onlyCallOnce  = false;
+      if (isMeeting) {
+        if (not_ie && ("#{@make_call}" !== "")) {
+          callMeetingAsync();
+        }
+      }
+      else {
+        if (uhe_make_call !== "") {
+          makeCall(uhe_call_alias, uhe_endpoint_id, uhe_rm_name, uhe_announce, uhe_machine_name, uhe_invited);
+        }
+        if ("#{@invited_guest}" !== "") {
+          makeCall(uhe_call_alias, uhe_endpoint_id, uhe_rm_name, uhe_announce, uhe_machine_name, uhe_invited);
+        }
+      }
+    }
+  }
+
+
+  async function sendPin(){
+    const pin_data = await getPin();
+    var use_pin = pin_data.pin_info.use_pin;
+    if (use_pin == 'no') {
+      console.log('returning pin nil');
+      rtc.connect(null); 
+    }
+    else {
+      if (invited) {
+        guest_pin = pin_data.pin_info.guest_pin;
+        console.log('returning pin guest ' + guest_pin); 
+        rtc.connect(guest_pin); 
+      }
+      else {
+        var host_pin = pin_data.pin_info.host_pin;
+        console.log('returning pin host ' + host_pin); 
+        rtc.connect(host_pin); 
+      }
+    } 
+  }
+  
+  async function getPin(){
+      var c_alias = document.getElementById('call_alias').innerHTML;
+      var meeting = isMeeting ? 'true' : 'false';
+      let result;
+      try {
+        result = await $.ajax( { 
+          url: "/api/get_pin?alias=" + c_alias + "&meeting=" + meeting,
+          dataType: "JSON"
+          });
+      } catch (error) {
+          console.error(error);
+      }
+      console.log('pin result: ');
+      console.log(result);
+      return result;
+  }
+  
+

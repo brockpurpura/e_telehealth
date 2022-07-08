@@ -1,0 +1,12 @@
+.privacy
+  .privacy_wrapper
+    .leftside
+      %button{:onclick=> "window.open('//privacy.truste.com/privacy-seal/validation?rid=009ece2a-a0d6-440e-814b-977e22f423f7')", :target => "_blank"}
+        =image_tag image_url('etrust_seal.svg'), :class => "", :alt => "TRUSTe Verified Privacy Seal"
+    .leftside
+      %p.midline &#124; 
+    .leftside
+      = link_to 'Privacy Policy', 'http://www.caregility.com/privacy-policy', :class=>'privacy_link'
+.copyright       
+  <p class="">Copyright &copy; #{Time.now.strftime("%Y")} Caregility</p>
+

@@ -1,0 +1,23 @@
+-if !is_mobile_device?
+  = render :partial=> 'homes/header'
+- else 
+  -# .hidden
+    -# = render :partial=> 'homes/header'
+
+  #right_of_header
+  #notif_header
+  #sign_in
+  #login_widget
+%p#pexip_enable_legacy_dialout_api #{Configurable.pexip_enable_legacy_dialout_api}
+%p#pexip_sip_routing_prefix #{Configurable.pexip_sip_routing_prefix}
+%p#pexip_h323_routing_prefix #{Configurable.pexip_h323_routing_prefix}
+%p#pexip_skype_routing_prefix #{Configurable.pexip_skype_routing_prefix}
+%p#user_id.hidden 
+=render :partial=>'application/sidebar_panel', :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias}
+#conf_partial
+  =render :partial=>'homes/conf', :locals=> {:endpoint => @endpoint, :current_user => @current_user, :machine_name=>@machine_name, :tunnel=>@tunnel, :call_alias => @call_alias} 
+%p#is_dev.hidden #{Rails.env.development? ? 'true' : 'false'} 
+#all_devices.hidden
+:javascript 
+  checkLogin();
+ 

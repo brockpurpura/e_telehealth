@@ -1,0 +1,8 @@
+SmallUrl_1:
+  id: 1
+  large_url: |
+    SpojysVvWEEErdSe/fV0NrpEIEDjdGjS2xmfU8klqgvZxqokYiGV9v1vSbEz
+    RbRShxCd17UEEKKzJZ6vMOARjSiF4bGBEFuN1n1BfQfUrRk=
+  small_url: 4hot4Q
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

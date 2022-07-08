@@ -1,0 +1,9 @@
+%div{:role=>"dialog", :'aria-label'=> "Self View"}
+  - if !is_mobile_device?
+    .self_view_mover.fa.fa-arrows.self_video_visuals.fade#move_self_view{:tabindex=>"0", :'aria-label'=>"move self view", :role=>"application"}
+    %button{:id=>'close_self_view', :class => 'fa fa-times-circle close_widget self_video_visuals fade self_view_close', :onclick=> "toggle_widget('self_view_widget', 'self_view_button')", :'aria-label'=>"close self view"}
+  .sv
+    %div.self_video_div
+      <video autoplay playsinline id='selfvideo' height=#{is_mobile_device? ? '120':'170'} muted class='right_20 rightside'></video>
+      #poh_icon{:class=>"hidden"}
+        %h4 POH

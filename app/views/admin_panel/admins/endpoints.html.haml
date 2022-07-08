@@ -1,0 +1,169 @@
+%div{:id=>'top'}
+%p#static_ip_edit_flag.hidden
+%p#health_list_refresh_flag.hidden 
+%p#room_selected.hidden #{@room_selected}
+
+<!-- Dashboard Graph starts -->
+#sub_title.with_search
+  .leftside
+    %i.fa.fa-user-md.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3  Rooms
+  .rightside.create_new_link
+    - if within_license_limit?('Unit') 
+      - if our_active_admin.is_not_read_only?
+        =link_to "Add Room", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('add_endpoint','')"
+    - else 
+      Room license limit reached
+    %br
+    %br
+  
+  
+.search_field.in_title  
+  .leftside 
+    .search_icon
+      %span.far.fa-search
+
+  = form_for :search_endpoint_form, :url => endpoints_admin_panel_admin_path, :html => {:id => "search_endpoint_form" } do |x|
+    .leftside
+      = x.text_field :search_endpoints, :id=>'search_endpoints', :placeholder=>'Search', :value => @search_value, :class=>'search_field_input' 
+    #popup_widget_surround 
+      .popup_widget.popup_ui{:id => "filter_layout"}
+        #uhe_admin_popup
+          %h2 Filter 
+          =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+            <i class="far fa-times" aria-hidden="true"></i>
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form    
+              -if our_active_admin.is_super_admin?
+                %p.entry_header
+                  By Channel      
+                .entry 
+                  = x.collection_select(:filter_channel, ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None", :selected => @channel_value}, {:style => ""})
+              -if our_active_admin.is_channel_admin?
+                %p.entry_header
+                  By Customer      
+                .entry 
+                  .center
+                    .dropdowns
+                      %label
+                        = x.collection_select(:filter_customer, our_active_admin.client_admin.clients.active, :id, :client_name, { :multiple => true, :prompt => "None", :selected => @customer_value}, {:style => ""})
+                       
+          .submit
+            .center 
+              = x.submit "Apply", :class=> "button"   
+          .footer_link
+            .center
+              = x.button "Reset Filter", :type =>  'submit', :name => 'reset_filter', :value => 'true', :class => "reset_filter_submit"
+
+    .leftside
+      .clear_search
+        =x.button "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+          %span.fal.fa-times
+    .leftside
+      .filter_link          
+        - if our_active_admin.is_super_admin? or our_active_admin.is_channel_admin?          
+          =link_to "Filter", "javascript:;", :class=>"", :onclick=>"open_admin_popup('filter_layout','')"
+
+.col-md-12
+  #endpoint_list_partial
+    = render :partial=>'endpoints', :locals=>{:endpoints=>@endpoints}
+ 
+- if our_active_admin.is_not_read_only? 
+  #popup_widget_surround 
+    .popup_widget.popup_ui{:id => "add_endpoint"}
+      #uhe_admin_popup
+        %h2 Add Room 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_endpoint')" do
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        =form_for @endpoint,  :url => endpoints_admin_panel_admin_path  do |x| 
+          .uhe_admin_popup_body  
+            .uhe_admin_popup_form
+              -if @room.nil?
+                %p.entry_header
+                  - if our_active_admin.is_super_admin?
+                    Channel *      
+                  - else
+                    Customer *
+                .center
+                  .dropdowns
+                    %label
+                      - if our_active_admin.is_super_admin?
+                        = x.collection_select(:client_admin_id, ClientAdmin.active, :id, :name,  {:prompt=>""}, :onchange=>'checkCustomers(true, true, -1, "Select Customer")', :id=>'channelDropDown')  
+                      - elsif our_active_admin.is_channel_admin?
+                        = x.collection_select(:client_id, our_active_admin.client_admin.clients.active, :id, :client_name,  {:prompt=>""}, :onchange=>'adminCheckBuildings()', :id=>'customerDropDown')  
+                      - else
+                        = x.collection_select(:client_id, Client.where('id=?', our_active_admin.client_id), :id, :client_name)  
+                - if our_active_admin.is_super_admin?
+                  %p.entry_header
+                    Customer 
+                  .center
+                    .dropdowns
+                      %label
+                        = x.collection_select(:client_id, Client.active, :id, :client_name,  {:prompt=>""}, :onchange=>'adminCheckBuildings()', :id=>'customerDropDown') 
+
+                %p.entry_header
+                  Location *  
+                .center                        
+                  .dropdowns
+                    %label
+                      -if our_active_admin.is_customer_admin?
+                        = collection_select(:building_id, :id, Client.find_by_id(our_active_admin.client_id).buildings, :id, :name, {:prompt => ""}, {:id=>'room_building_id', :onchange=>'adminCheckRooms()'})
+                      -else 
+                        = collection_select(:building_id, :id, {}, :id, :name, {:prompt => ""}, {:id=>'room_building_id', :onchange=>'adminCheckRooms()'})
+                %p.entry_header
+                  Unit *   
+                .center
+                  .dropdowns
+                    %label
+                      =x.collection_select :room_id, {}, :id, :name, {:prompt=>""},{:id=>'roomSelect'}         
+              -else
+                =hidden_field_tag :room_id, @room.id
+              %p.entry_header
+                Name *  
+              .center
+                = x.text_field :name, :placeholder => "", :maxlength => 200
+              %p.entry_header
+                Device Type *  
+              .center
+                .dropdowns
+                  %label
+                    = select_tag :d_static_type, options_from_collection_for_select(DeviceTypeName.where('active=1').order('list_priority desc, common_name asc'), 'common_name', 'common_name', :disabled=>DeviceTypeName.disabled_device_types), :class => ""
+                .hidden
+                  = x.select :endpoint_type, [["Sony",1]],{:prompt => "Endpoint Type"}	
+                  = x.select :conference_node, [["proxy.univago.com",1]],{:prompt => "Conference Node"}		
+                  = x.select :default_input, [["Input Microphone Level",0],["1",1],["2",2],["3",3],["4",4],["5",5],["6",6],["7",7],["8",8],["9",9],["10",10],["11",11],["12 - Default",12],["13",13],["14",14],["15",15],["16",16],["17",17],["18",18],["19",19],["20",20]]    
+                  = x.select :default_output, [["Output Speaker Level",0],["1",1],["2",2],["3",3],["4",4],["5",5],["6",6],["7",7],["8",8],["9",9],["10 - Default",10],["11",11],["12",12],["13",13],["14",14],["15",15],["16",16],["17",17],["18",18],["19",19],["20",20]]
+                  = x.text_field :elert_url, :placeholder => "Alert Url", :class => "bottom_input"
+                #checkbox.hidden{:style => "width:100%; padding-left: 15px;"}
+                  .cb
+                    = x.check_box :show_camera
+                    Camera
+                  .cb.icr
+                    = x.check_box :show_icr 
+                    Icr
+                  .cb 
+                    = x.check_box :allow_privacy
+                    Privacy
+    
+                =hidden_field_tag :add_endpoint, true
+          
+         
+          .submit
+            .center 
+              //= link_to "Save for later", ""
+              = x.submit "Add", :class=> "button" 
+
+:javascript
+  if (document.getElementById('endpoint_name')) 
+    {document.getElementById('endpoint_name').required = true;}
+  if (document.getElementById('roomSelect')) 
+    {document.getElementById('roomSelect').required = true;}
+  if (document.getElementById('channelDropDown')) {
+    document.getElementById('channelDropDown').required = true;}
+  if (document.getElementById('customerDropDown')) {
+    document.getElementById('customerDropDown').required = true;
+  }
+
+

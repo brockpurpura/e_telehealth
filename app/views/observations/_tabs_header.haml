@@ -1,0 +1,8 @@
+.tab_header.tab-header-tabs
+  %div
+    = image_tag('small_caregility_logo.png')
+  .right-part
+    %span.fas.fa-user{:style => " color: black; margin-right: 5px;"}
+    .email
+      #{current_admin.email}
+    = link_to "Logout", destroy_admin_session_path, :method=>:delete, :class => "btn", :style => "margin-left: 5px;"

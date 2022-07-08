@@ -1,0 +1,141 @@
+- content_for(:title) { "Caregility Policy Server" }
+- content_for(:description) { "Caregility Policy Server" }
+
+<div class="page-head"><h2 class="pull-left"><i class="fa fa-gear fa-1 vert-middle darkorange"></i> Settings</h2><div class="clearfix"></div></div>
+
+.row
+  = form_tag do
+    .col-md-12
+      .widget.wgreen
+        .widget-head
+          .pull-left
+            Billing Server Configuration 
+          .widget-icons.pull-right
+          .clearfix
+        .widget-content
+          .padd.height_40
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Server Address 
+              .col-lg-5
+                =text_field_tag :billing_server_domain,  Configurable.billing_server_domain, :class=>'form-control', :placeholder=>'Name'
+            .clearfix
+
+    .col-md-12
+      .widget.wgreen
+        .widget-head
+          .pull-left
+            LDAP Configuration 
+          .widget-icons.pull-right
+          .clearfix
+        .widget-content
+          .padd.height_40
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Server Address 
+              .col-lg-5
+                =text_field_tag :ldap_server,  Configurable.ldap_server_address, :class=>'form-control'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Base DN 
+              .col-lg-5
+                =text_field_tag :ldap_dn,  Configurable.ldap_dn, :class=>'form-control'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Bind UserName 
+              .col-lg-5
+                =text_field_tag :ldap_username,  Configurable.ldap_username, :class=>'form-control'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Bind Password 
+              .col-lg-5
+                =password_field_tag :ldap_password,  Configurable.ldap_password, :class=>'form-control'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Admin Group 
+              .col-lg-5
+                =text_field_tag :ldap_admin_group,  Configurable.ldap_admin_group, :class=>'form-control'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Readonly Group 
+              .col-lg-5
+                =text_field_tag :ldap_readonly_group,  Configurable.ldap_readonly_group, :class=>'form-control'
+            =hidden_field_tag :update_ldap, true
+          .clearfix
+    .col-md-12
+      .widget.wgreen
+        .widget-head
+          .pull-left
+            Policy Server Configuration 
+          .widget-icons.pull-right
+          .clearfix
+        .widget-content
+          .padd.height_40
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Server Address 
+              .col-lg-5
+                =text_field_tag :policy_server_api_url,  Configurable.policy_server_api_url, :class=>'form-control', :placeholder=>'Name'
+            .clearfix
+    .col-md-12
+      .widget.wgreen
+        .widget-head
+          .pull-left
+            Pexip Configuration 
+          .widget-icons.pull-right
+          .clearfix
+        .widget-content
+          .padd.height_40
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Config URI
+              .col-lg-10
+                =text_field_tag :pexip_config_uri,  Configurable.pexip_config_uri, :class=>'form-control', :placeholder=>'Name'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label History URI 
+              .col-lg-10
+                =text_field_tag :pexip_history_uri,  Configurable.pexip_history_uri, :class=>'form-control', :placeholder=>'Name'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label UserName 
+              .col-lg-5
+                =text_field_tag :pexip_username,  Configurable.pexip_username, :class=>'form-control', :placeholder=>'Name'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Password 
+              .col-lg-5
+                =password_field_tag :pexip_password,  Configurable.pexip_password, :class=>'form-control', :placeholder=>'Name'
+            .clearfix
+    .col-md-12
+      .widget.wgreen
+        .widget-head
+          .pull-left
+            Mailer Configuration 
+          .widget-icons.pull-right
+          .clearfix
+        .widget-content
+          .padd.height_40
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Domain 
+              .col-lg-5
+                =text_field_tag :mailer_domain,  Configurable.mailer_domain, :class=>'form-control', :placeholder=>'Name'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Address 
+              .col-lg-5
+                =text_field_tag :mailer_address,  Configurable.mailer_address, :class=>'form-control', :placeholder=>'Name'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label UserName 
+              .col-lg-5
+                =text_field_tag :mailer_username,  Configurable.mailer_username, :class=>'form-control', :placeholder=>'Name'
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Password 
+              .col-lg-5
+                =password_field_tag :mailer_password,  Configurable.mailer_password, :class=>'form-control', :placeholder=>'Name'
+            .clearfix
+
+    .col-md-12
+      .widget.wgreen
+        .widget-head
+          .pull-left
+            iObserver 
+          .widget-icons.pull-right
+          .clearfix
+        .widget-content
+          .padd.height_40
+            .form-group.col-lg-12
+              %label.col-lg-2.control-label Domain 
+              .col-lg-5
+                =text_field_tag :esitter_controller_default,  Configurable.esitter_controller_default, :class=>'form-control'
+
+    - if current_admin.is_not_readonly?
+      .col-lg-2
+        =submit_tag 'Update Settings', :class=>"btn btn-info"

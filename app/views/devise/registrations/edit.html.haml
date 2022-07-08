@@ -1,0 +1,41 @@
+= render "application/caregility_greeting"
+
+%main
+  .univago_login_form
+    = form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, :class=>"", :onsubmit=>'return formValidation(this)'}) do |f|
+      = render "devise/shared/error_messages", resource: resource
+      %br
+      %h1.center Reset Your Password     
+      %br
+      %label{:for=> "inputCurrentPassword"} Current Password          
+      = f.password_field :current_password, :class=>'', :id => 'inputCurrentPassword'
+      %label.error#inputCurrentPasswordError.hidden{:for=>"inputCurrentPassword"} Enter current password 
+      %br   
+      %br
+      %label{:for=> "inputNewPassword"} New Password          
+      = f.password_field :password, :class=>'', :id => 'inputNewPassword'
+      %label.error#inputNewPasswordError.hidden{:for=>"inputNewPassword"} Enter new password 
+      %br
+      %br
+      %label{:for=> "inputPasswordConfirmation"} Confirm New Password         
+      = f.password_field :password_confirmation, :class=>'', :id => "inputPasswordConfirmation"
+      %label.error#inputPasswordConfirmationError.hidden{:for=>"inputPasswordConfirmation"} Confirm new password
+      %br
+      %br
+      .center
+        = f.submit 'Submit', :class=>''
+      %br
+      %br
+      =render :partial => '/homes/contact'  
+      %br
+      = render :partial => '/homes/privacy'
+
+= render "application/session_timeout"
+
+:javascript
+  
+  document.getElementById('inputCurrentPassword').required = true;  
+  document.getElementById('inputNewPassword').required = true;  
+  document.getElementById('inputPasswordConfirmation').required = true;
+
+        

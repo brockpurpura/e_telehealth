@@ -1,0 +1,62 @@
+- if @endpoint.nil?
+  - @translator_client = @api_client
+- else
+  - @translator_client = @endpoint.client
+   
+- if !@translator_client.nil? and @translator_client.has_translator?
+  - case @translator_client.translation_type.use_mapping 
+    - when 1
+      -# Stratus and mappings
+      - @gender = true
+      - @translations = @translator_client.translation_type.translation_mappings.where('client_id =?', @translator_client.id)
+      - @translation_mapping = true
+    - when 0 
+      -# InDemand 
+      - @gender = true
+      - @translations = @translator_client.translation_codes
+    - when 2 
+      -# Cloudbreak
+      - @gender = false
+      - @translations = @translator_client.translation_codes.order('name ASC') 
+      %p#marttiId.hidden #{@translator_client.marttiId.to_s}
+    - when 3
+      -# PSTN
+      - @gender = false
+      - @translations = @translator_client.translation_type.translation_mappings.where('client_id = ?', @translator_client.id)
+      - @translation_mapping = true
+      
+  %div{:onclick => "collapse_participant_sidebar('translator')"}
+    %h2.slide_bar_title.collapsible.noselect Invite Interpreter
+    .collapse_button_wrapper
+      %button.collapse_button.i.far.fa-minus{:id => "translator_fa", :'aria-label'=>"minimize interpreter invite", :title=>"Minimize"}
+  #sidebar_translator
+    .invite_area#translator_invite
+      .gender_div{:class=> @translator_client.translation_type.uses_gender? ? '' : 'hidden'}
+        = label_tag :gender, "Gender", :class=>'height_10 participant_sidebar'
+        %div.rightside
+          %ul
+            %li
+              =radio_button_tag :gender, @translator_client.translation_type.male, {}, :class=>'user_select_enabled', :id=>'gender_male'
+              =label_tag :gender_male, 'Male'
+            %li
+              =radio_button_tag :gender, @translator_client.translation_type.female, {}, :class=>'user_select_enabled', :id=>'gender_female'
+              =label_tag :gender_female, 'Female'
+            %li
+              =radio_button_tag :gender, @translator_client.translation_type.any, {}, :checked=>'checked', :class=>'user_select_enabled rightmost', :id=>'gender_all'
+              =label_tag :gender_all, 'Any'
+      %br
+      =label_tag :translator_select, "Language", :id=>'translator_select_label', :class => "participant_sidebar"
+      .dropdowns
+        %span
+          - if @translation_mapping
+            =select_tag :translation_code, options_from_collection_for_select(@translations, 'uri', 'description'), :id=>'translator_select'
+          - elsif @translations.present?
+            =select_tag :translation_code, options_from_collection_for_select(@translations, 'prefix', 'translator_name'), :id=>'translator_select'
+      =hidden_field_tag :translation_domain, @translator_client.translation_type.domain
+      %p#translation_mapping.hidden #{@translator_client.translation_type.use_mapping.to_s}
+      - if @translator_client.translation_type.name.to_s =="Stratus" && @endpoint.present? && @endpoint.stratus_billing_code.present?
+        %p#stratus_billing_code.hidden #{@endpoint.stratus_billing_code.to_s}
+      .invite_button_wrapper
+        %button.form_button{:onclick=>'addTranslator("' + (@translator_client.translation_customer_code || '').to_s + '")', :id => "addTranslatorBtn"}
+          Invite
+          

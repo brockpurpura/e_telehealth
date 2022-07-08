@@ -1,0 +1,15 @@
+.pro_alert
+  #pro_alert_overlay.hidden
+  .pro_alert_box#pro_alert_main.hidden{:role=>"alertdialog", :'aria-labelledby'=>"pro_alert_title", :'aria-describedby'=>"pro_alert_message"} 
+    %p#pro_alert_priorty
+    =image_tag image_url('alert_success'), :class => "hidden", :alt => "Success Icon", :id => "pro_alert_icon_success"
+    =image_tag image_url('alert_info'), :class => "hidden", :alt => "Informational Icon", :id => "pro_alert_icon_info"
+    =image_tag image_url('alert_warning'), :class => "hidden", :alt => "Warning Icon", :id => "pro_alert_icon_warning"
+    =image_tag image_url('alert_error'), :class => "hidden", :alt => "Error Icon", :id => "pro_alert_icon_error"
+
+    %h2#pro_alert_title 
+    %p#pro_alert_message 
+        
+    %button#pro_alert_submit
+    = link_to "Cancel", "javascript:;", :id => "pro_alert_cancel", :class => "hidden"
+

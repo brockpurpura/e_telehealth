@@ -1,0 +1,6 @@
+%p#tyto_url #{Base64.decode64(params[:url])}
+%iframe{:src => '', :id => 'tytocare', :sandbox => 'allow-same-origin allow-popups allow-forms allow-scripts allow-top-navigation', :allow => 'autoplay; fullscreen; animations', :frameBorder => '0', :width => '600', :height => '600'}
+:javascript
+    window.addEventListener('load', (event) => {
+        document.getElementById('tytocare').src = document.getElementById('tyto_url').innerHTML
+    });

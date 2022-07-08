@@ -1,0 +1,133 @@
+.support
+  .col-sm-12
+    .title
+      %h1 Videos
+    %hr.support
+    - @tutorials.each_with_index do |x, idx| 
+      %div
+        .iframe.leftside
+          %iframe{:allowfullscreen => "allowfullscreen", :height => "225", :mozallowfullscreen => "mozallowfullscreen", :msallowfullscreen => "msallowfullscreen", :oallowfullscreen => "oallowfullscreen", :src => "https://www.youtube.com/embed/#{@tutorials[idx].youtube_path}?rel=0&amp;controls=1&amp&amp;showinfo=0&amp;modestbranding=0", :webkitallowfullscreen => "webkitallowfullscreen", :width => "375", :frameborder=>"0"}
+          -if resource.class == Admin and our_active_admin.is_super_admin?
+            - if our_active_admin.is_not_read_only?
+              = link_to support_admin_panel_admin_path(:delete_tutorial => true, :tutorial_id => x.id), :title => "Delete video", :class => "support" do 
+                <i class="far fa-trash-alt fa-1x" aria-hidden="true" style="margin-right: 10px;"></i>
+          %p #{@tutorials[idx].video_description}   
+
+
+  .col-sm-12
+    %div
+      %h1.sub_title Support Documents
+      %hr.support
+      - if resource.class == Admin  
+        - @sections.each_with_index do |section, idxx|
+          - @session_supports = section.support
+          - if @session_supports.present?
+            %h3 - #{section.name}
+            - @session_supports.order(created_at: :desc).each do |support|
+              - if support.support_section_id.present? 
+                - if our_active_admin.is_super_admin?
+                  - if our_active_admin.is_not_read_only?
+                    = link_to "javascript:;", :onclick => "open_admin_popup('edit_support_#{support.id}', '')", :title => "Edit document", :class => "support" do 
+                      <i class="far fa-edit fa-1x" aria-hidden="true"></i>
+                    #popup_widget_surround 
+                      .popup_widget.popup_ui{:id => "edit_support_#{support.id}"}
+                        #uhe_admin_popup
+                          %h2 Edit Document 
+                          =link_to "javascript:;", :class => "login_x rightside fade", :onclick=>"close_admin_popup('edit_support_#{support.id}')" do
+                            <i class="far fa-times" aria-hidden="true"></i>
+                          = form_for :edit_support_form, :url => support_admin_panel_admin_path, :html => {:id => "" } do |f|
+                            .uhe_admin_popup_body.no_scroll  
+                              .uhe_admin_popup_form    
+                                %p.entry_header
+                                  Document Title *
+                                .center
+                                  = f.text_field :name, :maxlength => 200, :class => "", :value => support.name
+                                %p.entry_header
+                                  Support Section      
+                                .entry 
+                                  .center
+                                    .dropdowns
+                                      %label
+                                        = f.collection_select(:support_section_id, SupportSection.all, :id, :name, { :multiple => true, :prompt => "", :selected => support.support_section_id}, {})
+                                = f.hidden_field :support_id, :value => support.id  
+                            .submit
+                              .center 
+                                - if our_active_admin.is_not_read_only?
+                                  = f.submit "Apply", :class=> "button"   
+                            .footer_link
+                              .center
+                                - if our_active_admin.is_not_read_only?
+                                  = link_to "Delete Document", support_admin_panel_admin_path(:delete_support => true, :support_id => support.id), :class => "support"
+                - if support.name.present?
+                  = link_to "#{support.name}", "https://#{Configurable.uhe_report_host}/support/#{support.document.file.filename}", target: "_blank",  :class => "documentation"
+                  .height_20 
+                - else
+                  = link_to "#{support.document}", "https://#{Configurable.uhe_report_host}/support/#{support.document.file.filename}", target: "_blank",  :class => "documentation"
+                  .height_20 
+
+        - if @missing_supports.present? and our_active_admin.is_super_admin?
+          %h1.sub_title Unpublished Documents (No Section provided) 
+          %hr.support
+          - @missing_supports.each do |missing|
+            - if our_active_admin.is_not_read_only?
+              = link_to "javascript:;", :onclick => "open_admin_popup('edit_support_#{missing.id}', '')", :title => "Edit document", :class => "support" do 
+                <i class="far fa-edit", aria-hidden="true"></i>
+              #popup_widget_surround 
+                .popup_widget.popup_ui{:id => "edit_support_#{missing.id}"}
+                  #uhe_admin_popup
+                    %h2 Edit Document
+                    =link_to "javascript:;", :class => "login_x rightside fade", :onclick=>"close_admin_popup('edit_support_#{missing.id}')" do
+                      <i class="far fa-times" aria-hidden="true"></i>
+                    = form_for :edit_support_form, :url => support_admin_panel_admin_path, :html => {:id => "" } do |f|
+                      .uhe_admin_popup_body.no_scroll  
+                        .uhe_admin_popup_form    
+                          %p.entry_header
+                            Document Title *      
+                          .center
+                            = f.text_field :name, :maxlength => 200, :class => "", :value => missing.name
+                          %p.entry_header
+                            Support Section      
+                          .entry 
+                            .center
+                              .dropdowns
+                                %label
+                                  = f.collection_select(:support_section_id, SupportSection.all, :id, :name, { :multiple => true, :prompt => "Select Section", :selected => missing.support_section_id}, {})
+ 
+                          = f.hidden_field :support_id, :value => missing.id  
+                      .submit
+                        .center 
+                          - if our_active_admin.is_not_read_only?
+                            = f.submit "Apply", :class=> "button"   
+                      .footer_link
+                        .center
+                          - if our_active_admin.is_not_read_only?
+                            = link_to "Delete Document", support_admin_panel_admin_path(:delete_support => true, :support_id => missing.id), :class => "support"
+
+            - if missing.name.present?
+              = link_to "#{missing.name}", "https://#{Configurable.uhe_report_host}/support/#{missing.document.file.filename}", target: "_blank",  :class => "documentation"
+              .height_20 
+            - else
+              = link_to "#{missing.document}", "https://#{Configurable.uhe_report_host}/support/#{missing.document.file.filename}", target: "_blank",  :class => "documentation"
+              .height_20 
+
+  - if resource.class == Admin and our_active_admin.is_super_admin?
+    .col-sm-12
+      %div
+        %h1.sub_title Support Sections
+        %hr.support
+
+        - SupportSection.all.each do |support_section|
+          .sections
+            - if our_active_admin.is_not_read_only?
+              - if support_section.support.count < 1
+                = link_to support_admin_panel_admin_path(:delete_section => true, :section_id => support_section.id), :class => "support" do 
+                  <i class="far fa-trash-alt fa-1x" aria-hidden="true" title="Delete section"></i>
+              - else
+                <i class="fas fa-ban fa-1x" aria-hidden="true" title=" Section in Use. Cannot be deleted."></i>
+          
+            %label #{support_section.name}:
+            - if support_section.support.count == 1 
+              %p #{support_section.support.count} Associated Document
+            - else 
+              %p #{support_section.support.count} Associated Documents
+          .height_20 

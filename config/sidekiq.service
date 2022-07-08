@@ -1,0 +1,19 @@
+[Unit]
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/jschell/telehealth
+#ExecStart=/usr/bin/bundle exec sidekiq -L log/sidekiq.log -C config/sidekiq.yml -e production
+ExecStart=/usr/bin/bundle exec sidekiq -L log/sidekiq.log -e production
+User=jschell
+Group=jschell
+UMask=0002
+RestartSec=1
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=sidekiq
+
+[Install]
+WantedBy=multi-user.target

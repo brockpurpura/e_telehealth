@@ -1,0 +1,7 @@
+- if @endpoint.present?
+  - if @endpoint.client.clinician_sidebutton_layout.to_i == 1 
+    = render :partial => 'homes/side_buttons_1', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+    %p.hidden#sidebar_layout_type action_based
+  - else
+    = render :partial => 'homes/side_buttons_0', :locals=>{:endpoint=>@endpoint, :user_id=>@current_user.id}
+    %p.hidden#sidebar_layout_type default

@@ -1,0 +1,925 @@
+%div{:id=>'top'}
+%p#endpoint_id.hidden #{@endpoint.id}
+%p#static_flag.hidden #{@endpoint.static_ip_status}
+%p#current_admin_id.hidden #{current_admin.id}
+%p#server_name.hidden #{Configurable.server_name.gsub(':8443','').gsub('/cable','')}
+
+<!-- Dashboard Graph starts -->
+- if our_active_admin.is_not_read_only?
+  #sub_title
+    .leftside
+      %i.far.fa-hospital.fa-2x.dashboard_subheader_icon.dashboard_text_color
+    .leftside
+      %h3 #{@endpoint.room_info}
+    .rightside.create_new_link
+      =link_to "Edit Name", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('edit_endpoint_name','')"
+      &nbsp;|&nbsp;
+      - if @endpoint.is_configured?
+        =link_to "Delete Room", "javascript:;", :id =>"signup_admin_button",  :class=> '',:onclick => "configuredDeleteAlert()"
+      - else
+        =link_to "Delete Room", "javascript:;", :id =>"signup_admin_button",  :class=> '',:onclick=> "open_admin_popup('delete_room', '')"
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround
+    .popup_widget.popup_ui{:id =>"delete_room"}
+      #uhe_admin_popup
+        %h2 Delete Room 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('delete_room')" do
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        = form_tag endpoint_settings_admin_panel_admin_path, :class=>'' do 
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+              %p.entry_header
+                Confirm Delete
+              .center
+                = text_field_tag :delete_edittext, nil, placeholder: 'Type DELETE to Confirm', :class => "password_confirm",  :oninput => "check_delete_button_activation('#{@endpoint.id.to_s}')", :id => "delete_confirm_" + @endpoint.id.to_s
+              %p.entry_informational You are about to delete #{@endpoint.name}
+          .submit
+            .center
+              = hidden_field_tag :delete_endpoint, true 
+              = hidden_field_tag :room_id, @endpoint.room.id
+              = hidden_field_tag :change_endpoint_id, @endpoint.id
+              = hidden_field_tag :current_controller, current_controller
+              = hidden_field_tag :current_method, current_method
+              = submit_tag "Delete", :class=> "inactive", :disabled => "disabled", :id => "delete_btn_" + @endpoint.id.to_s 
+
+- if our_active_admin.is_not_read_only?
+  #popup_widget_surround   
+    .popup_widget.popup_ui{:id => "edit_endpoint_name"}
+      #uhe_admin_popup
+        %h2 Edit Room 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_endpoint_name')" do
+          <i class="fal fa-times" aria-hidden="true"></i>
+          
+        =form_for @endpoint,  :url => endpoint_settings_admin_panel_admin_path  do |x|
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+              %p.entry_header
+                Name *     
+              .center
+                = x.text_field :name, :placeholder => "", :maxlength => 200
+                =hidden_field_tag :edit_endpoint_name, true
+                =hidden_field_tag :endpoint_id, @endpoint.id
+          .submit
+            .center 
+              = x.submit "Update", :class=> "button" 
+:javascript
+  document.getElementById('endpoint_name').required = true;
+
+- if @endpoint.status == 0
+  #not_configured
+    .row
+      .col-md-12
+        .widget
+          .widget-head
+            %p  THIS ROOM HAS BEEN DELETED 
+ 
+- if @endpoint.endpoint_status.nil?
+  #not_configured{:class=> @endpoint.is_cisco? ? 'hidden' : ''}
+    .col-md-12
+      .col-md-12
+        .widget
+          .widget-head
+            %p  A Caregility device is not synced to this room. 
+.col-md-12
+  .col-md-12
+    <!-- Widget -->
+    .widget
+      <!-- Widget head -->
+      .widget-head
+        %h3 Room Device Type - #{ @endpoint.device_type_common_name}
+        <div class="clearfix"></div>
+      <!-- Widget content -->
+      .widget-content
+        %div
+          = form_tag endpoint_settings_admin_panel_admin_path do 
+            = hidden_field_tag :room_id, @endpoint.room.id
+            = hidden_field_tag :change_endpoint_id, @endpoint.id
+            = hidden_field_tag :current_controller, current_controller
+            = hidden_field_tag :current_method, current_method
+            %div.leftside
+              %table.endpoint_settings_table_dimensions.twox
+                %tr
+                  %th.endpoint_setting_widget
+                    Device Type #{@endpoint.device_type_common_name_for_select}
+                  %td.vertical_center
+                    .center                    
+                      .dropdowns.endpoint_settings_caret.device_type
+                        %label
+                          = select_tag :d_type, options_from_collection_for_select(DeviceTypeName.where('active=1').order('list_priority desc, common_name asc'), 'common_name', 'common_name', :selected => @endpoint.device_type_common_name_for_select, :disabled=>DeviceTypeName.disabled_device_types), :onchange=>'showSip(' + @endpoint.id.to_s + ')', :id=>'type_change_' + @endpoint.id.to_s, :class => "endpoint_setting_text_dropdown  endpoint_settings_twox"
+                      
+                - @s_class_list = @endpoint.is_cisco? ? "endpoint_popup_format input_endpoint_settings endpoint_settings_twox" : "endpoint_popup_format input_endpoint_settings endpoint_settings_twox hidden"
+                %tr#c_type_tr{:class => "#{@s_class_list}"}
+                  %th.endpoint_setting_widget
+                    Call Format 
+                  %td.none.vertical_center
+                    .center
+                      .dropdowns.endpoint_settings_caret.device_type
+                        %label
+                          = select_tag :d_call_type, options_for_select([ "SIP", "H323" ], :selected => @endpoint.dial_out_type), :id=>'c_type_' + @endpoint.id.to_s, :class=> @s_class_list
+                      
+                - @class_list = @endpoint.is_cisco? ? "endpoint_popup_format input_endpoint_settings sip_address" : "endpoint_popup_format input_endpoint_settings sip_address hidden"
+                %tr#sip_address_tr{:class => "#{@class_list}"}
+                  %th.endpoint_setting_widget
+                    Sip Address 
+                  %td.vertical_center
+                    .center
+                      = text_field_tag :c_sip, @endpoint.alias, :placeholder => 'Dial Out Address', :class => @class_list , :id=> 'sip_address_' + @endpoint.id.to_s
+                
+                %tr
+                  %th.endpoint_setting_widget
+                    Is Live?
+                  %td.none.vertical_center
+                    .switch.endpoint{:style => "margin-left: -35px"}
+                      - if @endpoint.is_live == 1 
+                        %input#is-live-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :checked => "checked", :onclick => "update_is_live('#{@endpoint.id}')"}
+                      - else
+                        %input#is-live-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :onclick => "update_is_live('#{@endpoint.id}')"}
+                      %label{:for => "is-live-toggle"}  
+
+            - if our_active_admin.is_not_read_only?
+              .widget_submit
+                = submit_tag "Save", :class=>'endpoint_setting_button'
+
+#univagohe{:class=> @endpoint.is_cisco? ? 'hidden' : ''}
+  - if !@endpoint.endpoint_status.nil?
+    .col-md-12
+      .col-md-12
+        <!-- Widget -->
+        .widget
+          <!-- Widget head -->
+          .widget-head
+            .leftside
+              %h3 Status Report
+            .rightside
+              First Came Online: #{@endpoint.endpoint_status.nil? ? 'N/A' : @endpoint.endpoint_status.created_at.strftime("%m-%d-%y %R")} UTC  
+            .clearfix
+          <!-- Widget content -->
+          .widget-content
+            %div
+              %div.leftside
+                %table.endpoint_settings_table_dimensions.onex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Online
+                    %td.vertical_center
+                      .center
+                        #{@endpoint.endpoint_status.nil? ? 'n/a' : @endpoint.is_online?  ? '<i class="fa fa-check" aria-hidden="true"></i>'.html_safe : '<i class="fa fa-circle" aria-hidden="true"></i>'.html_safe}
+                  %tr.edit_background.even
+                    %th.endpoint_setting_widget
+                      Camera
+                    %td.none.vertical_center
+                      .center
+                        #{@endpoint.endpoint_status.nil? ? 'n/a' : (@endpoint.is_online? and @endpoint.endpoint_status.camera_good.to_s == '1') ? '<i class="fa fa-check" aria-hidden="true"></i>'.html_safe : @endpoint.endpoint_status.camera_alert_sent? ? '<i class="fa fa-circle" aria-hidden="true"></i>'.html_safe : @endpoint.is_online? ? '<i class="fa fa-circle warning" aria-hidden="true"></i>'.html_safe : '<i class="fa fa-circle" aria-hidden="true"></i>'.html_safe}
+                  %tr.edit_background.even
+                    %th.endpoint_setting_widget
+                      Camera Controls
+                    %td.none.vertical_center
+                      .center
+                        #{@endpoint.endpoint_status.nil? ? 'n/a' : (@endpoint.is_online? and @endpoint.endpoint_status.camera_port_good.to_s == '1') ? '<i class="fa fa-check" aria-hidden="true"></i>'.html_safe : @endpoint.endpoint_status.visca_alert_sent? ? '<i class="fa fa-circle" aria-hidden="true"></i>'.html_safe : @endpoint.is_online? ? '<i class="fa fa-circle warning" aria-hidden="true"></i>'.html_safe : '<i class="fa fa-circle" aria-hidden="true"></i>'.html_safe  }
+                  %tr
+                    %th.endpoint_setting_widget
+                      Alert Button
+                    %td.none.vertical_center
+                      .center
+                        #{@endpoint.endpoint_status.nil? ? 'n/a' : (@endpoint.is_online? and @endpoint.endpoint_status.usb0_good.to_s == '1') ? '<i class="fa fa-check" aria-hidden="true"></i>'.html_safe : '<i class="fa fa-circle" aria-hidden="true"></i>'.html_safe}
+                  %tr.hidden
+                    %th.endpoint_setting_widget
+                      Frequency
+                    %td.vertical_center
+                      .center
+                        - if @endpoint.endpoint_status.nil?
+                          n/a
+                        - else 
+                          - if (@endpoint.is_online? and @endpoint.endpoint_status.update_freq.to_s == Configurable.update_freq.to_s)
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                          - else
+                            <i class="fa fa-circle" aria-hidden="true"></i>
+                            %br
+                  %tr
+                    %th.endpoint_setting_widget
+                      Version 
+                    %td.none.vertical_center
+                      .center
+                        - if @endpoint.endpoint_status.nil?
+                          n/a
+                        - else 
+                          - if (@endpoint.is_online? and @endpoint.endpoint_status.version.to_s == Configurable.production_version.to_s)
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                          - else
+                            <i class="fa fa-circle" aria-hidden="true"></i>
+                            %br
+
+              #div.leftside
+                %table.endpoint_settings_table_dimensions.onex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Device ID  
+                    %td.vertical_center
+                      .center
+                        - if !@endpoint.endpoint_status.nil?
+                          %p #{@endpoint.id}
+                    %td.vertical_center
+                  %tr
+                    %th.endpoint_setting_widget
+                      Internal IP  
+                    %td.none.vertical_center
+                      .center
+                        - if !@endpoint.endpoint_status.nil?
+                          - if @endpoint.units.count > 0                   
+                            %p  #{@endpoint.internal_ip_address}
+                    %td.none.vertical_center
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      System Version
+                    %td.vertical_center
+                      .center
+                        - if !@endpoint.endpoint_status.nil?
+                          %p #{Configurable.production_version} 
+                    %td.vertical_center
+	
+                  %tr
+                    %th.endpoint_setting_widget
+                      Device Version
+                    %td.none.vertical_center
+                      .center
+                        - if !@endpoint.endpoint_status.nil?
+                          %p #{@endpoint.endpoint_status.version}
+                    %td.none.vertical_center
+                      - if our_active_admin.is_not_read_only?
+                        .center
+                          - if !@endpoint.endpoint_status.nil?
+                            - if @endpoint.endpoint_status.version == Configurable.production_version
+                              %p Synced
+                            - else
+                              = form_tag endpoint_settings_admin_panel_admin_path do 
+                                = hidden_field_tag :run_update, 'true'
+                                = hidden_field_tag :room_id, @endpoint.room.id
+                                = hidden_field_tag :change_endpoint_id, @endpoint.id			
+                                = hidden_field_tag :current_controller, current_controller
+                                =  hidden_field_tag :current_method, current_method
+                                = submit_tag "Update", :class=>'endpoint_setting_button'
+                    %tr
+                      %th.endpoint_setting_widget
+                        MAC Address 
+                      %td.none.vertical_center
+                        .center
+                          - if !@endpoint.endpoint_status.nil? 
+                            - if !@endpoint.endpoint_status.mac_address.nil?
+                              %p #{@endpoint.endpoint_status.mac_address.include?(':') ? @endpoint.endpoint_status.mac_address : '' }
+                            - else
+                              %p N/A
+                      %td.none.vertical_center
+                        - if our_active_admin.is_not_read_only?
+                          .center
+                            - if !@endpoint.endpoint_status.nil?
+                              = form_tag endpoint_settings_admin_panel_admin_path do 
+                                = hidden_field_tag :update_mac, 'true'
+                                = hidden_field_tag :room_id, @endpoint.room.id
+                                = hidden_field_tag :change_endpoint_id, @endpoint.id			
+                                = hidden_field_tag :current_controller, current_controller
+                                =  hidden_field_tag :current_method, current_method
+                                = submit_tag "Refresh", :class=>'endpoint_setting_button'
+
+    - if our_active_admin.is_not_read_only?
+      .col-md-12
+        .col-md-12.min_height
+          <!-- Widget -->
+          .widget
+            <!-- Widget head -->
+            .widget-head
+              .leftside
+                %h3 Actions
+              - if !current_admin.allow_demo.nil? and current_admin.allow_demo.to_s == '2'
+                .rightside
+                  #{@endpoint.teamviewer_id} || #{@endpoint.machine_name}
+
+              .clearfix
+            <!-- Widget content -->
+            .widget-content
+              #div.endpoint_settings_widget_dimensions_actions
+                #div.leftside
+                  %table.endpoint_settings_table_dimensions.onex
+                    %tr
+                      %th.endpoint_setting_widget
+                        Hard Reboot
+                      %td.none.vertical_center
+                        .center
+                          - if @endpoint.endpoint_type == "CART"
+                            %p N/A
+                          - else
+                            =button_to "Reboot", 'javascript:', :onclick=>"open_admin_popup('reboot_room', '')", :class=>'endpoint_setting_button'
+
+                            #popup_widget_surround
+                              .popup_widget.popup_ui{:id => "reboot_room"}
+                                #uhe_admin_popup
+                                  %h2 Reboot
+                                  =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('reboot_room')" do
+                                    <i class="far fa-times" aria-hidden="true"></i>
+                                  %p.entry_informational.warning  Are you sure you want to reboot room <b>#{@endpoint.room_info}</b>
+                                  .submit
+                                    .center
+                                      = form_tag endpoint_settings_admin_panel_admin_path, :class=>'' do 
+                                        = hidden_field_tag :reboot_room, 'true' 
+                                        =hidden_field_tag :room_id, @endpoint.room.id
+                                        =hidden_field_tag :change_endpoint_id, @endpoint.id
+                                        =hidden_field_tag :current_controller, current_controller
+                                        =hidden_field_tag :current_method, current_method
+                                        - if @endpoint.endpoint_status.in_a_call == 0
+                                          = submit_tag "Reboot Now!", :class=> "button" 
+                                        - else
+                                          =link_to "Reboot Now!", "javascript:;", :id => "reboot_second_prompt", :class => "button", :onclick=>"open_admin_popup('reboot_room_second', 'reboot_room')"
+                            #popup_widget_surround
+                              %div{:id=>"reboot_second_prompt", :class=>'popper edit_reboot_two'}
+                                .popup_widget.popup_ui{:id => "reboot_room_second"}
+                                  #uhe_admin_popup
+                                    %h2 Reboot Final Request
+                                    =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('reboot_room_second')" do
+                                      <i class="far fa-times" aria-hidden="true"></i>
+                                    %p.entry_informational.warning <b>#{@endpoint.room_info}</b> is still in a call. This call will be disconnected. Are you sure you want to reboot room?
+                                    .submit
+                                      .center
+                                        = form_tag endpoint_settings_admin_panel_admin_path, :class=>'' do 
+                                          =hidden_field_tag :reboot_room, 'true' 
+                                          =hidden_field_tag :room_id, @endpoint.room.id
+                                          =hidden_field_tag :change_endpoint_id, @endpoint.id
+                                          =hidden_field_tag :current_controller, current_controller
+                                          =hidden_field_tag :current_method, current_method
+                                          = submit_tag "Reboot Now!", :class=> "button" 
+                    %tr
+                      %th.endpoint_setting_widget
+                        Soft Reboot 
+                      %td.none.vertical_center
+                        .center
+                          =button_to "Reboot", "javascript:;", :class=> "endpoint_setting_button", :onclick=> "open_admin_popup('confirm_soft_reboot', '')"
+                          #popup_widget_surround
+                            .popup_widget.popup_ui{:id =>"confirm_soft_reboot"}
+                              #uhe_admin_popup
+                                %h2  Soft Reboot
+                                =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('confirm_soft_reboot', '')" do 
+                                  <i class="far fa-times" aria-hidden="true"></i>
+                                .center
+                                  %p.entry_informational.warning Are you sure you want to soft reboot <b>#{@endpoint.room_info}</b>?
+                                .submit
+                                  .center
+                                    = form_tag endpoint_settings_admin_panel_admin_path, :class=>'' do 
+                                      = hidden_field_tag :soft_reboot, true 
+                                      = hidden_field_tag :room_id, @endpoint.room.id
+                                      = hidden_field_tag :change_endpoint_id, @endpoint.id
+                                      = hidden_field_tag :current_controller, current_controller
+                                      = hidden_field_tag :current_method, current_method
+                                      #div
+                                        .center 
+                                          = submit_tag "Soft Reboot", :class=> "button" 
+
+                    %tr
+                      %th.endpoint_setting_widget
+                        Hang Up Call 
+                      %td.none.vertical_center
+                        .center
+                          =button_to "End Call", "javascript:;", :onclick => "open_admin_popup('hang_up_endpoint','')", :class=>'endpoint_setting_button'
+                          #popup_widget_surround
+                            .popup_widget.popup_ui{:id => "hang_up_endpoint" }
+                              #uhe_admin_popup                            
+                                %h2 Hang Up Call 
+                                =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('hang_up_endpoint')" do
+                                  <i class="far fa-times" aria-hidden="true"></i>
+                                %p.entry_informational.warning Are you sure you want to hang up the call in <b>#{@endpoint.room_info}</b>?
+                                .submit
+                                  .center
+                                    = form_tag endpoint_settings_admin_panel_admin_path, :class=>'' do 
+                                      = hidden_field_tag :hang_up_call, @endpoint.id 
+                                      = hidden_field_tag :room_id, @endpoint.room.id
+                                      = hidden_field_tag :change_endpoint_id, @endpoint.id
+                                      = hidden_field_tag :current_controller, current_controller
+                                      = hidden_field_tag :current_method, current_method
+                                      = submit_tag "Hang Up", :class=> "button" 
+
+
+                #div.leftside
+                  %table.endpoint_settings_table_dimensions.onex
+                    %tr
+                      %th.endpoint_setting_widget
+                        Maintenance Mode
+                      %td.none.vertical_center
+                        .center
+                          //=button_to "javascript:;",:id => "edit_maintenance_#{@endpoint.id.to_s}", :class=> "endpoint_setting_button", :onclick=> "update_maintenance('#{@endpoint.id.to_s}')" do
+                          //  - if @endpoint.under_maintenance == 1
+                          //    On
+                          //  - else
+                          //    Off
+                          .switch.endpoint
+                            - if @endpoint.under_maintenance == 1 
+                              %input#maintenance-mode-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :checked => "checked", :onclick => "update_maintenance('#{@endpoint.id}')"}
+                            - else
+                              %input#maintenance-mode-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :onclick => "update_maintenance('#{@endpoint.id}')"}
+                            %label{:for => "maintenance-mode-toggle"}
+                    %tr
+                      %th.endpoint_setting_widget
+                        Teamviewer Access
+                      %td.none.vertical_center
+                        .center
+                          //=button_to "javascript:;",:id => "edit_maintenance_#{@endpoint.id.to_s}", :class=> "endpoint_setting_button", :onclick=> "update_maintenance('#{@endpoint.id.to_s}')" do
+                          //  - if @endpoint.under_maintenance == 1
+                          //    On
+                          //  - else
+                          //    Off
+                          .switch.endpoint
+                            - if @endpoint.teamviewer_on == 1 
+                              %input#teamviewer-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :checked => "checked", :onclick => "update_teamviewer('#{@endpoint.id}')"}
+                            - else
+                              %input#teamviewer-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :onclick => "update_teamviewer('#{@endpoint.id}')"}
+                            %label{:for => "teamviewer-toggle"}
+                    %tr
+                      %th.endpoint_setting_widget
+                        iObserver 
+                      %td.none.vertical_center
+                        .center
+                          .switch.endpoint
+                            - if @endpoint.esitter_on == 1 
+                              %input#esitter-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :checked => "checked", :onclick => "update_esitter('#{@endpoint.id}')"}
+                            - else
+                              %input#esitter-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :onclick => "update_esitter('#{@endpoint.id}')"}
+                            %label{:for => "esitter-toggle"}
+
+                #div.leftside
+                  %table.endpoint_settings_table_dimensions.onex
+                    %tr
+                      %th.endpoint_setting_widget
+                        Factory Reset 
+                      %td.none.vertical_center
+                        .center
+                          =button_to "Reset", "javascript:;", :class=> "endpoint_setting_button", :onclick=> "open_admin_popup('confirm_device_reset','')"
+                          #popup_widget_surround
+                            .popup_widget.popup_ui{:id =>"confirm_device_reset"}
+                              #uhe_admin_popup
+                                %h2 Factory Reset
+                                =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('confirm_device_reset')" do
+                                  <i class="far fa-times" aria-hidden="true"></i>
+                                %p.entry_informational.warning Are you sure you want to reset <b>#{@endpoint.room_info}</b>?
+                                .submit
+                                  .center
+                                    = form_tag endpoint_settings_admin_panel_admin_path, :class=>'' do 
+                                      = hidden_field_tag :device_reset, true 
+                                      = hidden_field_tag :room_id, @endpoint.room.id
+                                      = hidden_field_tag :change_endpoint_id, @endpoint.id
+                                      = hidden_field_tag :current_controller, current_controller
+                                      = hidden_field_tag :current_method, current_method
+                                      = submit_tag "Factory Reset", :class=> "button" 
+                    %tr
+                      %th.endpoint_setting_widget
+                        Test Alert From Room  
+                      %td.none.vertical_center
+                        .center
+                          =button_to "Alert", "javascript:;", :class=> "endpoint_setting_button", :onclick=> "open_admin_popup('confirm_test_alert','')"
+                          #popup_widget_surround
+                            .popup_widget.popup_ui{:id =>"confirm_test_alert"}
+                              #uhe_admin_popup
+                                %h2 Test Alert 
+                                =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('confirm_test_alert')" do
+                                  <i class="far fa-times" aria-hidden="true"></i>
+                                %p.entry_informational.warning Are you sure you want to trigger an alert from room <b>#{@endpoint.room_info}</b>?
+                                .submit
+                                  .center
+                                    = form_tag endpoint_settings_admin_panel_admin_path, :class=>'' do 
+                                      = hidden_field_tag :test_alert, true 
+                                      = hidden_field_tag :room_id, @endpoint.room.id
+                                      = hidden_field_tag :change_endpoint_id, @endpoint.id
+                                      = hidden_field_tag :current_controller, current_controller
+                                      = hidden_field_tag :current_method, current_method
+                                      = submit_tag "Test Alert Now", :class=> "button" 
+                    - if !@e_string.nil?
+                      %tr
+                        %th.endpoint_setting_widget
+                          Call Room  
+                        %td.none.vertical_center
+                          .center
+                            =link_to "javascript:;", :id=>'callRoomLink' do
+                              %i.fas.fa-phone.td-endpoint
+
+                  #div.leftside
+                    %table.endpoint_settings_table_dimensions.onex
+                      %tr
+                        %th.endpoint_setting_widget
+                          Acknowledged 
+                        %td.none.vertical_center
+                          .center     
+                            .switch.endpoint
+                              - if @endpoint.acknowledged.present?
+                                %input#acknowledged-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :checked => "checked", :onclick => "update_acknowledged('#{@endpoint.id}')"}
+                              - else
+                                %input#acknowledged-toggle.cmn-toggle.cmn-toggle-round-flat{:type => "checkbox", :onclick => "update_acknowledged('#{@endpoint.id}')"}
+                              %label{:for => "acknowledged-toggle"}    
+                      
+                      %tr
+                        %th.endpoint_setting_widget
+                          Acknowledged by
+                        %td.none.vertical_center{:style => "font-size: 11px"}
+                          .center  
+                            #acknowledged-by
+                              - if @endpoint.acknowledged.present?
+                                #{@endpoint.acknowledged.email}
+
+  .col-md-12
+    .col-md-12.min_height
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          %h3 Notes 
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #div.endpoint_settings_widget_dimensions_alert
+            #div.leftside    
+              = form_tag endpoint_settings_admin_panel_admin_path, :id=>'notes_form' do 
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %td.none.vertical_center
+                      = hidden_field_tag :update_notes, true 
+                      = hidden_field_tag :room_id, @endpoint.room.id
+                      = hidden_field_tag :change_endpoint_id, @endpoint.id
+                      = hidden_field_tag :current_controller, current_controller
+                      = hidden_field_tag :current_method, current_method
+                      - if our_active_admin.is_not_read_only?
+                        = text_area_tag :notes, @endpoint.notes, rows: 6, cols: 75, maxlength: 1000
+                      - else
+                        = text_area_tag :notes, @endpoint.notes, rows: 6, cols: 75, disabled: true
+                - if our_active_admin.is_not_read_only?
+                  .widget_submit
+                    =submit_tag "Save", :class => 'endpoint_setting_button'
+  .col-md-12
+    .col-md-12.min_height
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          %h3 Alert URL 
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          #div.endpoint_settings_widget_dimensions_alert
+            #div.leftside    
+              %table.endpoint_settings_table_dimensions.twox
+                = form_tag endpoint_settings_admin_panel_admin_path, :id=>'elert_form' do 
+                  %tr
+                    %th.endpoint_setting_widget
+                      Alert URL 
+                    %td.none.vertical_center
+                      #div
+                        .center
+                          = text_field_tag :elert_url, (@endpoint.elert_url), :class => "input_endpoint_settings", :maxlength => 250
+                        = hidden_field_tag :room_id, @endpoint.room.id
+                        = hidden_field_tag :change_endpoint_id, @endpoint.id
+                        = hidden_field_tag :current_controller, current_controller
+                        = hidden_field_tag :current_method, current_method
+                        %div#elert_error_div.hidden
+                          <font color=red><b>Error:</b></font> Invalid URL.  Please include protocol (http), remove any spaces or invalid characters.
+                  - if our_active_admin.is_not_read_only?
+                    %tr
+                      %th.endpoint_setting_widget
+                        Save Alert
+                      %td.none.vertical_center
+                        .center
+                          = button_tag "Save", :class=>'endpoint_setting_button saveURL', :onclick=>'checkAlertURL()', :type=>'button'
+
+                - if our_active_admin.is_not_read_only?
+                  = form_tag endpoint_settings_admin_panel_admin_path do 
+                    %tr
+                      %th.endpoint_setting_widget
+                        Clear Alert
+                      %td.none.vertical_center
+                        = hidden_field_tag :cancel_elert_url, 'true' 
+                        = hidden_field_tag :room_id, @endpoint.room.id
+                        = hidden_field_tag :change_endpoint_id, @endpoint.id
+                        = hidden_field_tag :current_controller, current_controller
+                        = hidden_field_tag :current_method, current_method
+                        .center
+                          = submit_tag "Clear", :class=>'endpoint_setting_button'
+
+  - if !@endpoint.endpoint_status.nil?
+    .col-md-12
+      .col-md-12.min_height
+        <!-- Widget -->
+        .widget
+          <!-- Widget head -->
+          .widget-head
+            %h3 Setting Options
+            <div class="clearfix"></div>
+          <!-- Widget content -->
+          .widget-content
+            #div.endpoint_settings_widget_dimensions_options
+              #div.leftside    
+                = form_tag endpoint_settings_admin_panel_admin_path do 
+                  %table.endpoint_settings_table_dimensions.onex
+                    - if !@endpoint.endpoint_status.nil? and !@endpoint.endpoint_status.is_windows?
+                      %tr
+                        %th.endpoint_setting_widget
+                          Default Mic 
+                        %td.vertical_center
+                          .center
+                            - if @endpoint.endpoint_status.nil?
+                              n/a
+                            - else 
+                              .dropdowns.endpoint_settings_caret
+                                %label
+                                  = select_tag :default_input,  options_for_select(Endpoint::AUDIO_RANGE_SELECT, (@endpoint.default_input.to_f * 2).to_i), {:class=>'endpoint_popup_format input_endpoint_settings endpoint_settings_onex'}
+                                //= submit_tag :save, :class=>"rightside no_button leftside height_15 left_10"
+                      %tr
+                        %th.endpoint_setting_widget
+                          Default Speaker 
+                        %td.none.vertical_center
+                          - if @endpoint.endpoint_status.nil?
+                            n/a
+                          - else 
+                            .center
+                              .dropdowns.endpoint_settings_caret
+                                %label
+                                  = select_tag :default_output,  options_for_select(Endpoint::AUDIO_RANGE_SELECT, (@endpoint.default_output.to_f * 2).to_i), {:class=>'endpoint_popup_format input_endpoint_settings endpoint_settings_onex'}
+                                  //= submit_tag :save, :class=>'rightside no_button leftside height_15 left_10'
+                      %tr			  
+                        %th.endpoint_setting_widget
+                          Default Bell
+                        %td.none.vertical_center
+                          - if @endpoint.endpoint_status.nil?
+                            n/a
+                          - else 
+                            .center
+                              .dropdowns.endpoint_settings_caret
+                                %label
+                                  = select_tag :default_bell,  options_for_select(Endpoint::AUDIO_RANGE_SELECT, (@endpoint.default_bell.to_f * 2).to_i), {:class=>'endpoint_popup_format input_endpoint_settings endpoint_settings_onex'}
+                            = hidden_field_tag :endpoint_id, @endpoint.id
+                            = hidden_field_tag :room_id, @endpoint.room.id
+                            = hidden_field_tag :change_endpoint_id, @endpoint.id
+                            //= submit_tag :save, :class=>'rightside no_button leftside height_10 left_10'
+                    %tr			  
+                      %th.endpoint_setting_widget
+                        Camera Speed
+                      %td.none.vertical_center
+                        - if @endpoint.endpoint_status.nil?
+                          n/a
+                        - else 
+                          .center
+                            .dropdowns.endpoint_settings_caret
+                              %label
+                                = select_tag :default_speed,  options_for_select(Endpoint::AUDIO_RANGE_SELECT, @endpoint.default_speed.to_i), {:class=>'endpoint_popup_format input_endpoint_settings endpoint_settings_onex'}
+                          = hidden_field_tag :endpoint_id, @endpoint.id
+                          = hidden_field_tag :room_id, @endpoint.room.id
+                          = hidden_field_tag :change_endpoint_id, @endpoint.id
+                          //= submit_tag :save, :class=>'rightside no_button leftside height_10 left_10'
+
+                  - if our_active_admin.is_not_read_only?
+                    .widget_submit
+                      =submit_tag "Save", :class => 'endpoint_setting_button'
+                      	      
+
+  .col-md-12
+    .col-md-12.min_height
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          %h3 IP Configuration
+
+        <!-- Widget content -->
+        .widget-content
+          = form_for @endpoint, :url => endpoint_settings_admin_panel_admin_path do |dhcp_static_wifi|  
+            = hidden_field_tag :room_id, @endpoint.room.id
+            = hidden_field_tag :change_endpoint_id, @endpoint.id
+            = hidden_field_tag :current_controller, current_controller
+            = hidden_field_tag :current_method, current_method
+
+            
+            #static_ip_div{:class=> @endpoint.static_ip_status == 1 ? 'endpoint_settings_static_ip_widget_open' : 'endpoint_settings_static_ip_widget_closed'}
+              #div.leftside
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %th.endpoint_setting_widget
+                      Connection 
+                    %td.none.vertical_center
+                      .center
+                        .dropdowns.endpoint_settings_caret.device_type
+                          %label
+                            = select_tag :ip_controller, options_for_select([["DHCP","dhcp"],['Static IP','static_ip'], ['Wifi','wifi'], ['Enterprise Wifi', 'enterprise_wifi']], determine_ip_config_select(@endpoint) ), :onchange=>'select_ip_settings(' + @endpoint.id.to_s + ', this)', :class => "endpoint_setting_text_dropdown  endpoint_settings_twox"
+                    
+                  - if our_active_admin.is_not_read_only?
+                    - if !@endpoint.is_online? and @endpoint.endpoint_status.nil?
+                      %tr
+                        %th.endpoint_setting_widget
+                          Save Configurations
+                        %td.none.vertical_center
+                          .center
+                            = dhcp_static_wifi.hidden_field :update_dhcp, :value => 'true'                      
+                            = dhcp_static_wifi.submit 'Save', :class=>'save_static_ip turn_off endpoint_setting_button'
+
+                  %tr
+                    %th.endpoint_setting_widget{:colspan=>2}
+                      Static IP & Wifi are configured by the QR code used during room provisioning.  Current room is set to <b>#{determine_ip_config(@endpoint)}</b>.
+                  - if @endpoint.is_online? or @endpoint.is_configured?
+                    %tr
+                      %th.endpoint_setting_widget{:colspan=>2}
+                        IP configuration can only be changed when the device is being provisioned.  <br/>
+                        To adjust this setting factory reset this device. 
+
+            #wifi_details{:class=> @endpoint.wifi_status == 1 ? 'leftside' : 'leftside hidden'}
+              %table.endpoint_settings_table_dimensions
+                %tr
+                  %th.endpoint_setting_widget
+                    SSID
+                  %td.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :ssid, :class => "endpoint_popup_format  input_endpoint_settings" 
+                      = dhcp_static_wifi.hidden_field :update_wifi, :value => 'true'
+                %tr
+                  %th.endpoint_setting_widget
+                    SSID Password
+                  %td.none.vertical_center
+                    .center
+                      - if @endpoint.client_admin.show_wifi_pw?
+                        = dhcp_static_wifi.text_field :ssid_password, :value=>@endpoint.ssid_password, :class => "endpoint_popup_format  input_endpoint_settings"
+                      - else
+                        = dhcp_static_wifi.password_field :ssid_password, :value=>@endpoint.ssid_password, :class => "endpoint_popup_format  input_endpoint_settings"
+            #enterprise_wifi_details{:class=> @endpoint.wifi_status == 2 ? 'leftside' : 'leftside hidden'}
+              %table.endpoint_settings_table_dimensions
+                %tr
+                  %th.endpoint_setting_widget
+                    Network Name 
+                  %td.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :enterprise_network_name, :class => "endpoint_popup_format  input_endpoint_settings" 
+                      = dhcp_static_wifi.hidden_field :update_enterprise_wifi, :value => 'true'
+                %tr
+                  %th.endpoint_setting_widget
+                    Username 
+                  %td.none.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :enterprise_username, :class => "endpoint_popup_format  input_endpoint_settings" 
+                %tr
+                  %th.endpoint_setting_widget
+                    Password 
+                  %td.none.vertical_center
+                    .center
+                      - if @endpoint.client_admin.show_wifi_pw?
+                        = dhcp_static_wifi.text_field :enterprise_password, :value=>@endpoint.enterprise_password, :class => "endpoint_popup_format  input_endpoint_settings" 
+                      - else
+                        = dhcp_static_wifi.password_field :enterprise_password, :value=>@endpoint.enterprise_password, :class => "endpoint_popup_format  input_endpoint_settings" 
+                %tr
+                  %th.endpoint_setting_widget
+                    Authentication 
+                  %td.none.vertical_center
+                    .center
+                      = dhcp_static_wifi.select :enterprise_auth, options_for_select([["LEAP", "leap"], ["MD5", "md5"], ["TLS", "tls"], ["PEAP", "peap"], ["TTLS", "ttls"], ["SIM", "sim"], ["FAST", "fast"], ["PWD", "pwd"] ], :selected => 'peap')
+                %tr
+                  %th.endpoint_setting_widget
+                    Inner Authentication 
+                  %td.none.vertical_center
+                    .center
+                      = dhcp_static_wifi.select :enterprise_inner_auth, options_for_select([["PAP","pap"], ["CHAP", "chap"], ["MS-CHAP", "mschap"], [ "MS-CHAPv2", "mschapv2"], ["GTC","gtc"],["OTP","otp"],["MD5","md5"], ["TLS","tls"] ], :selected => 'mschapv2')
+                %tr
+                  %th.endpoint_setting_widget{:colspan=>2}
+                    .rightside
+                      No CA certificate is required 
+            #static_ip_details{:class=> @endpoint.static_ip_status == 1 ? 'leftside' : 'leftside hidden'}
+              %table.endpoint_settings_table_dimensions
+                %tr
+                  %th.endpoint_setting_widget
+                    IPv4 Address
+                  %td.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :ip4v, :class => "endpoint_popup_format static_ip_inputs input_endpoint_settings" 
+                      = dhcp_static_wifi.hidden_field :update_ip, :value => 'true'
+                %tr
+                  %th.endpoint_setting_widget
+                    Subnet Mask
+                  %td.none.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :netmask, :class => "endpoint_popup_format static_ip_inputs input_endpoint_settings"
+                %tr
+                  %th.endpoint_setting_widget
+                    Default Gateway
+                  %td.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :gateway, :class => "endpoint_popup_format static_ip_inputs input_endpoint_settings"   
+                %tr
+                  %th.endpoint_setting_widget
+                    Preferred DNS 
+                  %td.none.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :preferred_dns, :class => "endpoint_popup_format static_ip_inputs input_endpoint_settings"
+                %tr
+                  %th.endpoint_setting_widget
+                    Alternate DNS
+                  %td.vertical_center
+                    .center
+                      = dhcp_static_wifi.text_field :alternate_dns, :class => "endpoint_popup_format static_ip_inputs input_endpoint_settings"
+                      
+                      
+
+  .col-md-12
+    .col-md-12
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          .leftside
+            Device Attributes 
+          .clearfix
+        <!-- Widget content -->
+        .widget-content
+          %div
+            %div.leftside
+              = form_tag do 
+                %table.endpoint_settings_table_dimensions.fourx
+                  - EndpointAttributeType.order('group_no, description ASC'). each do |e_att|
+                    %tr
+                      %th.endpoint_setting_widget
+                        #{e_att.description.gsub('.',': ').gsub('_',' ')}
+                      %td.none.vertical_center
+                        - if e_att.is_boolean.to_s == '1'
+                          = select_tag "ea_change[#{e_att.id.to_s}]", options_for_select({'Off'=> '0', 'On' => '1'}, @endpoint.attribute_for(e_att.id) || 0), :id=>e_att.id
+                        - elsif e_att.endpoint_attribute_type_values.exists?
+                          = select_tag "ea_change[#{e_att.id.to_s}]", options_for_select(e_att.endpoint_attribute_type_values.all.map{|d| ["#{d.name}" , d.name]}, @endpoint.attribute_for(e_att.id)), :include_blank => true, :id=>e_att.id
+                        - elsif e_att.description.downcase.include? "password"
+                          = password_field_tag "ea_change[#{e_att.id.to_s}]", @endpoint.attribute_for(e_att.id), :class=>'input_endpoint_settings', :id=> e_att.id, :readonly => e_att.send_to_device == 1 ? false : true
+                        - else
+                          = text_field_tag "ea_change[#{e_att.id.to_s}]", @endpoint.attribute_for(e_att.id), :class=>'input_endpoint_settings', :id=> e_att.id, :readonly => e_att.send_to_device == 1 ? false : true
+                - if our_active_admin.is_not_read_only?
+                  .widget_submit
+                    = hidden_field_tag :room_id, @endpoint.room.id
+                    = hidden_field_tag :change_endpoint_id, @endpoint.id
+                    = hidden_field_tag :current_controller, current_controller
+                    = hidden_field_tag :current_method, current_method
+                    = hidden_field_tag :endpoint_attribute_change, 'true' 
+                    = submit_tag :save
+
+
+%div{:class=> @endpoint.is_cisco? ? 'hidden' : ''}
+  .col-md-12
+    .col-md-12.min_height
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          %h3 Components
+        <!-- Widget content -->
+        .widget-content
+          %table.endpoint_settings_table_dimensions.fourx
+            - if @endpoint.endpoint_hardware.present?
+              %tr 
+                %th.endpoint_setting_widget
+                  Device list
+                %td.none.vertical_center
+                  #{@endpoint.endpoint_hardware.devices}
+              %tr
+                %th.endpoint_setting_widget
+                  Selected Camera 
+                %td.none.vertical_center
+                  #{@endpoint.endpoint_hardware.camera}
+              %tr
+                %th.endpoint_setting_widget
+                  Relay Board 
+                %td.none.vertical_center
+                  #{@endpoint.endpoint_hardware.relay_board}
+              %tr
+                %th.endpoint_setting_widget
+                  Audio 
+                %td.none.vertical_center
+                  #{@endpoint.endpoint_hardware.audio}
+              %tr
+                %th.endpoint_setting_widget
+                  Touch Screen 
+                %td.none.vertical_center
+                  #{@endpoint.endpoint_hardware.touch_screen}
+    
+          %table.endpoint_settings_table_dimensions.twox
+            - if @endpoint.components.present?
+              - @endpoint.components.order(retired_at: :asc).each_with_index do |part, idx|
+                %tr
+                  %th.endpoint_setting_widget
+                    #{part.part_type} 
+                  %td.none.vertical_center
+                    .center
+                      = link_to "Image",  part.image.url        
+                  %td.none.vertical_center
+                    .center
+                      -if !part.is_archived?
+                        %span.active Active
+                      -else
+                        %span.archived Archived
+
+
+.col-sm-12
+  .col-sm-12
+    %p.note.height_40 Device ID: #{@endpoint.id}              
+    %br
+
+
+            
+
+:javascript
+  if (document.getElementById('callRoomLink')) {
+    document.getElementById('callRoomLink').onclick= function() { 
+      dialRoomFromAdmin("#{@endpoint.machine_name}");
+    };
+  }

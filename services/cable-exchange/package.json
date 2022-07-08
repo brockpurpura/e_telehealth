@@ -1,0 +1,9 @@
+{
+  "name": "cable-exchange",
+  "version": "0.0.1",
+  "description": "ActionCable Cluster Exchange",
+  "dependencies": {
+    "redis": "^2.8.0",
+    "ws": "^7.0.0"
+  }
+}

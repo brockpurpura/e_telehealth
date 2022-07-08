@@ -1,0 +1,32 @@
+development:
+  adapter: redis
+  url: redis://<%= ENV['REDIS_HOSTNAME'] || 'localhost' %>:6379/1
+  channel_prefix: telehealth
+
+devserver:
+  adapter: redis
+  url: redis://<%= ENV['REDIS_HOSTNAME'] || 'localhost' %>:6379/1
+  channel_prefix: telehealth
+
+single_devserver:
+  adapter: redis
+  url: redis://<%= ENV['REDIS_HOSTNAME'] || 'localhost' %>:6379/1
+  channel_prefix: telehealth
+
+stagingserver:
+  adapter: redis
+  url: redis://<%= ENV['REDIS_HOSTNAME'] || 'localhost' %>:6379/1
+  channel_prefix: telehealth
+
+test:
+  adapter: async
+
+production:
+  adapter: redis
+  url: redis://<%= ENV['REDIS_HOSTNAME'] || 'localhost' %>:6379/3
+  channel_prefix: telehealth_ws_production
+
+onprem:
+  adapter: redis
+  url: redis://<%= ENV['REDIS_HOSTNAME'] || 'localhost' %>:6379/3
+  channel_prefix: telehealth_ws_production

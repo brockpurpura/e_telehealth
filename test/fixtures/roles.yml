@@ -1,0 +1,77 @@
+clinician_role_1:
+  admin_id: 2
+  role_type: UHE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+uhe_role_1:
+  admin_id: 1
+  role_type: UHE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+super_admin_role_2:
+  admin_id: 1
+  role_type: SUPER_ADMIN
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+super_admin_role_3:
+  admin_id: 1
+  role_type: TECHNICIAN
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+super_admin_role_4:
+  admin_id: 1
+  role_type: ESITTER
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+uhe_role_5:
+  admin_id: 8
+  role_type: UHE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+super_admin_role_6:
+  admin_id: 8
+  role_type: SUPER_ADMIN
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+uhe_role_6:
+  admin_id: 9
+  role_type: UHE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+channel_admin_role_1:
+  admin_id: 9
+  role_type: CHANNEL_ADMIN
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+uhe_role_7:
+  admin_id: 10
+  role_type: UHE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+customer_admin_role_1:
+  admin_id: 10
+  role_type: CUSTOMER_ADMIN
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+uhe_role_8:
+  admin_id: 14
+  role_type: UHE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+uhe_role_9:
+  admin_id: 19
+  role_type: UHE
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

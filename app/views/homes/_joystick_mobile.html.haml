@@ -1,0 +1,72 @@
+#mobile_controls.hidden
+  .m_zoom_container
+    %button{:id => 'm_raise_audio_button', :class => 'border', :onmousedown=> "zoom('wide')", :onmouseup=>"zoom('stop')", :onmouseleave=>"zoom('stop')", :draggable=>"false", :'aria-label'=>"zoom out", :onkeypress => "zoomWithKeyboard('wide', event)",  :onkeyup => "zoomWithKeyboard('stop', event)"}
+      %i.fal.fa-minus
+    %br
+    %button{:id => 'm_control_home_button', :class => 'border', :onclick => "go_to_bookmark('Home')", :draggable=>"false", :'aria-label'=>"camera home"}
+      %i.fas.fa-home
+    %br
+    %button{:id => 'm_lower_audio_button', :class => '', :onmousedown=> "zoom('tele')", :onmouseup=>"zoom('stop')", :onmouseleave=>"zoom('stop')", :draggable=>"false", :'aria-label'=>"zoom in", :onkeydown => "zoomWithKeyboard('tele', event)",  :onkeyup => "zoomWithKeyboard('stop', event)"}
+      %i.fal.fa-plus
+
+  .m_joystick_container
+
+    .m_joystick
+      = image_tag('joystick_small_four_arrows.png', :id => "m_joystick_pad", :class => "", :alt => "Camera Control Image")
+
+    .m_buttons
+      .m_row
+        %button{:style=> "width: 30%;"}
+        %button{:style=> "width: 33%;", :ontouchstart => "pan('up')", :ontouchend => "pan('stop')", :'aria-label'=>"Move camera up"}
+        %button{:style=> "width: 30%;"}
+      
+      .m_row
+        %button{:style=> "width: 35%; float: left;", :ontouchstart => "pan('left')", :ontouchend => "pan('stop')", :'aria-label'=>"Move camera left"}
+        %button{:style=> "width: 27%;"}
+        %button{:style=> "width: 35%; float: right;", :ontouchstart => "pan('right')", :ontouchend => "pan('stop')", :'aria-label'=>"Move camera right"}
+      
+      .m_row
+        %button{:style=> "width: 30%;"}
+        %button{:style=> "width: 35%;", :ontouchstart => "pan('down')", :ontouchend => "pan('stop')", :'aria-label'=>"Move camera down"}
+        %button{:style=> "width: 30%;"}
+
+:javascript
+  
+  var isPanning = false;
+
+  $(function() {		
+    if (!invited) {
+      $(".videocontainer").swipe( {
+        swipeStatus:function(event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
+          //console.log("swipe detected, phase: " + phase + ", direction: " + direction + ", currentDirection: " + currentDirection);
+          if (phase=="move" && !isPanning) {
+            isPanning = true;
+            //console.log("Panning " + direction);
+
+            switch(direction) {
+              case 'left':
+                pan('right');
+                break;
+              case 'right':
+                pan('left');
+                break;
+              case 'up':
+                pan('down');
+                break;
+              case 'down':
+                pan('up');
+                break;
+              default:
+                // invalid request
+            }
+          }
+
+          if (phase=="cancel" || phase=="end" || phase=="stop") {
+            //console.log("stop pan with " + phase);
+            isPanning = false;
+            pan('stop');
+          }
+        }
+      });
+    }
+  });

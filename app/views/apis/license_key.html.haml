@@ -1,0 +1,23 @@
+= render "application/caregility_greeting"
+
+%main  
+  .univago_login_form
+    = form_for :license, :url => license_key_api_path do
+      %br
+      %br
+      .center
+        Your license has expired or is not valid.  Please enter a new license key. 
+      %br
+      %br
+      %label{:for=>"inputKey"} License Key
+      = text_area_tag :key, '', :autocomplete=>'off', :class=>'', :id => "inputKey"
+      %br
+      %br
+      .center
+        = submit_tag "Update License", :class=>"btn btn-info btn_admin admin_signin_submit license_key"
+      %br
+      %br
+      =render :partial => "/homes/contact"  
+      %br
+      = render :partial => '/homes/privacy'
+

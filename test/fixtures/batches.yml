@@ -1,0 +1,35 @@
+clinician_1:
+  id: 1
+  original_filename: clinician_upload_1.csv
+  source_file: <%= Rails.root %>/tmp/clinician_upload_1.csv
+  import_type: CLINICIAN
+  admin_id: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+patient_1:
+  id: 2
+  original_filename: patient_upload_1.csv
+  source_file: <%= Rails.root %>/tmp/patient_upload_1.csv
+  import_type: PATIENT
+  admin_id: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+patient_2:
+  id: 3
+  original_filename: bryan_health.csv
+  source_file: <%= Rails.root %>/tmp/bulk_uploads/bryan_health.csv
+  import_type: PATIENT
+  admin_id: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+patient_4:
+  id: 4
+  original_filename: bryan_health.csv
+  source_file: <%= Rails.root %>/tmp/bulk_uploads/bryan_health.csv
+  import_type: PATIENT
+  admin_id: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

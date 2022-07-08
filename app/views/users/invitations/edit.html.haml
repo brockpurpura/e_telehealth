@@ -1,0 +1,32 @@
+.admin_provisioning
+  .col-sm-12
+    .padd 
+      .login_top_right_menu  
+      //  Already registered? 
+      //  = link_to 'Sign In', "/admin" , :class => ''
+      
+
+  .col-xs-12
+    .col-sm-3
+    .col-xs-6
+      .col-xs-12
+        .col-xs-1
+        .col-xs-10
+          #pic.large_logo
+          %br
+          Hi #{resource.dr_name}!  Please set your password below:
+          = form_for resource, :as => resource_name, :url => invitation_path(resource_name), :html => { :method => :put } do |f|
+            = devise_error_messages! 
+            = f.hidden_field :invitation_token 
+            - if f.object.class.require_password_on_accepting 
+              %br
+              .font-15
+                Password
+              = f.password_field :password, :class=>'login_edittext'
+              %br
+              .font-15.height_10
+                Password Confirmation 
+              = f.password_field :password_confirmation, :class=>'login_edittext'
+              %br
+              .height_10
+                = f.submit t("devise.invitations.edit.submit_button") , :class=>'btn btn-primary admin_signup_button'

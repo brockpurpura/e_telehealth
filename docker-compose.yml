@@ -1,0 +1,33 @@
+version: '3'
+services:
+  mysql:
+    build: mysql/
+    environment:
+      - MYSQL_ROOT_PASSWORD
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    volumes:
+      - "mysqldata:/var/lib/mysql"
+  redis:
+    image: redis
+    restart: unless-stopped
+    volumes:
+      - "redisdata:/data"
+  web:
+    build: .
+    environment:
+      - APP_DATABASE=telehealth_production
+      - MYSQL_HOSTNAME=mysql
+      - REDIS_HOSTNAME=redis
+      - DEV_DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TELEHEALTH_DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    restart: unless-stopped
+    volumes:
+      - .:/telehealth
+    depends_on:
+      - mysql
+      - redis
+volumes:
+  mysqldata:
+  redisdata:

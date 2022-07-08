@@ -1,0 +1,50 @@
+
+:javascript
+  invited = false;
+  api_call = true;
+  e_api_call = true;
+  isMeeting = false;
+- if params[:silent] == 'true'
+  :javascript
+    silence = true;
+- if params[:no_prompt] == 'true'
+  :javascript
+    no_prompt = true;
+- if @from_observer
+  :javascript
+    from_observer = true;
+- if !@endpoint.nil?
+  :javascript
+    this_internal_id = '#{@endpoint.id}_#{params[:uid]}'
+- @api_make_call = true 
+.hidden
+  %p#call_alias #{@call_alias}
+  %p#call_token #{@call_token}
+  %p#server_name #{@server_name}
+  %p#room_join_timeout #{Configurable.clinician_estimated_room_join_in_milliseconds}
+  - if user_signed_in? 
+    %p#current_user_id #{current_user.id}
+    -if @from_observer
+      - match_admin = Admin.find_by_id(current_user.matched_admin_id)
+      - if match_admin
+        %p#d_audio_admin.hidden #{match_admin.n_audio}
+        %p#d_video_admin.hidden #{match_admin.n_video}
+        %p#d_output_admin.hidden #{match_admin.n_speaker}
+  - if !@endpoint.nil?
+    %p#endpoint_id #{@endpoint.id }
+    %p#room_name #{@endpoint.name }
+    %p#conf_node #{@endpoint.conference_node}
+    %p#default_input #{(@endpoint.default_input.to_f*2).to_i}
+    %p#default_output #{(@endpoint.default_output.to_f*2).to_i}
+    %p#default_bell #{(@endpoint.default_bell.to_f*2).to_i}
+    %p#from_api true
+    %p#g_announce #{@g_announce}
+    %p#device_type #{@endpoint.endpoint_type}
+    %p#cisco_protocol #{@endpoint.dial_out_type}
+    %p#cisco_sip #{@endpoint.alias}
+    %p#marttiId #{@endpoint.client.marttiId}
+  %p#main_participant init
+=render :partial=>'homes/conference_view' , :locals=> {:endpoint => @endpoint, :current_user => @current_user, :tunnel=>@tunnel, :call_alias => @call_alias, :make_call=> @make_call} 
+ 
+
+ 

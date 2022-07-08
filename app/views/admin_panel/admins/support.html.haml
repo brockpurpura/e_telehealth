@@ -1,0 +1,102 @@
+#sub_title
+  .leftside
+    %i.fa.fa-info.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Support 
+  .rightside.create_new_link
+    - if our_active_admin.is_super_admin? and our_active_admin.is_not_read_only?
+      = link_to "Add Section", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('add_section','')"
+      &nbsp;|&nbsp;
+    - if our_active_admin.is_super_admin? and our_active_admin.is_not_read_only?
+      =link_to "Add Document", "javascript:;", :id =>"signup_admin_button",  :class=> '', :onclick => "open_admin_popup('add_support','')"
+      &nbsp;|&nbsp;
+      =link_to "Add Video", "javascript:;", :id =>"video_tutorial_button",  :class=> '', :onclick => "open_admin_popup('add_support_video','')"
+
+.col-sm-12
+
+  =render :partial => "/admin_panel/admins/faqs" 
+
+- if our_active_admin.is_not_read_only? 
+  #popup_widget_surround
+    .popup_widget.popup_ui{:id => "add_section"}
+      #uhe_admin_popup
+        %h2 Add Section 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_section')" do 
+          <i class="far fa-times" aria-hidden="true"></i>
+        =form_for @section, url: support_admin_panel_admin_path, :method => :post, html:{multipart: true} do |x|
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+              %p.entry_header
+                Section Title *
+              .center    
+                = x.text_field :name, :class => 'color_div_banner branding_color_input', :placeholder => "Enter section title", :maxlength => 200
+              = hidden_field_tag :upload_section, true
+          .submit
+            .center 
+              = x.submit "Add", :class=> "" 
+
+- if our_active_admin.is_not_read_only? 
+  #popup_widget_surround
+    .popup_widget.popup_ui{:id => "add_support"}
+      #uhe_admin_popup
+        %h2 Add Document 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_support')" do 
+          <i class="far fa-times" aria-hidden="true"></i>
+        =form_for @pdf, url: support_admin_panel_admin_path, :method => :post, html:{multipart: true} do |x|
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+              %p.entry_header
+                Document Title *
+              .center    
+                = x.text_field :name, :class => 'color_div_banner branding_color_input', :placeholder => "Enter document title", :maxlength => 200
+              %p.entry_header
+                Support Section 
+              .center  
+                .dropdowns
+                  %label
+                    = x.collection_select(:support_section_id, SupportSection.all, :id, :name, { :multiple => true, :prompt => "Select section"}, {})
+              %p.entry_header
+                Upload Document *
+              .entry_image 
+                .leftside
+                  .image-upload
+                    %label{:for => "file-input"}
+                      %span.far.fa-file-image 
+                .leftside
+                  %p.padding_top12 Choose File
+              %p.entry_footer Required: PDF files only
+              = hidden_field_tag :upload_pdf, true
+              .height0
+                = x.file_field :document, :class => "support_upload pdf", :id => "file-input"
+          .submit
+            .center 
+              //= link _to "Save for later", ""
+              = x.submit "Add", :class=> "" 
+
+- if our_active_admin.is_not_read_only? 
+  #popup_widget_surround
+    .popup_widget.popup_ui{:id => "add_support_video"}
+      #uhe_admin_popup
+        %h2 Add Video 
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('add_support_video')" do 
+          <i class="far fa-times" aria-hidden="true"></i>
+          
+        =form_for @tutorial, url: support_admin_panel_admin_path, :method => :post, html:{multipart: true} do |x|
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form
+
+              %p.entry_header
+                Youtube Video ID *
+              .center    
+                = x.text_field :youtube_path, :class => '', :placeholder => "", :maxlength => 200
+              %p.entry_footer Example: youtube.com/watch?v=<b>5GDKhPpRrbE</b>
+
+              %p.entry_header
+                Description *
+              .center    
+                = x.text_field :video_description, :class => '', :placeholder => "", :maxlength => 200
+          = hidden_field_tag :upload_tutorial, true
+          .submit
+            .center 
+              //= link _to "Save for later", ""
+              = x.submit "Add", :class=> "" 

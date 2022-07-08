@@ -1,0 +1,35 @@
+diff --git a/auto/cc/conf b/auto/cc/conf
+index afbca62b..f3de07f1 100644
+--- a/auto/cc/conf
++++ b/auto/cc/conf
+@@ -3,7 +3,7 @@
+ # Copyright (C) Nginx, Inc.
+ 
+ 
+-LINK="\$(CC)"
++LINK="/usr/local/src/openssl-fips-2.0.10/fips/fipsld"
+ 
+ MAIN_LINK=
+ MODULE_LINK="-shared"
+diff --git a/src/core/nginx.c b/src/core/nginx.c
+index 9fcb0eb2..7a76a4a6 100644
+--- a/src/core/nginx.c
++++ b/src/core/nginx.c
+@@ -240,6 +240,17 @@ main(int argc, char *const *argv)
+     ngx_ssl_init(log);
+ #endif
+ 
++    int fips_mode_result = FIPS_mode_set(1);
++    if (fips_mode_result != 1)
++    {
++        char openssl_err_string[200];
++        SSL_load_error_strings();
++        ERR_error_string_n(ERR_get_error(), openssl_err_string, 200);
++        fprintf(stderr, "FIPS_mode_set failed with error %s\n", openssl_err_string);
++        exit(1);
++    }
++    ngx_log_error(NGX_LOG_ALERT, log, 0, "FIPS mode = %d", FIPS_mode());
++
+     /*
+      * init_cycle->log is required for signal handlers and
+      * ngx_process_options()

@@ -1,0 +1,1 @@
+$("#conf_partial").html("<%=escape_javascript(render :partial => 'conf', :locals=> {:endpoint => @endpoint, :current_user => @current_user, :tunnel=>@tunnel, :call_alias => @call_alias, :from_observer => @from_observer}) %>")

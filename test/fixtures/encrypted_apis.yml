@@ -1,0 +1,5 @@
+EncryptedApi_1:
+  id: 2
+  encrypted_string: oLwsFkM3BsdzNYY7ZoWy6VBrLbMzD0LODFg+Fk7UOpDElZe63tPUpZuyOoyq3aHv
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

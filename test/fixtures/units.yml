@@ -1,0 +1,9 @@
+Unit_1:
+  id: 1
+  name: '6924526161'
+  endpoint_id: 1
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+  teamviewer: "\e[1m\e[0m1231202586"
+  internal_ip: 172.19.160.30
+

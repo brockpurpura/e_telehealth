@@ -1,0 +1,49 @@
+<script type='text/javascript'>
+window.onload = function()
+{
+    /* Params: conf node, conf name, bandwidth, display name, PIN, source, flash */
+    initialise("NANODE1.PEXIP.YTEX.NET", "jen_1@test.com", "576", "Jen from Localhost", "", "",  false);
+}
+</script>
+</head>
+<body>
+  <div id="pinentry" class="main site join hidden">
+    <form method="get">
+        <label for="id_pin" class="vh">Enter the conference PIN</label>
+        <input type="password" value="" name="pin" id="id_pin" placeholder="Enter the conference PIN" required class="webrtcinput">
+
+        <input type="button" value="Join Conference" name="join" id="id_join" class="webrtcbutton" onClick="submitPinEntry();">
+    </form>
+  </div>
+
+  <div id="maincontent" class="main cf hidden">
+    <section class="top">
+      <aside class="participants"><!-- List of participants -->
+        <h2 id="rosterheading">Participants</h2>
+        <div id="rosterlist" class="rosterlist">
+          <ul id="rosterul">
+          </ul>
+        </div>
+        <div id="selfview" class="selfview" hidden>
+          <video id="selfvideo" autoplay="autoplay" muted="true">
+          </video>
+        </div>
+      </aside>
+      <div id="videocontainer" class="videocontainer">
+        <video width="100%" height="100%" id="video" autoplay="autoplay" poster="spinner.gif"></video>
+      </div>
+    </section>
+
+    <footer id="controls" class="controls cf">
+      <ul>
+        <li><a id="id_selfview" class="webrtcbutton btn-selfview" onclick="toggleSelfview();">Show Selfview</a></li>
+        <li><a id="id_muteaudio" class="webrtcbutton btn-audio" onclick="muteAudioStreams();">Mute Audio</a></li>
+        <li><a id="id_mutevideo" class="webrtcbutton btn-video" onclick="muteVideoStreams();">Mute Video</a></li>
+        <li><a id="id_fullscreen" class="webrtcbutton btn-fullscreen inactive" onclick="goFullscreen();">Fullscreen</a></li>
+        <li><a id="id_screenshare" class="webrtcbutton btn-presentscreen inactive" onclick="presentScreen();">Present Screen</a></li>
+        <li><a id="id_presentation" class="webrtcbutton btn-presentation inactive" onclick="togglePresentation();">No Presentation Active</a></li>
+        <li><a id="id_disconnect" class="webrtcbutton btn-disconnect" onclick="window.location='index.html';">Disconnect</a></li>
+      </ul>
+    </footer>
+  </div>
+</body>

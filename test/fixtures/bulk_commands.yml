@@ -1,0 +1,7 @@
+BulkCommand_1:
+  id: 18
+  endpoint_id: 34
+  command_name: update_version
+  waiting_to_run: 0
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>

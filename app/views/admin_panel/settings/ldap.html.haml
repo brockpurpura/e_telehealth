@@ -1,0 +1,171 @@
+#sub_title
+  .leftside
+    %i.far.fa-cog.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 LDAP 
+  .tab_columns
+    .col-md-4
+      =link_to 'Configuration', 'javascript:;', :onclick=>"ldap(1)", :id => 'ldap_link_1', :class=>'ldap_link selected'
+    - if current_admin.is_super_admin?
+      .col-md-4 
+        =link_to 'Channel Roles', 'javascript:;', :onclick=>"ldap(2)", :id => 'ldap_link_2', :class=>'ldap_link'
+    .col-md-4 
+      =link_to 'Customer Roles', 'javascript:;', :onclick=>'ldap(3)', :id => 'ldap_link_3', :class=>'ldap_link'
+  #ldap_1.ldap.lda
+    .col-md-12
+      .widget
+        .widget-head
+          Set Up 
+        .widget-content
+          =form_tag do
+            = hidden_field_tag :ldap_config, "true"
+            #div
+              %table.endpoint_settings_table_dimensions.twox
+                %tr
+                  %th.endpoint_setting_widget
+                    Use LDAP 
+                  %td.vertical_center
+                    .center
+                      =check_box_tag :use_ldap, 1, Configurable.use_ldap == 1 ? true : false
+                %tr
+                  %th.endpoint_setting_widget
+                    Server Address 
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :ldap_server_address,  Configurable.ldap_server_address, :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Port 
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :ldap_port,  Configurable.ldap_port, :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Bind UserName 
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :ldap_username,  Configurable.ldap_username, :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Bind Password 
+                  %td.vertical_center
+                    .center
+                      =password_field_tag :ldap_password,  Configurable.ldap_password, :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Base DN
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :ldap_dn,  Configurable.ldap_dn, :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Bind Filter
+                  %td.vertical_center
+                    .center
+                      =select_tag :ldap_bind_filter, options_for_select(['userprincipalname','samaccountname'],  Configurable.ldap_bind_filter), :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Add on domain (*optional)  
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :ldap_add_on_domain_name,  Configurable.ldap_add_on_domain_name, :class=>'input_endpoint_settings'
+                %tr
+                  %th.endpoint_setting_widget
+                    Super Admin Role 
+                  %td.vertical_center
+                    .center
+                      =text_field_tag :ldap_super_admin_role,  Admin.ldap_super_admin_role, :class=>'input_endpoint_settings'
+                - if our_active_admin.is_not_read_only?
+                  %tr
+                    %th.endpoint_setting_widget
+                      Save Settings 
+                    %td.none.vertical_center
+                      .center
+                        =submit_tag 'Save', :class=>"endpoint_setting_button"
+  - if current_admin.is_super_admin?
+    #ldap_2.ldap.hidden
+      -@client_groups.each do |cl|
+        .col-md-12
+          .widget
+            .widget-head
+              #{cl.name} 
+            .widget-content
+              #div
+                =form_tag do 
+                  %table.endpoint_settings_table_dimensions.twox
+                    %tr
+                      %th.endpoint_setting_widget
+                        <b>Channel Role Permissions</b>
+                      %th.endpoint_setting_widget
+                        <b>Role Name</b>                  
+                    %tr
+                      %th.endpoint_setting_widget
+                        Channel Admin
+                      %th.endpoint_setting_widget
+                        =hidden_field_tag :channel_edit, cl.id
+                        =text_field_tag :ldap_admin_role_string, cl.client_admin_api_key.ldap_admin_role_string,:class=>'input_endpoint_settings'
+                    %tr
+                      %td{:colspan=>2}
+                        .center
+                          =submit_tag 'Save', :class=>"endpoint_setting_button"
+  #ldap_3.ldap.hidden
+    -@client_list.each do |cl|
+      .col-md-12
+        .widget
+          .widget-head
+            #{cl.client_admin.name} - #{cl.client_name} 
+          .widget-content
+            #div
+              =form_tag do 
+                =hidden_field_tag :customer_edit, cl.id
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %th.endpoint_setting_widget
+                      <b>Customer Role Permissions</b>
+                    %th.endpoint_setting_widget
+                      <b>Role Name</b>                  
+                  %tr
+                    %th.endpoint_setting_widget
+                      Admin
+                    %th.endpoint_setting_widget
+                      =text_field_tag :ldap_admin_role_string, cl.api_key.ldap_admin_role_string,:class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Clinician 
+                    %th.endpoint_setting_widget
+                      =text_field_tag :ldap_clinician_role_string, cl.api_key.ldap_clinician_role_string,:class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      iObserver 
+                    %th.endpoint_setting_widget
+                      =text_field_tag :ldap_observer_role_string, cl.api_key.ldap_observer_role_string,:class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Technician 
+                    %th.endpoint_setting_widget
+                      =text_field_tag :ldap_tech_role_string, cl.api_key.ldap_tech_role_string,:class=>'input_endpoint_settings'
+                  %tr
+                    %th.endpoint_setting_widget
+                      Read Only 
+                    %th.endpoint_setting_widget
+                      =text_field_tag :ldap_readonly_role_string, cl.api_key.ldap_readonly_role_string,:class=>'input_endpoint_settings'
+                  %tr
+                    %td{:colspan=>2}
+                      .center
+                        =submit_tag 'Save', :class=>"endpoint_setting_button"
+
+:javascript
+  function ldap(open_val) {
+    $("#ldap_1").addClass('hidden');
+    $("#ldap_2").addClass('hidden');
+    $("#ldap_3").addClass('hidden');
+    $("#ldap_" + open_val).removeClass('hidden');
+    $(".ldap_link").removeClass("selected");
+    $("#ldap_link_" + open_val).addClass("selected");
+  }
+- if params[:channel_edit].present?
+  :javascript
+    ldap(2);
+- if params[:customer_edit].present?
+  :javascript
+    ldap(3);

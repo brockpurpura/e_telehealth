@@ -1,0 +1,232 @@
+---
+Icon_1:
+  id: 1
+  attachment: Pexip_40PX.png
+  client_id: 3
+  status: 1
+  banner_color: "#ff8000"
+  font_color: "#0000ff"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-03-02 18:06:56.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-03-02 18:07:12.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_2:
+  id: 2
+  client_id: 10
+  status: 1
+  banner_color: "#af18ab"
+  font_color: "#000000"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-06-04 22:13:21.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-06-04 22:13:21.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_3:
+  id: 3
+  attachment: banner_health.png
+  status: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-08-08 14:05:15.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-08-08 14:40:14.000000000 Z
+    zone: *2
+    time: *3
+  client_admin_id: 9
+
+---
+Icon_4:
+  id: 4
+  attachment: banner_health.jpg
+  client_id: 15
+  status: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-08-08 14:09:35.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-08-08 14:09:35.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_5:
+  id: 5
+  attachment: banner_health.jpg
+  client_id: 16
+  status: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-08-08 14:09:45.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-08-08 14:09:45.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_6:
+  id: 6
+  attachment: banner_health.jpg
+  client_id: 17
+  status: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-08-08 14:12:14.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-08-08 14:12:14.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_7:
+  id: 7
+  attachment: banner_health.jpg
+  client_id: 8
+  status: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-08-08 14:12:24.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-08-08 14:12:24.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_8:
+  id: 8
+  attachment: banner_health.jpg
+  client_id: 18
+  status: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-08-08 14:13:10.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-08-08 14:13:10.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_9:
+  id: 9
+  attachment: banner_health.jpg
+  client_id: 19
+  status: 1
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-08-08 14:13:32.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-08-08 14:13:32.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_10:
+  id: 10
+  client_id: 45
+  status: 1
+  banner_color: "#ff0000"
+  font_color: "#00ff00"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-11-30 16:58:27.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-11-30 16:58:27.000000000 Z
+    zone: *2
+    time: *3
+
+---
+Icon_11:
+  id: 11
+  attachment: Fuse40.jpg
+  status: 1
+  banner_color: "#ff0000"
+  font_color: "#80ff00"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2018-11-30 17:05:24.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2018-11-30 17:05:45.000000000 Z
+    zone: *2
+    time: *3
+  client_admin_id: 17
+
+---
+Icon_12:
+  id: 12
+  status: 1
+  banner_color: "#80ff00"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-03-18 13:39:29.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-03-18 13:39:29.000000000 Z
+    zone: *2
+    time: *3
+  client_admin_id: 1
+
+---
+Icon_13:
+  id: 13
+  attachment: Logo-Yorktel-NO-Tagline-RGB.jpg
+  status: 1
+  banner_color: "#00ff00"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-03-18 13:39:57.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-06-18 20:32:24.000000000 Z
+    zone: *2
+    time: *3
+  client_admin_id: 2
+
+---
+Icon_14:
+  id: 14
+  attachment: Logo-Yorktel-NO-Tagline-RGB.jpg
+  client_id: 2
+  status: 1
+  banner_color: "#ff0000"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &1 2019-06-18 20:36:12.000000000 Z
+    zone: &2 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: *1
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: &3 2019-06-18 20:36:12.000000000 Z
+    zone: *2
+    time: *3
+

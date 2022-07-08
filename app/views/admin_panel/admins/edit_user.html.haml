@@ -1,0 +1,448 @@
+#sub_title
+  .leftside
+    %i.fa.fa-user.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside      
+    %h3 Edit #{@client_admin.email} 
+  .rightside.create_new_link
+    - if our_active_admin.is_not_read_only?
+      //=link_to "Log In As User", new_login_admin_panel_admin_path(:ni=>@client_admin.id), :class=>""
+      = form_tag edit_user_permissions_admin_panel_admin_path, :style => "display: inline;" do
+        = hidden_field_tag :admin_id, @client_admin.id 
+        //- if @customers.count > 0
+        = submit_tag "Edit Permissions", :class => "edit_permissions_link"  
+        - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+          &nbsp;|&nbsp;
+          =link_to "Delete User", "javascript:;", :class => "", :onclick => "open_admin_popup('delete_"+@client_admin.id.to_s+"','')"
+%br
+- @uhe_for_level = @client_admin.is_uhe_for_level?(our_active_admin)
+- @esitter_for_level = @client_admin.is_esitter_for_level?(our_active_admin)
+- @tech_for_level = @client_admin.is_tech_for_level?(our_active_admin)
+- @read_only = @client_admin.is_read_only?
+- @allow_demo = @client_admin.allow_demo > 0
+- @tech_approved = @client_admin.tech_approved > 0
+
+= hidden_field_tag :admin_id, @client_admin.id 
+
+
+= form_for :client_admin, :url => edit_user_admin_panel_admin_path, :html=>{:id=> ""} do |a|
+  = a.hidden_field :personalize_user, value: true
+  = hidden_field_tag :admin_id, @client_admin.id 
+
+
+  .col-md-12
+    .col-md-12.min_height
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          Personalize User  
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+          %div.endpoint_settings_widget_dimensions_actions
+            = form_for "" do |x|
+
+              %div.leftside
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %th.endpoint_setting_widget
+                      Email *
+                    %td.none.vertical_center
+                      .center
+                        - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+                          = a.text_field :email, :class => "input_endpoint_settings", :placeholder => 'Email', :maxlength => 200
+                        - else 
+                          = a.text_field :email, :class => "input_endpoint_settings", :placeholder => 'Email', :disabled => "disabled"
+                          
+                  %tr
+                    %th.endpoint_setting_widget
+                      Phone Number 
+                    %td.none.vertical_center
+                      .center
+                        - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+                          =  a.text_field :phone_number, :id=>"phone_number_1", :onblur=>"checkPhoneLength('phone_number_1')", :class=>'phone_number_field input_endpoint_settings'
+                        - else
+                          =  a.text_field :phone_number, :id=>"phone_number_1", :onblur=>"checkPhoneLength('phone_number_1')", :class=>'phone_number_field input_endpoint_settings', :disabled => "disabled"
+
+                        = hidden_field_tag("flag_1", "us", :id => "flag1_value_main")
+
+                  %tr
+                    %th.endpoint_setting_widget{:colspan=>2}
+                      Number Format: (555) 555-5555
+
+              %div.leftside
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %th.endpoint_setting_widget
+                      Prefix
+                    %td.none.vertical_center
+                      .center
+                        .dropdowns.endpoint_settings_caret.device_type
+                          %label
+                            - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+                              = a.select :prefix, options_for_select(User::USER_PREFIX_SELECT, @client_admin.prefix), {}, :class => "endpoint_setting_text_dropdown"
+                            - else
+                              = a.select :prefix, options_for_select(User::USER_PREFIX_SELECT, @client_admin.prefix), {}, :class => "endpoint_setting_text_dropdown", :disabled => "disabled"
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      First Name
+                    %td.none.vertical_center
+                      .center
+                        - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+                          = a.text_field :first_name, :class => "input_endpoint_settings", :placeholder => 'First name', :maxlength => 200
+                        - else
+                          = a.text_field :first_name, :class => "input_endpoint_settings", :placeholder => 'First name', :disabled => "disabled"
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      Last Name
+                    %td.none.vertical_center
+                      .center
+                        - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+                          = a.text_field :last_name, :class => "input_endpoint_settings", :placeholder => 'Last name', :maxlength => 200
+                        - else
+                          = a.text_field :last_name, :class => "input_endpoint_settings", :placeholder => 'Last name', :disabled => "disabled"
+
+
+
+
+              - if our_active_admin.is_not_read_only?
+                .widget_submit
+                  = button_to "Save", 'javascript:', :onclick=>"", :class=>'endpoint_setting_button'
+
+
+
+= form_for :client_admin, :url => edit_user_admin_panel_admin_path, :html=>{:id=> ""} do |b|
+  = b.hidden_field :customer_assignment, value: true
+  = hidden_field_tag :admin_id, @client_admin.id 
+
+  .col-md-12
+    .col-md-12.min_height
+      <!-- Widget -->
+      .widget
+        <!-- Widget head -->
+        .widget-head
+          Customer Assignment   
+          <div class="clearfix"></div>
+        <!-- Widget content -->
+        .widget-content
+
+          %div.endpoint_settings_widget_dimensions_actions
+            = form_for "" do |x|
+              %div.leftside
+                %table.endpoint_settings_table_dimensions.twox
+                  %tr
+                    %th.endpoint_setting_widget
+                      Channel *
+                    %td.none.vertical_center
+                      .center
+                        .dropdowns.endpoint_settings_caret.device_type
+                          %label
+                            - if our_active_admin.is_super_admin?
+                              = b.collection_select(:client_admin_id, ClientAdmin.active, :id, :name,  {:include_blank=>"All Channels"}, :onchange=>"checkCustomers(false,false,0,'All Customers')", :id=>"channelDropDown_0", :class => "endpoint_setting_text_dropdown")  
+                            - if our_active_admin.is_channel_admin?
+                              = b.collection_select(:client_admin_id, ClientAdmin.active.where('id = ?', our_active_admin.client_admin_id), :id, :name, {}, :onchange=>"checkCustomers(false,false,0,'All Customers')", :id=>"channelDropDown_0", :disabled=>@client_admin.is_super_admin? ? true : false, :class => "endpoint_setting_text_dropdown")  
+                            - if our_active_admin.is_customer_admin?
+                              = b.collection_select(:client_admin_id, ClientAdmin.active.where('id = ?', our_active_admin.client.client_admin.id), :id, :name, {},:onchange=>"checkCustomers(false,false,0,'All Customers')", :id=>"channelDropDown_0", :disabled => @client_admin.is_customer_admin? ? false : true ,:class => "endpoint_setting_text_dropdown")  
+
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      Customer * 
+                    %td.none.vertical_center
+                      .center
+                        .dropdowns.endpoint_settings_caret.device_type
+                          %label
+                            - if our_active_admin.is_super_admin?
+                              = b.collection_select(:client_id, Client.active.where('client_admin_id = ?', @client_admin.client_admin_id), :id, :client_name,  {:include_blank=>'All Customers'}, :onchange=>"checkAdminPermissions(0)", :id=> "customerDropDown_0", :class => "endpoint_setting_text_dropdown") 
+                            - elsif our_active_admin.is_channel_admin?
+                              = b.collection_select(:client_id, Client.active.where('client_admin_id = ?', @client_admin.client_admin_id), :id, :client_name,  {:include_blank=>'All Customers'}, :onchange=>"checkAdminPermissions(0)", :id=> "customerDropDown_0", :disabled=> @client_admin.is_super_admin? ? true: false, :class => "endpoint_setting_text_dropdown") 
+                            - else
+                              = b.collection_select(:client_id, Client.active.where('client_admin_id = ?', @client_admin.client_admin_id), :id, :client_name, {}, :onchange=>"checkAdminPermissions(0)", :id=> "customerDropDown_0", :disabled=>@client_admin.is_customer_admin? ? false : true, :class => "endpoint_setting_text_dropdown") 
+        
+                  %tr
+                    %th.endpoint_setting_widget
+                      Admin Level * 
+                    %td.none.vertical_center
+                      - if within_license_limit?('Admin') or @client_admin.has_admin_type?
+                        - case @client_admin.admin_type
+                          - when 'SUPER_ADMIN'
+                            - @options = {'None'=> 'NONE', 'Super Admin' => 'SUPER_ADMIN'}
+                          - when 'CHANNEL_ADMIN'
+                            - @options = {'None'=> 'NONE', 'Channel Admin' => 'CHANNEL_ADMIN'}
+                          - when 'CUSTOMER_ADMIN'
+                            - @options = {'None'=> 'NONE', 'Customer Admin' => 'CUSTOMER_ADMIN'}
+                          - else 
+                            - @options = {'None'=> 'NONE'}
+                        
+                        .center
+                          .dropdowns.endpoint_settings_caret.device_type
+                             
+                            - if (our_active_admin.is_channel_admin? and (@client_admin.is_super_admin?))  or ( our_active_admin.is_customer_admin? and (@client_admin.is_super_admin? or @client_admin.is_channel_admin?))
+                              %label{:id => "admin_level_caret_0"}
+                                = b.select :admin_level, options_for_select(@options, @client_admin.admin_type), {}, :id => "invite_admin_level_0", :disabled=>true, :class => "endpoint_setting_text_dropdown"
+                            - elsif our_active_admin.is_channel_admin?
+                              %label{:id => "admin_level_caret_0"}
+                                = b.select :admin_level, options_for_select(@options, @client_admin.admin_type), {}, :id => "invite_admin_level_0", :class => "endpoint_setting_text_dropdown"
+                            - elsif our_active_admin.is_super_admin?
+                              %label{:id => "admin_level_caret_0"}
+                                = b.select :admin_level, options_for_select(@options, @client_admin.admin_type), {}, :id => "invite_admin_level_0", :class => "endpoint_setting_text_dropdown"
+                            - elsif our_active_admin.is_customer_admin? 
+                              %label{:id => "admin_level_caret_0"}
+                                = b.select :admin_level, options_for_select(@options, @client_admin.admin_type), {}, :id => "invite_admin_level_0", :class => "endpoint_setting_text_dropdown"
+
+                      - else
+                        %p.admin_license_reached Admin license limit reached 
+                  :javascript
+                    if (document.getElementById("invite_admin_level_0").value == "NONE") { checkAdminPermissions(0); }
+                    
+              %div.leftside
+                %table.endpoint_settings_table_dimensions.twox
+                  = form_tag edit_user_permissions_admin_panel_admin_path, :id => "" do
+                    = hidden_field_tag :admin_id, @client_admin.id 
+                  = form_tag edit_user_permissions_admin_panel_admin_path, :id => 'access_permissions_', :class => '', :style => '' do
+                    = hidden_field_tag :admin_id, @client_admin.id 
+                    %tr
+                      %th.endpoint_setting_widget
+                        Clinician Access
+                      %td.none.vertical_center
+                        .center 
+                          //- if our_active_admin.is_customer_admin?                             
+                          //  - if @client_admin.is_uhe? and UsersToClient.find_by(:user_id=>@client_admin.mirror_user.id, :client_id => our_active_admin.client_id).present?
+                          //    %i.fa.fa-check 
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          //  - else
+                          //    %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}  
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          //- else
+                          //  - if @client_admin.is_uhe? and UsersToClient.find_by(:user_id=>@client_admin.mirror_user.id).present?
+                          //    %i.fa.fa-check 
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"
+                          //  - else
+                          //    %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"      
+                          - if @client_admin.is_uhe?
+                            %i.fa.fa-check 
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          - else
+                            %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}  
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"
+                    %tr
+                      %th.endpoint_setting_widget
+                        iObserver Access 
+                      %td.none.vertical_center
+                        .center
+                          //- if our_active_admin.is_customer_admin?                             
+                          //  - if @client_admin.is_esitter? and ObserversToClient.find_by(:admin_id=>@client_admin.id, :client_id => our_active_admin.client_id).present?
+                          //    %i.fa.fa-check 
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          //  - else
+                          //    %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}  
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          //- else
+                          //  - if @client_admin.is_esitter? and ObserversToClient.find_by(:admin_id=>@client_admin.id).present?
+                          //    %i.fa.fa-check
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link" 
+                          //  - else
+                          //    %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"    
+                          - if @client_admin.is_esitter?
+                            %i.fa.fa-check 
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          - else
+                            %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}  
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"
+
+                    %tr
+                      %th.endpoint_setting_widget
+                        Technician Access 
+                      %td.none.vertical_center
+                        .center
+                          //- if our_active_admin.is_customer_admin?                             
+                          //  - if @client_admin.is_tech? and AdminsToClient.find_by(:admin_id=>@client_admin.id, :client_id => our_active_admin.client.id).present?
+                          //    %i.fa.fa-check  
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"      
+                          //  - else
+                          //    %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}  
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"
+                          //- else
+                          //  - if @client_admin.is_tech? and AdminsToClient.find_by(:admin_id=>@client_admin.id).present?
+                          //    %i.fa.fa-check 
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"      
+                          //  - else
+                          //    %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}   
+                          //    - if our_active_admin.is_not_read_only?
+                          //      = submit_tag "Details", :class => "edit_permissions_link"
+                          - if @client_admin.is_tech?
+                            %i.fa.fa-check 
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          - else
+                            %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}  
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"
+                    %tr
+                      %th.endpoint_setting_widget
+                        Notification Portal Access 
+                      %td.none.vertical_center
+                        .center
+                          - if @client_admin.allow_notification_portal?
+                            %i.fa.fa-check 
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"                                                                      
+                          - else
+                            %i.fas.fa-times-circle{:style => "color: red; font-size: 16px;"}  
+                            - if our_active_admin.is_not_read_only?
+                              = submit_tag "Details", :class => "edit_permissions_link"
+                                    
+                  - if our_active_admin.is_super_admin?
+                    %tr
+                      %th.endpoint_setting_widget
+                        Is Tech Authorized 
+                      %td.none.vertical_center
+                        .center
+                          - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+                            = check_box_tag :tech_authorized, 1, @tech_approved , :class => 'checkbox'
+                          - else
+                            = check_box_tag :tech_authorized, 1, @tech_approved , :class => 'checkbox', :disabled => "disabled"
+                  %tr
+                    %th.endpoint_setting_widget
+                      Read Only  
+                    %td.none.vertical_center
+                      .center
+                        - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+                          =check_box_tag :read_only, 1, @read_only , :class => 'checkbox'
+                        - else
+                          =check_box_tag :read_only, 1, @read_only , :class => 'checkbox', :disabled => "disabled"
+                          
+                  - if Configurable.use_ldap.to_s == "1"
+                    %tr
+                      %th.endpoint_setting_widget
+                        Allow Local Database 
+                      %td.none.vertical_center
+                        .center
+                          =check_box_tag :allow_demo, 1, @allow_demo , :class => 'checkbox'
+
+          
+
+              - if our_active_admin.is_not_read_only?
+                .widget_submit
+                  = b.submit "Save", :onclick=>"", :class=>'endpoint_setting_button'
+    
+- if our_active_admin.is_not_read_only?
+  - if our_active_admin.is_super_admin? or (our_active_admin.is_channel_admin? and !@client_admin.is_super_admin?) or (our_active_admin.is_customer_admin? and @client_admin.is_customer_admin?)
+  
+    .col-md-12
+      .col-md-12.min_height
+        <!-- Widget -->
+        .widget
+          <!-- Widget head -->
+          .widget-head
+            Manage User  
+            <div class="clearfix"></div>
+          <!-- Widget content -->
+          .widget-content
+            #div.endpoint_settings_widget_dimensions_actions
+              #div.leftside
+                %table.endpoint_settings_table_dimensions.onex
+                  %tr
+                    %th.endpoint_setting_widget
+                      Change Password 
+                    %td.none.vertical_center
+                      .center
+                        //%button{:type => "button", :class => "endpoint_setting_button", :onclick => "open_admin_popup('edit_client_password_0','edit_client_0')", :style => "font-size: 11px;   border-radius: 5px; border-style: solid; border-width: 1px; border-color: #bec9cf !important; background-color: white; padding-left: 10px; color: #757575; margin: auto;"} Change
+                        = link_to "Change", "javascript:;", :class => "", :onclick => "open_admin_popup('edit_client_password_0','edit_client_0')", :style => "font-size: 12px;"
+                            
+                  %tr
+                    %th.endpoint_setting_widget
+                      Reset Password 
+                    %td.none.vertical_center
+                      .center
+                        //%button{:type => "button", :class => "endpoint_setting_button", :onclick => "open_admin_popup('reset_popup_0','edit_client_0')", :style => "font-size: 11px;   border-radius: 5px; border-style: solid; border-width: 1px; border-color: #bec9cf !important; background-color: white; padding-left: 10px; color: #757575; margin: auto;"}  Reset
+                        = link_to "Reset", "javascript:;", :class => "", :onclick => "open_admin_popup('reset_popup_0','edit_client_0')", :style => "font-size: 12px;"
+
+
+                  %tr
+                    %th.endpoint_setting_widget
+                      Log In As User 
+                    %td.none.vertical_center
+                      .center
+                        //%button{:type => "button", :class => "endpoint_setting_button", :onclick => "open_admin_popup('reset_popup_0','edit_client_0')", :style => "font-size: 11px;   border-radius: 5px; border-style: solid; border-width: 1px; border-color: #bec9cf !important; background-color: white; padding-left: 10px; color: #757575; margin: auto;"}  Reset
+                        = link_to "Login", new_login_admin_panel_admin_path(:ni=>@client_admin.id), :class=>"", :style => "font-size: 12px;"
+
+#popup_widget_surround
+  %div{:id=>'popup_widget_' + @client_admin.id.to_s, :class=>''}
+    .popup_widget.popup_ui{:id => "delete_" + @client_admin.id.to_s}
+      #uhe_admin_popup
+        %h2 Delete Admin
+        =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('delete_#{@client_admin.id.to_s}')" do 
+          <i class="far fa-times" aria-hidden="true"></i>
+                  
+        = form_tag cgas_admin_panel_admin_path, :class=>'' do 
+          .uhe_admin_popup_body.no_scroll  
+            .uhe_admin_popup_form   
+              %div
+                %p.entry_header
+                  Confirm Delete
+                .center
+                  = text_field_tag :delete_edittext, nil, placeholder: 'Type DELETE to Confirm', :class => "password_confirm",  :oninput => "check_delete_button_activation('#{@client_admin.id.to_s}')", :id => "delete_confirm_" + @client_admin.id.to_s
+                %p.entry_informational You are about to delete #{@client_admin.email}
+          - if our_active_admin.is_not_read_only?
+            .submit
+              .center
+                = hidden_field_tag :destroy, @client_admin.id 
+                = hidden_field_tag :client_admin_id, @client_admin.id 
+                = submit_tag "Delete", :class=> "inactive", :disabled => "disabled", :id => "delete_btn_" +@client_admin.id.to_s
+
+
+#popup_widget_surround
+  .popup_widget.popup_ui{:id => "reset_popup_0" }
+    #uhe_admin_popup
+      %h2 Reset Password 
+      =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('reset_popup_0')" do
+        <i class="far fa-times" aria-hidden="true"></i>
+      .uhe_admin_popup_body.no_scroll  
+        .uhe_admin_popup_form   
+          %p.entry_informational Are you sure you wish to send <b>#{@client_admin.email}</b> a reset password email?
+      .submit
+        .center
+          - if our_active_admin.is_not_read_only?
+            = link_to "Send Email", "javascript:;", :class=> "button", :onclick => "sendAdminResetPasswordEmail('#{@client_admin.to_json}', '#{0}', '/admin_panel/admin/send_reset/?client_id=')"
+
+
+
+#popup_widget_surround
+  .popup_widget.popup_ui{:id => "edit_client_password_0" }
+    #uhe_admin_popup
+      %h2 Change Password for #{@client_admin.email} 
+      =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('edit_client_password_0')" do
+        <i class="far fa-times" aria-hidden="true"></i>
+      =form_tag do 
+        .uhe_admin_popup_body.no_scroll  
+          .uhe_admin_popup_form    
+            %p.entry_header
+              New Password 
+            .center
+              = text_field_tag :new_password, '', :autocomplete => "off"
+              = hidden_field_tag :change_password, @client_admin.id
+              = hidden_field_tag :admin_id, @client_admin.id
+            .submit
+              .center
+                - if our_active_admin.is_not_read_only?
+                  = submit_tag "Update"

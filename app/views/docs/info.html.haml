@@ -1,0 +1,23 @@
+%div.docs_text.col-md-6
+  %h1 Basic HTTP Authentication 
+  %hr
+  %p Each post call to the API requires HTTP basic authentication name and password to be passed through the header.  This is application to all POST calls 
+  %hr
+  %p Your API client name and password is generated when you are provisioned within the Healthcare HE system.  You can retrieve your API login information under the #{link_to "API tab", admin_path} in your customer account. 
+  %hr
+  %p All API requests will be to the static domain path:  
+  %pre.notranslate.http-request https://healthcare.univago.com/api/ 
+  %br
+  %p POST Responses will be returned in JSON format
+
+
+
+%div.docs_code.col-md-4
+  %div.row-md-2
+    %span Example:
+    %span curl  -u Mm4cbQ:Tf0sTHtH_70  -H "Content-Type: application/json, Accept: application/json" 
+    %span Where:
+    %span "Mm4cbQ" = your api username 
+    %span "Tf0sTHtH_70" = your api password
+
+

@@ -1,0 +1,20 @@
+.joystick_pad{:role=>"application"}  
+  = image_tag('joystick_small_four_arrows.png', :id=>'joystick_pad', :draggable=>'false', :alt => "Foreign Camera Control Image")
+  = image_tag('joystick_hover_small.png', :id=>'joystick_pad_hover', :class=>'hidden',:draggable=>'false')
+  = image_tag('joystick_pressed_small.png', :id=>'joystick_pad_pressed', :class=>'hidden', :draggable=>'false')
+  
+  .pad_column 
+    %button{:style=> "", :tabIndex=>"-1", :disabled => "disabled"}
+    %button{:style=> "", :onmouseover=> "joystick_appearance_control('hover', 'up')", :onmouseout => "pan('stop'), joystick_appearance_control('', '')", :onmousedown => "pan('up'), joystick_appearance_control('press', 'up')", :onmouseup=>"pan('stop'), joystick_appearance_control('hover', 'up')", :onkeydown=> "joystick_keyboard_control('up')", :onkeyup=>"joystick_keyboard_control('stop')", :'aria-label'=>"Move camera up"}
+    %button{:style=> "", :tabIndex=>"-1", :disabled => "disabled"}
+
+  .pad_column 
+    %button{:style=> "", :onmouseover=> "joystick_appearance_control('hover', 'left')", :onmouseout => "pan('stop'), joystick_appearance_control('', '')", :onmousedown => "pan('left'), joystick_appearance_control('press', 'left')", :onmouseup=>"pan('stop'), joystick_appearance_control('hover', 'left')", :onkeydown=> "joystick_keyboard_control('left')", :onkeyup=>"joystick_keyboard_control('stop')", :'aria-label'=>"Move camera left"}
+    %button{:style=> "", :tabIndex=>"-1", :disabled => "disabled"}
+    %button{:style=> "", :onmouseover=> "joystick_appearance_control('hover', 'right')",  :onmouseout => "pan('stop'), joystick_appearance_control('', '')", :onmousedown => "pan('right'), joystick_appearance_control('press', 'right')", :onmouseup=>"pan('stop'), joystick_appearance_control('hover', 'right')", :onkeydown=> "joystick_keyboard_control('right')", :onkeyup=>"joystick_keyboard_control('stop')", :'aria-label'=>"Move camera right"}
+
+  .pad_column 
+    %button{:style=> "", :tabIndex=>"-1", :disabled => "disabled"}
+    %button{:style=> "", :onmouseover=> "joystick_appearance_control('hover', 'down')", :onmouseout => "pan('stop'), joystick_appearance_control('', '')", :onmousedown => "pan('down'), joystick_appearance_control('press', 'down')", :onmouseup=>"pan('stop'), joystick_appearance_control('hover', 'down')", :onkeydown=> "joystick_keyboard_control('down')", :onkeyup=>"joystick_keyboard_control('stop')",:'aria-label'=>"Move camera down"}
+    %button{:style=> "", :tabIndex=>"-1", :disabled => "disabled"}
+

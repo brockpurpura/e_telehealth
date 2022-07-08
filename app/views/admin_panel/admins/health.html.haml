@@ -1,0 +1,84 @@
+- content_for(:javascript_includes) do 
+  =javascript_include_tag "https://www.google.com/jsapi" 
+  =javascript_include_tag "live_charts"
+
+%div{:id=>'top'}
+%p#health_monitor_flag_admin.hidden 
+%p#health_monitor_freq.hidden #{Configurable.health_status_update_freq}
+%p#health_list_refresh_flag.hidden 
+%p#pie_animation_flag.hidden
+%p#static_ip_edit_flag.hidden
+%p#room_selected.hidden #{@room_selected}
+
+
+
+<!-- Dashboard Graph starts -->
+#sub_title
+  .leftside
+    %i.far.fa-chart-bar.fa-2x.dashboard_subheader_icon.dashboard_text_color
+  .leftside
+    %h3 Monitoring System
+    
+.col-md-12.min_height.height_25
+  .col-md-12
+    .hidden
+      %p#endpoint_search #{params[:search_endpoint_form].present? ? params[:search_endpoint_form][:search_endpoints] : ''}
+      %p#filter_channel #{params[:search_endpoint_form].present? ? params[:search_endpoint_form][:filter_channel] : ''}
+      %p#filter_customer #{params[:search_endpoint_form].present? ? params[:search_endpoint_form][:filter_customer] : ''}
+    .search_field  
+      .leftside
+        .search_icon
+          %span.far.fa-search
+      = form_for :search_endpoint_form, :url => health_admin_panel_admin_path, :html => {:id => "search_endpoint_form" } do |x|
+        .leftside
+          = x.text_field :search_endpoints, :id=>'search_endpoints', :placeholder=>'Search', :value => @search_value,  :class => "search_field_input"
+        #popup_widget_surround 
+          .popup_widget.popup_ui{:id => "filter_layout"}
+            #uhe_admin_popup
+              %h2 Filter 
+              =link_to "javascript:;", :class => "login_x rightside fade" , :onclick=>"close_admin_popup('filter_layout')" do
+                <i class="far fa-times" aria-hidden="true"></i>
+              .uhe_admin_popup_body.no_scroll  
+                .uhe_admin_popup_form    
+                  - if our_active_admin.is_super_admin?                
+                    %p.entry_header
+                      By Channel      
+                    .entry 
+                      .center
+                        .dropdowns
+                          %label
+                            = x.collection_select(:filter_channel,  ClientAdmin.active, :id, :name, { :multiple => true, :prompt => "None", :selected => @channel_value}, {})
+                  - if our_active_admin.is_channel_admin?                
+                    %p.entry_header
+                      By Customer      
+                    .entry 
+                      .center
+                        .dropdowns
+                          %label
+                            = x.collection_select(:filter_customer,  our_active_admin.client_admin.clients.active, :id, :client_name, { :multiple => true, :prompt => "None", :selected => @customer_value}, {})
+              .submit
+                .center 
+                  = x.submit "Apply", :class=> "button" 
+              .footer_link
+                .center
+                  = x.button "Reset Filter", :type =>  'submit', :name => 'reset_filter', :value => 'true', :class => "reset_filter_submit"
+
+        .leftside
+          .clear_search
+            =x.button "",  :type =>  'submit', :name => 'reset_search', :value => 'true', :class => "reset_filter_submit" do
+              %span.fal.fa-times
+        .leftside
+          .filter_link          
+            -if our_active_admin.is_super_admin? or our_active_admin.is_channel_admin?          
+              =link_to "Filter", "javascript:;", :class=>"", :onclick=>"open_admin_popup('filter_layout','')"
+          <div class="clearfix"></div>
+
+
+    
+  #monitor_list_partial
+    =render :partial => "admin_panel/admins/endpoints"   
+
+
+
+
+                  

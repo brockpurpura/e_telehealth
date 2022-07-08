@@ -1,0 +1,36 @@
+#account_sidebar.call_settings_view_surround.hidden
+  - if user_signed_in?
+    .call_settings_view
+      .c_settings
+        %h2 Account 
+        %label{:for=>"ut"} Title 
+        .dropdowns
+          %span
+            = select_tag :title, options_for_select(User::USER_PREFIX_SELECT, :selected => current_user.prefix), :id=>"ut", :oninput => "fadeIn(document.getElementById('save_account_btn'))"
+        
+        %label{:for=>"ufn"} First Name 
+        = text_field_tag :first_name, current_user.first_name, :id=>'ufn', :maxlength => 200, :oninput => "fadeIn(document.getElementById('save_account_btn'))"
+        
+        %label{:for=>"uln"} Last Name 
+        = text_field_tag :last_name, current_user.last_name, :id=>'uln', :maxlength => 200, :oninput => "fadeIn(document.getElementById('save_account_btn'))"
+       
+        %label{:for=>"udn"} Display Name
+        = text_field_tag :display_name, current_user.dr_name, :id=>'udn', :maxlength => 200, :oninput => "fadeIn(document.getElementById('save_account_btn'))"
+        
+        - if current_admin.present? && !(current_admin.migrated?)
+          %div
+            .leftside
+              =check_box_tag :text_flag, 1, current_user.text_flag == 1 ? true : false, :'aria-label'=>"Receive Notifications",  :onchange => "fadeIn(document.getElementById('save_account_btn'))"
+
+            .leftside
+              %label.receive_notifications{:for=>'text_flag', :class=>'checkbox_label'} Receive Notifications
+
+            %button.form_button.apply{:onclick=>"save_account()", :id => "save_account_btn", :class=>"hidden"}
+              Apply 
+        
+        .center
+          =link_to "Reset Password", edit_admin_registration_path, :class=>'blue_settings_link' 
+        .close_button_wrapper
+          %button.form_button{:onclick=>"close_c_sidebar()"}
+            Close           
+

@@ -1,0 +1,41 @@
+Room_1:
+  id: 1
+  building_id: 1
+  name: Eatontown
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Room_2:
+  id: 2
+  building_id: 1
+  name: 10A
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Room_3:
+  id: 3
+  building_id: 3
+  name: CTC - Bryan Health
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Room_4:
+  id: 4
+  building_id: 4
+  name: Common Room Name
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Room_5:
+  id: 5
+  building_id: 5
+  name: Common Room Name
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
+
+Room_6:
+  id: 6
+  building_id: 7
+  name: Eatontown
+  created_at: <%= Time.now.to_date %>
+  updated_at: <%= Time.now.to_date %>
